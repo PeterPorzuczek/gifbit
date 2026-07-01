@@ -1,0 +1,2056 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GIFbit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  /* Layout: full-bleed stage for the TV; all settings live in one console card floating over it */
+  --ink:#0f0c15;
+  --panel:#18141f;
+  --well:#211b2b;
+  --line:#342c41;
+  --text:#f3eff8;
+  --muted:#a59cb3;
+  --accent:#ff6b3d;
+  --accent-ink:#1d0b04;
+  --signal:#6ff0ac;
+  --bad:#ff6a85;
+  --f-display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--text);font:15px/1.5 var(--f-body);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0;overflow:hidden;background:var(--bgc,#140f1c)}
+#bgimg{position:absolute;inset:0;background-color:var(--bgc,#140f1c);background-position:center;background-size:cover;background-repeat:no-repeat}
+#layer.tinted,#bgimg.tinted{filter:url(#tint-f)}
+#shade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+/* hard cuts: a new animation is fully there on its first frame; the bounce is a separate spring
+   (script sets transform on #layer and on the newest .g every frame, GPU only) */
+#layer{position:absolute;inset:0;z-index:1;will-change:transform}
+.g{position:absolute;will-change:transform}
+.g img{display:block;width:100%;height:100%;object-fit:cover}
+.g.card img{border-radius:6px;box-shadow:0 14px 44px rgba(0,0,0,.5)}
+.g.sticker img{object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.45))}
+.g.single{inset:0}
+.g.single img{object-fit:contain;border-radius:0;box-shadow:none}
+#attrib{position:absolute;z-index:2;right:max(14px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));margin:0;font:500 11px/1 var(--f-mono);letter-spacing:.06em;color:#fff;opacity:.55;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+
+/* ---------- floating controls ---------- */
+#ctrl{position:fixed;z-index:10;top:max(14px,env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));display:flex;gap:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+body.running.awake #ctrl{opacity:1;pointer-events:auto}
+body.running:not(.awake) #stage{cursor:none}
+.chip{background:rgba(15,12,21,.8);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;backdrop-filter:blur(6px)}
+.chip:hover{border-color:var(--muted)}
+#hud{position:fixed;z-index:10;left:max(14px,env(safe-area-inset-left,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 28px));background:rgba(15,12,21,.8);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;backdrop-filter:blur(6px)}
+#hud p{margin:0;font:12px/1.45 var(--f-mono);color:var(--muted)}
+#toast{position:fixed;z-index:40;left:50%;bottom:max(28px,env(safe-area-inset-bottom,0px));translate:-50% 12px;max-width:min(560px,calc(100vw - 32px));background:var(--text);color:var(--ink);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,translate .2s}
+#toast.show{opacity:1;translate:-50% 0}
+
+/* ---------- settings console ---------- */
+#setup{position:fixed;inset:0;z-index:30;overflow-y:auto;background:rgba(12,9,17,.66);backdrop-filter:blur(5px);display:flex;justify-content:center;align-items:flex-start;padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.console{width:100%;max-width:640px;margin-block:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(20px,4vw,32px);display:grid;gap:24px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.console header{display:grid;gap:10px}
+h1{margin:0;font:800 clamp(42px,8vw,58px)/.9 var(--f-display);letter-spacing:-.035em;display:flex;align-items:flex-start;gap:6px}
+.dot{flex:none;width:.22em;height:.22em;border-radius:50%;background:var(--accent);margin-top:.06em;transition:background .06s,box-shadow .06s}
+body.hit .dot{background:var(--signal);box-shadow:0 0 18px var(--signal)}
+.lede{margin:0;color:var(--muted);max-width:54ch;text-wrap:pretty}
+.group{display:grid;gap:18px;padding-top:22px;border-top:1px solid var(--line)}
+.group h2{margin:0;font:700 13px/1 var(--f-display);text-transform:uppercase;letter-spacing:.14em;color:var(--accent)}
+.field{display:grid;gap:8px;min-width:0;border:0;margin:0;padding:0}
+.field>label,.lab,legend{font:600 12px/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0}
+legend{margin-bottom:8px}
+.hint{margin:0;font-size:13px;color:var(--muted);text-wrap:pretty}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+input[type=text],textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
+input[type=text]:focus,textarea:focus{border-color:var(--accent)}
+#key{font-family:var(--f-mono);font-size:14px}
+textarea{resize:vertical;min-height:76px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.rangehead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+output{font:500 13px var(--f-mono);color:var(--text);font-variant-numeric:tabular-nums}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--well);border:1px solid var(--line);border-radius:10px;padding:4px}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.seg label{flex:1 1 auto;text-align:center;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap}
+.seg label:hover{color:var(--text)}
+.seg input:checked+label{background:var(--text);color:var(--ink)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:500}
+.check input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.bgrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=color]{width:48px;height:40px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--well);cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--well);border-radius:9px;padding:9px 14px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.meter{position:relative;height:12px;background:var(--well);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.meter .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--muted)}
+.meter .thr{position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--accent)}
+body.hit .meter .fill{background:var(--signal)}
+details{font-size:14px;color:var(--muted)}
+summary{cursor:pointer;color:var(--text);font-weight:600;width:fit-content}
+details ol{margin:10px 0 8px;padding-left:20px;display:grid;gap:4px}
+details p{margin:0}
+.err{margin:0;padding:12px 14px;border:1px solid var(--bad);border-radius:10px;background:rgba(255,106,133,.1)}
+.actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.primary{background:var(--accent);color:var(--accent-ink);border:0;border-radius:11px;padding:14px 28px;font:800 17px/1 var(--f-display);letter-spacing:-.01em;cursor:pointer}
+.primary:hover{filter:brightness(1.07)}
+.primary:disabled{opacity:.6;cursor:progress}
+.ghost{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 2px;font-weight:600}
+.ghost:hover{color:var(--text)}
+#status{margin:0;font:13px/1.4 var(--f-mono);color:var(--muted)}
+#status:empty{display:none}
+.foot{margin:0;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--text)}
+.curate{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.subgroup{display:grid;gap:18px}
+
+/* ---------- saved sets ---------- */
+.setlist{display:grid;gap:8px}
+.setlist:empty{display:none}
+.setrow{position:relative;display:flex;align-items:center;gap:8px 10px;background:var(--well);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.setrow input[type=radio]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.setrow label{flex:1;min-width:0;display:flex;align-items:center;gap:12px;cursor:pointer}
+.setrow:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.setrow input:focus-visible+label{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+.setthumbs{display:flex;gap:3px;flex:none}
+.setthumbs img{width:34px;height:34px;object-fit:cover;border-radius:5px;background:var(--panel)}
+.settxt{display:grid;min-width:0}
+.settxt b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.settxt span{font:12px/1.4 var(--f-mono);color:var(--muted)}
+.btn.sm{flex:none;padding:6px 10px;font-size:13px}
+.btn.warn{border-color:var(--bad);color:var(--bad)}
+@media (max-width:520px){.setrow{flex-wrap:wrap}.setthumbs{display:none}}
+.saveset{display:flex;flex-wrap:wrap;gap:8px}
+.saveset input{width:220px;max-width:100%}
+
+/* ---------- curator: two buckets of animations ---------- */
+#curator{position:fixed;inset:0;z-index:35;background:var(--ink);display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:14px;padding-block:max(18px,env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.cur-head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.cur-head h2{margin:0;font:800 30px/1 var(--f-display);letter-spacing:-.025em}
+.cur-head p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:60ch}
+.cur-head .primary{padding:12px 24px;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
+.fchip span{font:500 12px var(--f-mono);margin-left:6px;opacity:.75}
+.fchip:hover{color:var(--text)}
+.fchip[aria-pressed="true"]{background:var(--text);color:var(--ink);border-color:var(--text)}
+.buckets{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:0}
+.bucket{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;transition:border-color .12s,box-shadow .12s}
+.bucket.over{border-color:var(--signal);box-shadow:inset 0 0 0 1px var(--signal)}
+.bhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.bhead h3{margin:0;font:700 16px/1.2 var(--f-display)}
+.count{font:500 13px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.bhead .btn{padding:6px 10px;font-size:13px}
+.bactions{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.menuwrap{position:relative}
+.menu{position:absolute;z-index:5;top:calc(100% + 6px);left:0;width:max-content;min-width:240px;max-width:min(320px,80vw);max-height:320px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:6px;display:grid;gap:2px}
+.menu button{display:flex;justify-content:space-between;align-items:baseline;gap:14px;text-align:left;background:none;border:0;border-radius:7px;padding:8px 10px;cursor:pointer;color:var(--text)}
+.menu button:hover,.menu button:focus-visible{background:var(--well)}
+.menu button b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu button span{flex:none;font:12px var(--f-mono);color:var(--muted)}
+.menu .fromfile{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 7px 7px;color:var(--muted);font-weight:600}
+.menu p{margin:0;padding:8px 10px;color:var(--muted);font-size:13px}
+/* masonry: each preview keeps its own proportions, nothing is cropped */
+.scroll{overflow-y:auto;padding:12px;min-height:0;border-radius:0 0 13px 13px}
+.tiles{columns:var(--tile,240px);column-gap:10px}
+.tile{position:relative;display:block;width:100%;max-width:100%;margin:0 0 10px;break-inside:avoid;border:0;padding:0;border-radius:8px;overflow:hidden;background:var(--well);cursor:grab}
+.tile img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.tile.sticker img{padding:8px}
+.sizer{display:flex;align-items:center;gap:10px;font:600 12px/1 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.sizer input{width:160px}
+.cur-actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px}
+.tile::after{position:absolute;right:6px;bottom:6px;width:26px;height:26px;border-radius:50%;background:rgba(15,12,21,.88);color:var(--text);display:grid;place-items:center;font:600 14px/1 var(--f-body);opacity:0;transition:opacity .12s}
+#in-tiles .tile::after{content:"→"}
+#out-tiles .tile::after{content:"←"}
+.tile:hover::after,.tile:focus-visible::after{opacity:1}
+#out-tiles .tile img{filter:grayscale(.75) brightness(.65)}
+#out-tiles .tile:hover img,#out-tiles .tile:focus-visible img{filter:none}
+.tile.dragging{opacity:.35}
+.empty{margin:24px 8px;color:var(--muted);font-size:14px;text-align:center;text-wrap:pretty}
+@media (max-width:720px){
+  .buckets{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  #in-tiles .tile::after{content:"↓"}
+  #out-tiles .tile::after{content:"↑"}
+}
+/* ---------- tempo ---------- */
+.bpmrow{display:flex;gap:8px}
+#bpm{font-family:var(--f-mono);font-variant-numeric:tabular-nums;width:120px}
+input[type=number]{background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
+input[type=number]:focus{border-color:var(--accent)}
+#tap{min-width:132px;font-variant-numeric:tabular-nums}
+.leadrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.leadrow input[type=range]{flex:1 1 220px;width:auto}
+.tempo{margin:0;font:500 13px/1.4 var(--f-mono);color:var(--text);font-variant-numeric:tabular-nums}
+.tempo:empty{display:none}
+
+/* ---------- latency calibration ---------- */
+#cal{position:fixed;inset:0;z-index:38;background:var(--ink);display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center;gap:20px;padding-block:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.cal-stage{display:grid;place-items:center;gap:18px;min-height:0;width:100%}
+.cal-ring{width:min(46vh,70vw);aspect-ratio:1;max-width:100%;border-radius:50%;border:6px solid var(--line);display:grid;place-items:center;font:800 clamp(48px,12vh,120px)/1 var(--f-display);color:var(--muted);will-change:transform}
+.cal-ring.on{background:var(--text);border-color:var(--text);color:var(--ink)}
+.cal-mic{display:flex;align-items:center;gap:10px;font:500 14px var(--f-mono);color:var(--muted)}
+.cal-mic i{width:16px;height:16px;border-radius:50%;background:var(--line)}
+.cal-mic i.on{background:var(--signal);box-shadow:0 0 14px var(--signal)}
+.cal-panel{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:12px}
+.cal-panel h2{margin:0;font:800 24px/1.1 var(--f-display);letter-spacing:-.02em}
+.cal-panel p{margin:0}
+.cal-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.cal-actions .primary{padding:12px 24px;font-size:16px}
+/* ---------- live color panel on the stage ---------- */
+#tint{position:fixed;z-index:12;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100vw - 28px));max-height:calc(100% - 110px);overflow-y:auto;background:rgba(15,12,21,.86);border:1px solid var(--line);border-radius:12px;padding:12px 14px 14px;display:grid;gap:10px;backdrop-filter:blur(8px);font-size:13px}
+body:not(.running) #tint{display:none}
+.t-head{display:flex;align-items:center;gap:10px}
+.t-head b{font:700 15px/1 var(--f-display);margin-right:auto}
+.t-swatch{width:18px;height:18px;border-radius:50%;background:var(--tc,#888);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.t-switch,.t-check{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);font-weight:600}
+.t-switch input,.t-check input{margin:0;width:16px;height:16px;accent-color:var(--accent)}
+.t-x{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;padding:0 2px;cursor:pointer}
+.t-x:hover{color:var(--text)}
+.t-dots{display:flex;flex-wrap:wrap;gap:6px}
+.t-dots button{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0;cursor:pointer;background:var(--dc);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.t-dots button:hover{border-color:var(--muted)}
+.t-dots button[aria-pressed="true"]{border-color:var(--text)}
+.t-row{display:grid;gap:4px}
+.t-lab{display:flex;justify-content:space-between;color:var(--muted);font-weight:600}
+.t-lab output{font:500 12px var(--f-mono);color:var(--text)}
+#tint input[type=range]{width:100%;margin:0;accent-color:var(--accent)}
+#tint input.t-hue,#tint input.t-sat{-webkit-appearance:none;appearance:none;height:14px;border-radius:7px;background:transparent;cursor:pointer}
+#tint .t-hue::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#f33,#fd3,#3e5,#3ee,#36f,#d3f,#f33)}
+#tint .t-hue::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#f33,#fd3,#3e5,#3ee,#36f,#d3f,#f33)}
+#tint .t-sat::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#eee,var(--tc,#888))}
+#tint .t-sat::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#eee,var(--tc,#888))}
+#tint .t-hue::-webkit-slider-thumb,#tint .t-sat::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-3px;border-radius:50%;background:#fff;border:2px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.6)}
+#tint .t-hue::-moz-range-thumb,#tint .t-sat::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+.t-hint{margin:0;color:var(--muted);font-size:12px}
+#tint.off>.t-row,#tint.off>.t-dots{opacity:.45}
+.t-sec{border-top:1px solid var(--line);padding-top:10px}
+.t-sec summary{cursor:pointer;font:700 13px/1.2 var(--f-display);letter-spacing:.02em;color:var(--text);width:fit-content}
+.t-sec summary::marker{color:var(--muted)}
+.t-body{display:grid;gap:10px;margin-top:10px}
+.a-dots button{opacity:.32}
+.a-dots button[aria-pressed="true"]{opacity:1;border-color:var(--text)}
+.a-dots button.now{box-shadow:0 0 0 2px var(--accent)}
+.t-seg{display:flex;gap:3px;background:var(--well);border:1px solid var(--line);border-radius:8px;padding:3px}
+.t-seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.t-seg label{flex:1;text-align:center;padding:5px 6px;border-radius:5px;cursor:pointer;color:var(--muted);font-weight:600;font-size:12px;white-space:nowrap}
+.t-seg input:checked+label{background:var(--text);color:var(--ink)}
+.t-seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
+#t-hue-row.auto{opacity:.55}
+.t-bgrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.t-bgrow input[type=color]{width:40px;height:30px;padding:2px;border:1px solid var(--line);border-radius:7px;background:var(--well);cursor:pointer}
+.t-btn{border:1px solid var(--line);background:var(--well);border-radius:7px;padding:5px 10px;font-weight:600;font-size:12px;cursor:pointer;color:var(--text)}
+.t-btn:hover{border-color:var(--muted)}
+@media (prefers-reduced-motion:reduce){#toast,#ctrl{transition:none}}
+</style>
+</head>
+<body>
+
+<main id="stage" aria-label="Animation screen">
+  <div id="bgimg"></div>
+  <div id="shade"></div>
+  <div id="layer"></div>
+  <p id="attrib">Powered by GIPHY</p>
+</main>
+
+<div id="ctrl">
+  <button type="button" class="chip" id="b-tint" aria-controls="tint" aria-expanded="false">Color</button>
+  <button type="button" class="chip" id="b-settings">Settings</button>
+  <button type="button" class="chip" id="b-full">Full screen</button>
+</div>
+
+<!-- one color matrix for every animation: mix of the original and a one-color version, then brightness and contrast -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="tint-f" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+    <feColorMatrix id="tint-m" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+  </filter>
+</svg>
+
+<aside id="tint" aria-label="Animation color" hidden>
+  <div class="t-head">
+    <span class="t-swatch" id="t-swatch" aria-hidden="true"></span>
+    <b>Color</b>
+    <label class="t-switch"><input type="checkbox" id="t-on"> On</label>
+    <button type="button" class="t-x" id="t-hide" aria-label="Hide color panel">×</button>
+  </div>
+  <div class="t-dots" role="group" aria-label="Quick colors" id="t-dots"></div>
+  <div class="t-row">
+    <div class="t-lab"><label for="t-m">Strength</label><output id="t-mv" for="t-m">100%</output></div>
+    <input type="range" id="t-m" min="0" max="100" step="1">
+  </div>
+  <div class="t-row" id="t-hue-row">
+    <div class="t-lab"><label for="t-h">Hue</label><output id="t-hv" for="t-h">220°</output></div>
+    <input type="range" id="t-h" class="t-hue" min="0" max="359" step="1">
+  </div>
+  <div class="t-row">
+    <div class="t-lab"><label for="t-s">Saturation</label><output id="t-sv" for="t-s">70%</output></div>
+    <input type="range" id="t-s" class="t-sat" min="0" max="100" step="1">
+  </div>
+  <div class="t-row">
+    <div class="t-lab"><label for="t-b">Brightness</label><output id="t-bv" for="t-b">100%</output></div>
+    <input type="range" id="t-b" min="30" max="130" step="1">
+  </div>
+  <div class="t-row">
+    <div class="t-lab"><label for="t-c">Contrast</label><output id="t-cv" for="t-c">100%</output></div>
+    <input type="range" id="t-c" min="40" max="150" step="1">
+  </div>
+
+  <details class="t-sec" id="t-sec-auto">
+    <summary>Automatic change</summary>
+    <div class="t-body">
+      <label class="t-check"><input type="checkbox" id="a-on"> Change color automatically</label>
+      <div class="t-dots a-dots" role="group" aria-label="Colors to cycle through" id="a-dots"></div>
+      <div class="t-seg" role="radiogroup" aria-label="When to change">
+        <input type="radio" name="a-mode" id="a-mode-time" value="time"><label for="a-mode-time">By time</label>
+        <input type="radio" name="a-mode" id="a-mode-beats" value="beats"><label for="a-mode-beats">By hits</label>
+      </div>
+      <div class="t-row" id="a-timerow">
+        <div class="t-lab"><label for="a-sec">Every</label><output id="a-secv" for="a-sec">4 s</output></div>
+        <input type="range" id="a-sec" min="0.5" max="30" step="0.5">
+      </div>
+      <div class="t-row" id="a-beatrow">
+        <div class="t-lab"><span>Every N hits</span><output id="a-beatsv"></output></div>
+        <div class="t-seg" role="radiogroup" aria-label="Every N hits">
+          <input type="radio" name="a-beats" id="a-b1" value="1"><label for="a-b1">1</label>
+          <input type="radio" name="a-beats" id="a-b2" value="2"><label for="a-b2">2</label>
+          <input type="radio" name="a-beats" id="a-b4" value="4"><label for="a-b4">4</label>
+          <input type="radio" name="a-beats" id="a-b8" value="8"><label for="a-b8">8</label>
+          <input type="radio" name="a-beats" id="a-b16" value="16"><label for="a-b16">16</label>
+        </div>
+      </div>
+      <div class="t-row">
+        <div class="t-lab"><label for="a-smooth">Smoothness</label><output id="a-smoothv" for="a-smooth">50%</output></div>
+        <input type="range" id="a-smooth" min="0" max="100" step="5">
+      </div>
+      <p class="t-hint">0% is a cut, 100% is a continuous blend. The other sliders keep working.</p>
+    </div>
+  </details>
+
+  <details class="t-sec" id="t-sec-bg">
+    <summary>Background</summary>
+    <div class="t-body">
+      <div class="t-bgrow">
+        <input type="color" id="t-bgc" aria-label="Background color">
+        <button type="button" class="t-btn" id="t-bgpick">Image</button>
+        <button type="button" class="t-btn" id="t-bgclear" hidden>Remove image</button>
+      </div>
+      <div class="t-row">
+        <div class="t-lab"><label for="t-dim">Dimming</label><output id="t-dimv" for="t-dim">0%</output></div>
+        <input type="range" id="t-dim" min="0" max="80" step="5">
+      </div>
+      <label class="t-check"><input type="checkbox" id="t-bg"> Tint the background too</label>
+    </div>
+  </details>
+  <p class="t-hint">K shows and hides the panel. The settings stay on when the panel is hidden.</p>
+</aside>
+
+<div id="hud" hidden>
+  <div class="meter"><div class="fill"></div><div class="thr"></div></div>
+  <p class="tempo"></p>
+  <p>Space: manual hit · T: tap tempo · K: color panel · C: clear · H: hide meter · F: full screen · Esc: settings</p>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<section id="cal" aria-label="Latency calibration" hidden>
+  <div class="cal-stage">
+    <div class="cal-ring" id="cal-ring" aria-hidden="true">–</div>
+    <div class="cal-mic"><i id="cal-mic"></i>microphone hears a hit</div>
+  </div>
+  <div class="cal-panel">
+    <h2>Latency calibration</h2>
+    <p>Play a steady kick on every quarter note on your sampler at <b id="cal-bpm">–</b> BPM and watch the TV. The circle flashes where the app predicts the hit. Move the slider until the flash lands exactly with the kick.</p>
+    <div class="field">
+      <div class="rangehead"><label class="lab" for="cal-lead">Lead</label><output id="cal-leadv" for="cal-lead">80 ms</output></div>
+      <input type="range" id="cal-lead" min="0" max="250" step="5">
+      <p class="hint">Flash after the kick: increase. Flash before the kick: decrease. The ← → arrows change it by 5 ms. The green dot shows when a hit reaches the app without prediction.</p>
+    </div>
+    <div class="cal-actions">
+      <p class="tempo" id="cal-status"></p>
+      <button type="button" class="primary" id="cal-done">Done</button>
+    </div>
+  </div>
+</section>
+
+<section id="setup" aria-label="Settings">
+<form class="console" id="form" novalidate autocomplete="off">
+  <header>
+    <h1>GIFbit<span class="dot" aria-hidden="true"></span></h1>
+    <p class="lede">The microphone listens to the music, and every hit drops a random Giphy animation matching your keywords onto the screen.</p>
+  </header>
+
+  <div class="group">
+    <h2>Source</h2>
+    <fieldset class="field">
+      <legend>Where animations come from</legend>
+      <div class="seg">
+        <input type="radio" name="source" id="source-words" value="words"><label for="source-words">Giphy keywords</label>
+        <input type="radio" name="source" id="source-set" value="set"><label for="source-set">Saved set</label>
+      </div>
+    </fieldset>
+    <div class="subgroup" id="src-words">
+    <div class="field">
+      <label for="key">Giphy API key</label>
+      <input id="key" type="text" spellcheck="false" placeholder="Paste your key">
+      <details>
+        <summary>How to get a key</summary>
+        <ol>
+          <li>Go to <a href="https://developers.giphy.com/dashboard/" target="_blank" rel="noopener">developers.giphy.com</a> and create an account.</li>
+          <li>Click <b>Create an App</b> and choose <b>API</b>, not SDK.</li>
+          <li>Enter any name and description, then copy the key here.</li>
+        </ol>
+        <p>A free key allows 100 requests per hour. The page uses one request per keyword when it starts, then picks from what it has already loaded.</p>
+      </details>
+    </div>
+    <div class="field">
+      <label for="words">Keywords</label>
+      <textarea id="words" rows="3" spellcheck="false" placeholder="e.g. dance, wow, explosion, neon"></textarea>
+      <p class="hint">Separate with commas, up to 10. English words return the most results.</p>
+    </div>
+    <div class="row2">
+      <fieldset class="field">
+        <legend>Animation type</legend>
+        <div class="seg">
+          <input type="radio" name="type" id="type-gifs" value="gifs"><label for="type-gifs">GIFs</label>
+          <input type="radio" name="type" id="type-stickers" value="stickers"><label for="type-stickers">Stickers</label>
+          <input type="radio" name="type" id="type-both" value="both"><label for="type-both">Both</label>
+        </div>
+        <p class="hint">Stickers have a transparent background, so your background shows through. “Both” uses two requests per keyword.</p>
+      </fieldset>
+      <div class="field">
+        <span class="lab">Content</span>
+        <label class="check"><input type="checkbox" id="safe"> No explicit content</label>
+        <p class="hint">Giphy PG-13 filter. Uncheck it to allow everything.</p>
+      </div>
+    </div>
+    </div>
+    <div class="subgroup" id="src-set">
+      <div class="field">
+        <span class="lab">Your sets</span>
+        <div class="setlist" id="setlist"></div>
+        <p class="hint" id="sets-empty">You have no sets yet. Load animations from keywords, review them and click “Save as set”, or import a file.</p>
+        <div class="curate">
+          <button type="button" class="btn" id="sets-import">Import from file</button>
+          <button type="button" class="btn" id="sets-exportall">Export all</button>
+          <input type="file" id="sets-file" accept=".json,application/json" multiple hidden>
+        </div>
+        <p class="hint">A set works without a key and uses no Giphy requests. The JSON file holds links to the animations, so you can move it to another computer or send it to someone.</p>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lab">Animation picker</span>
+      <div class="curate">
+        <button type="button" class="btn" id="b-curate">Review animations</button>
+        <p class="hint" id="curnote">Put aside the ones you don't want on screen, and save the result as a set.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Rhythm</h2>
+    <div class="row2">
+      <fieldset class="field">
+        <legend>React to</legend>
+        <div class="seg">
+          <input type="radio" name="band" id="band-bass" value="bass"><label for="band-bass">Kick</label>
+          <input type="radio" name="band" id="band-mid" value="mid"><label for="band-mid">Snare</label>
+          <input type="radio" name="band" id="band-full" value="full"><label for="band-full">Everything</label>
+        </div>
+      </fieldset>
+      <fieldset class="field">
+        <legend>Change every N hits</legend>
+        <div class="seg">
+          <input type="radio" name="every" id="every-1" value="1"><label for="every-1">1</label>
+          <input type="radio" name="every" id="every-2" value="2"><label for="every-2">2</label>
+          <input type="radio" name="every" id="every-4" value="4"><label for="every-4">4</label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="field">
+      <div class="rangehead"><label class="lab" for="sens">Sensitivity</label><output id="sensv" for="sens">6</output></div>
+      <input type="range" id="sens" min="1" max="10" step="1">
+      <p class="hint">Catching too much? Lower it. Missing hits? Raise it.</p>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="bpm">Tempo (BPM)</label>
+        <div class="bpmrow">
+          <input id="bpm" type="number" inputmode="decimal" min="50" max="220" step="0.5" placeholder="none">
+          <button type="button" class="btn" id="tap">Tap</button>
+        </div>
+        <p class="hint">Optional. With a tempo, GIFs still jump on every hit, but whatever repeats is predicted and shown with no delay. Juggling and fills are caught live.</p>
+      </div>
+      <fieldset class="field" id="limitfield">
+        <legend>Fastest GIF change</legend>
+        <div class="seg">
+          <input type="radio" name="limit" id="limit-32" value="32"><label for="limit-32">1/32</label>
+          <input type="radio" name="limit" id="limit-16" value="16"><label for="limit-16">1/16</label>
+          <input type="radio" name="limit" id="limit-8" value="8"><label for="limit-8">1/8</label>
+          <input type="radio" name="limit" id="limit-4" value="4"><label for="limit-4">1/4</label>
+        </div>
+        <p class="hint">Faster hits, like rolls, still bounce but don't change the animation. Less chaos.</p>
+      </fieldset>
+    </div>
+    <div class="field" id="leadfield">
+      <div class="rangehead"><label class="lab" for="lead">Picture lead</label><output id="leadv" for="lead">80 ms</output></div>
+      <div class="leadrow">
+        <input type="range" id="lead" min="0" max="250" step="5">
+        <button type="button" class="btn" id="b-cal">Calibrate</button>
+      </div>
+      <p class="hint">How much earlier predicted hits are shown so they land on the sound on the TV. Set it in calibration. Turn on the TV's game mode (Game / PC), it usually cuts the delay by 50–100 ms.</p>
+    </div>
+    <div class="field" id="microw" hidden>
+      <span class="lab">Live microphone</span>
+      <div class="meter"><div class="fill"></div><div class="thr"></div></div>
+      <p class="tempo"></p>
+      <p class="hint">The bar shows the level in the chosen band and flashes green on every detected hit. The orange line is the quietest level that still counts.</p>
+    </div>
+    <p class="hint" id="micnote">The microphone meter appears after you start. Play through a speaker, because the microphone can't hear headphones.</p>
+  </div>
+
+  <div class="group">
+    <h2>Screen</h2>
+    <div class="row2">
+      <fieldset class="field">
+        <legend>Layout</legend>
+        <div class="seg">
+          <input type="radio" name="mode" id="mode-collage" value="collage"><label for="mode-collage">Collage</label>
+          <input type="radio" name="mode" id="mode-single" value="single"><label for="mode-single">One at a time</label>
+        </div>
+      </fieldset>
+      <div class="field" id="maxfield">
+        <div class="rangehead"><label class="lab" for="max">How many on screen</label><output id="maxv" for="max">5</output></div>
+        <input type="range" id="max" min="1" max="12" step="1">
+      </div>
+    </div>
+    <fieldset class="field">
+      <legend>Order</legend>
+      <div class="seg">
+        <input type="radio" name="order" id="order-random" value="random"><label for="order-random">Random</label>
+        <input type="radio" name="order" id="order-seq" value="seq"><label for="order-seq">In order</label>
+      </div>
+      <p class="hint">“In order” plays in the order of the “On screen” column. Set a new order with “Shuffle” in the animation review.</p>
+    </fieldset>
+    <div class="field">
+      <span class="lab">Background</span>
+      <div class="bgrow">
+        <input type="color" id="bg" aria-label="Background color">
+        <button type="button" class="btn" id="bgpick">Choose image</button>
+        <button type="button" class="btn" id="bgclear" hidden>Remove image</button>
+        <input type="file" id="bgfile" accept="image/*" hidden>
+      </div>
+      <p class="hint">A color or an image: a photo, your artwork, even a GIF.</p>
+    </div>
+    <div class="field">
+      <div class="rangehead"><label class="lab" for="dim">Background dimming</label><output id="dimv" for="dim">0%</output></div>
+      <input type="range" id="dim" min="0" max="80" step="5">
+    </div>
+    <div class="field">
+      <div class="rangehead"><label class="lab" for="bounce">Bounce strength</label><output id="bouncev" for="bounce">5</output></div>
+      <input type="range" id="bounce" min="0" max="10" step="1">
+      <p class="hint">Every hit pumps the picture, harder for louder hits. 0 turns it off.</p>
+    </div>
+  </div>
+
+  <p class="err" id="err" role="alert" hidden></p>
+  <div class="actions">
+    <button type="submit" class="primary" id="go">Start</button>
+    <button type="button" class="ghost" id="go-nomic">Start without microphone</button>
+  </div>
+  <p id="status"></p>
+  <p class="foot">Powered by GIPHY, animations belong to their creators. On screen: <kbd>Space</kbd> manual hit, <kbd>T</kbd> tap tempo, <kbd>C</kbd> clear, <kbd>H</kbd> meter, <kbd>F</kbd> full screen, <kbd>Esc</kbd> settings.</p>
+</form>
+</section>
+
+<section id="curator" aria-label="Animation picker" hidden>
+  <div class="cur-head">
+    <div>
+      <h2>Animations</h2>
+      <p>Click an animation or drag it to the other side. Only the ones on the left go on screen. Your choice is remembered for next time.</p>
+    </div>
+    <div class="cur-actions">
+      <label class="sizer" for="cur-size">Preview size <input type="range" id="cur-size" min="140" max="440" step="20"></label>
+      <form class="saveset" id="saveset" autocomplete="off">
+        <input type="text" id="setname" maxlength="60" placeholder="Set name" aria-label="Set name" spellcheck="false">
+        <button type="submit" class="btn">Save as set</button>
+      </form>
+      <button type="button" class="primary" id="cur-done">Done</button>
+    </div>
+  </div>
+  <div class="chips" id="cur-chips" role="group" aria-label="Show keyword"></div>
+  <div class="buckets">
+    <div class="bucket" id="in-bucket" data-side="in">
+      <div class="bhead">
+        <h3>On screen</h3><span class="count" id="in-count">0</span>
+        <div class="bactions">
+          <div class="menuwrap" id="add-wrap">
+            <button type="button" class="btn" id="add-btn" aria-haspopup="true" aria-expanded="false">Add from set</button>
+            <div class="menu" id="add-menu" hidden></div>
+          </div>
+          <button type="button" class="btn" id="shuffle">Shuffle</button>
+          <button type="button" class="btn" id="in-all">Put aside visible</button>
+        </div>
+        <input type="file" id="add-file" accept=".json,application/json" multiple hidden>
+      </div>
+      <div class="scroll">
+        <div class="tiles" id="in-tiles"></div>
+        <p class="empty" id="in-empty" hidden>Nothing left here. Drag or click animations from the other column.</p>
+      </div>
+    </div>
+    <div class="bucket" id="out-bucket" data-side="out">
+      <div class="bhead">
+        <h3>Put aside</h3><span class="count" id="out-count">0</span>
+        <div class="bactions">
+          <button type="button" class="btn" id="out-all">Restore visible</button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="tiles" id="out-tiles"></div>
+        <p class="empty" id="out-empty" hidden>Empty. Click animations you don't want and they'll wait here in case you change your mind.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* Transient detector. Runs on the audio thread (AudioWorklet) on every 128-sample block, about 2.7 ms.
+   An envelope follower (0.5 ms attack, 45 ms release) tracks the band-filtered signal; a hit is
+   a jump of the level above its minimum over the previous ~21 ms. Sustained sounds (808 tails,
+   pads) do not jump, so they do not trigger; every new attack does, even on top of a loud mix.
+   Kept as a plain class so the same code can run in the fallback ScriptProcessor path. */
+class Det {
+  constructor(sr) {
+    this.sr = sr;
+    this.env = 0;
+    this.aA = 1 - Math.exp(-1 / (0.0005 * sr));
+    this.aR = 1 - Math.exp(-1 / (0.045 * sr));
+    this.hist = new Float32Array(8).fill(-120);
+    this.hi = 0;
+    this.peak = -60;
+    this.t = 0;
+    this.lastHit = -1;
+    this.armed = true;
+    this.show = -120;
+    this.gate = -75;
+    this.setSens(6);
+  }
+  // sensitivity 1: 12 dB jump, counts down to 14 dB below the peak; sensitivity 10: 3 dB jump, down to 32 dB
+  setSens(s) { this.rise = 13 - s; this.range = 12 + 2 * s; }
+  block(x) {
+    let m = 0, env = this.env;
+    const aA = this.aA, aR = this.aR;
+    for (let i = 0; i < x.length; i++) {
+      const a = x[i] < 0 ? -x[i] : x[i];
+      env += (a > env ? aA : aR) * (a - env);
+      if (env > m) m = env;
+    }
+    this.env = env;
+    const L = 20 * Math.log10(m + 1e-9);
+    const dt = x.length / this.sr;
+    this.t += dt;
+    this.peak = Math.max(L, this.peak - 6 * dt);
+    let lo = 1e9;
+    for (let i = 0; i < this.hist.length; i++) if (this.hist[i] < lo) lo = this.hist[i];
+    this.hist[this.hi] = L;
+    this.hi = (this.hi + 1) % this.hist.length;
+    const rise = L - lo;
+    this.gate = Math.max(this.peak - this.range, -75);
+    if (!this.armed && rise < this.rise * 0.5) this.armed = true;
+    // returns 0, or the hit's strength 0.3..1 (how close it got to the loudest recent hit)
+    let hit = 0;
+    if (this.armed && this.t > 0.15 && rise > this.rise && L > this.gate && this.t - this.lastHit > 0.07) {
+      const s = Math.max(0, Math.min(1, (L - this.gate) / Math.max(1, this.peak - this.gate)));
+      hit = 0.3 + 0.7 * Math.pow(s, 1.5);
+      this.armed = false; this.lastHit = this.t;
+    }
+    if (L > this.show) this.show = L;
+    return hit;
+  }
+  report() { const r = { lvl: this.show, gate: this.gate }; this.show = -120; return r; }
+}
+
+/* Groove: optional tempo engine.
+   Without BPM every heard hit fires right away.
+   With BPM: hits lock a 1/16 grid (velocity-weighted PLL that also fine-tunes the tempo),
+   each hit is placed on a 1/32 slot, and a pattern memory remembers which slots were hit.
+   A slot that was hit 1 and 2 loops ago (loop = 1 beat, half bar, 1 bar or 2 bars) is
+   predicted and fired `lead` ms before it sounds, so the picture lands on the hit despite
+   mic + screen delay. Anything new (juggling, fills) still fires the moment it is heard.
+   Predictions that keep missing switch prediction off for two bars. */
+class Groove {
+  constructor() { this.bpm = 0; this.lead = 80; this.minScore = 0.75; this.reset(); }
+  reset() {
+    this.locked = false; this.buf = []; this.loopAt = null; this.loop = null;
+    this.A = 0; this.KA = 0; this.p = 0;
+    this.mem = new Map(); this.pred = new Map(); this.fired = new Set();
+    this.nextK = null; this.outcomes = []; this.pauseUntil = -Infinity;
+    this.lastOnset = -1e9; this.quality = []; this.nPred = 0; this.nReact = 0;
+  }
+  setBpm(b) {
+    b = +b || 0;
+    if (Math.abs(b - this.bpm) < 0.001) return;
+    this.bpm = b; this.p0 = b ? 60000 / b / 8 : 0;
+    this.reset();
+  }
+  kOf(t) { return this.KA + Math.round((t - this.A) / this.p); }
+  tOf(k) { return this.A + (k - this.KA) * this.p; }
+  acquire() {
+    const P16 = 2 * this.p0;
+    let C = 0, S = 0, W = 0;
+    for (const o of this.buf) {
+      const a = 2 * Math.PI * (o.t % P16) / P16, w = o.v * o.v;
+      C += w * Math.cos(a); S += w * Math.sin(a); W += w;
+    }
+    if (this.buf.length < 4 || !W || Math.hypot(C, S) / W < 0.55) return false;
+    const phi = Math.atan2(S, C) / (2 * Math.PI) * P16;
+    const last = this.buf[this.buf.length - 1].t;
+    this.p = this.p0;
+    this.A = phi + Math.round((last - phi) / P16) * P16;
+    this.KA = 0;
+    this.gen = (this.gen || 0) + 1;   // tells listeners the slot numbering restarted
+    this.locked = true; this.quality = []; this.nextK = null;
+    for (const o of this.buf) { const k = this.kOf(o.t); this.mem.set(k, { v: o.v, off: o.t - this.tOf(k) }); this.fired.add(k); }
+    this.buf = [];
+    return true;
+  }
+  onset(t, v) {
+    this.lastOnset = t;
+    if (!this.bpm) { this.nReact++; return { kind: 'react', t, v }; }
+    if (!this.locked) {
+      this.buf.push({ t, v });
+      while (this.buf.length && t - this.buf[0].t > 3000) this.buf.shift();
+      this.acquire();
+      this.nReact++;
+      return { kind: 'react', t, v };
+    }
+    // PLL on the 1/16 grid; strong hits steer more, swung or off-grid hits are ignored
+    const P16 = 2 * this.p, n16 = Math.round((t - this.A) / P16), line = this.A + n16 * P16, e = t - line;
+    const near = Math.abs(e) < 0.22 * P16;
+    if (near) {
+      const w = v * v;
+      this.A = line + 0.25 * w * e;
+      this.KA += 2 * n16;
+      this.p = Math.min(this.p0 * 1.04, Math.max(this.p0 * 0.96, this.p + 0.006 * w * e));
+    }
+    this.quality.push(near ? 1 : 0); if (this.quality.length > 16) this.quality.shift();
+    if (this.quality.length >= 12 && this.quality.reduce((a, b) => a + b, 0) / this.quality.length < 0.35) {
+      const b = this.bpm; this.reset(); this.bpm = b; this.lastOnset = t;
+      this.nReact++;
+      return { kind: 'react', t, v };
+    }
+    const k = this.kOf(t);
+    for (const kk of [k, k - 1, k + 1]) {
+      const pr = this.pred.get(kk);
+      if (pr && !pr.ok) {
+        pr.ok = true; this.outcome(1);
+        this.mem.set(kk, { v, off: t - this.tOf(kk) });
+        return null;            // already on screen
+      }
+    }
+    this.mem.set(k, { v, off: t - this.tOf(k) });
+    if (this.fired.has(k)) return null;
+    this.fired.add(k);
+    this.nReact++;
+    return { kind: 'react', t, v, k };
+  }
+  outcome(x) {
+    this.outcomes.push(x); if (this.outcomes.length > 16) this.outcomes.shift();
+    if (this.outcomes.length >= 8 && this.outcomes.reduce((a, b) => a + b, 0) / this.outcomes.length < 0.55) {
+      this.pauseUntil = this.nextK + 64; this.outcomes = [];
+    }
+  }
+  // how well the last stretch of playing repeats with loop length L (1/32 slots), 0..1
+  loopScore(L, known) {
+    const W = Math.max(L, 32);
+    let both = 0, either = 0;
+    for (let j = known - W + 1; j <= known; j++) {
+      const x = this.mem.has(j), y = this.mem.has(j - L);
+      if (x || y) { either++; if (x && y) both++; }
+    }
+    return either >= 4 ? both / either : 0;
+  }
+  // which loop is running right now (cached per known slot)
+  activeLoop(known) {
+    if (this.loopAt === known) return this.loop;
+    let best = null;
+    for (const L of [8, 16, 32, 64]) {
+      const s = this.loopScore(L, known);
+      if (s >= this.minScore && (!best || s > best.s + 0.04)) best = { L, s };
+    }
+    this.loopAt = known; this.loop = best;
+    return best;
+  }
+  match(k, known) {
+    const loop = this.activeLoop(known);
+    if (!loop) return null;
+    const a = this.mem.get(k - loop.L);
+    if (!a) return null;
+    const b = this.mem.get(k - 2 * loop.L);
+    const off = b ? (a.off + b.off) / 2 : a.off, v = b ? (a.v + b.v) / 2 : a.v;
+    return { v, off: Math.max(-0.45 * this.p, Math.min(0.45 * this.p, off)) };
+  }
+  tick(now, half = 8) {
+    if (!this.bpm || !this.locked) return [];
+    if (now - this.lastOnset > 2500) { const b = this.bpm; this.reset(); this.bpm = b; return []; }
+    for (const [k, pr] of this.pred) {
+      const due = this.tOf(k) + 0.6 * this.p + 30;
+      if (!pr.ok && now > due) { this.outcome(0); this.pred.delete(k); }
+      else if (pr.ok && now > due) this.pred.delete(k);
+    }
+    if (this.nextK === null) this.nextK = this.kOf(now + this.lead) + 1;
+    const out = [], known = this.kOf(now - 0.5 * this.p);
+    for (let guard = 0; guard < 64; guard++) {
+      const k = this.nextK, m = this.match(k, known);
+      const tf = this.tOf(k) + (m ? m.off : 0) - this.lead;
+      if (tf > now + half) break;
+      this.nextK++;
+      if (tf < now - 40 || !m || k < this.pauseUntil || this.fired.has(k)) continue;
+      this.pred.set(k, { ok: false }); this.fired.add(k); this.nPred++;
+      out.push({ kind: 'predict', t: tf, v: m.v, k });
+    }
+    const old = this.nextK - 200;
+    for (const k of this.mem.keys()) if (k < old) this.mem.delete(k);
+    for (const k of this.fired) if (k < old) this.fired.delete(k);
+    return out;
+  }
+  status(now) {
+    if (!this.bpm) return { mode: 'free' };
+    if (!this.locked) return { mode: now - this.lastOnset > 2500 ? 'idle' : 'search', bpm: this.bpm };
+    const o = this.outcomes, acc = o.length ? o.reduce((a, b) => a + b, 0) / o.length : null;
+    return { mode: 'locked', bpm: 60000 / (this.p * 8), acc, paused: this.nextK < this.pauseUntil };
+  }
+}
+
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+const stage = $('#stage'), layer = $('#layer'), setup = $('#setup'), form = $('#form');
+const STORE = 'gifbit.v1';
+const S = { key: '', words: 'dance, wow, explosion, neon, money', type: 'gifs', mode: 'collage', max: 5, every: 1, band: 'bass', sens: 6, bg: '#140f1c', bgImg: '', dim: 0, safe: true, source: 'words', setId: '', thumb: 240, order: 'random', bpm: 0, limit: 16, lead: 80, bounce: 5,
+  tintOn: false, tintM: 100, tintH: 220, tintS: 70, tintB: 100, tintC: 100, tintBg: false, tintPanel: false,
+  autoOn: false, autoCols: [1, 7, 8], autoMode: 'time', autoSec: 4, autoBeats: 4, autoSmooth: 50, secAuto: true, secBg: false };
+try { Object.assign(S, JSON.parse(localStorage.getItem(STORE) || '{}')); } catch (e) {}
+const groove = new Groove();
+
+function save() {
+  try { localStorage.setItem(STORE, JSON.stringify(S)); return true; }
+  catch (e) {
+    try { localStorage.setItem(STORE, JSON.stringify(Object.assign({}, S, { bgImg: '' }))); } catch (_) {}
+    return false;
+  }
+}
+
+/* ---------- form ---------- */
+const setRadio = (name, val) => { const el = form.querySelector(`input[name="${name}"][value="${val}"]`); if (el) el.checked = true; };
+const getRadio = name => { const el = form.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; };
+
+function populate() {
+  $('#key').value = S.key; $('#words').value = S.words;
+  setRadio('type', S.type); setRadio('mode', S.mode); setRadio('every', String(S.every)); setRadio('band', S.band);
+  setRadio('source', S.source); setRadio('order', S.order); setRadio('limit', String(S.limit));
+  renderSets();
+  $('#max').value = S.max; $('#sens').value = S.sens; $('#bg').value = S.bg; $('#dim').value = S.dim; $('#safe').checked = S.safe;
+  $('#bpm').value = S.bpm || ''; $('#lead').value = S.lead; $('#bounce').value = S.bounce;
+}
+function readForm() {
+  S.key = $('#key').value.trim(); S.words = $('#words').value;
+  S.type = getRadio('type') || 'gifs'; S.mode = getRadio('mode') || 'collage';
+  S.every = +getRadio('every') || 1; S.band = getRadio('band') || 'bass';
+  S.source = getRadio('source') || 'words';
+  S.order = getRadio('order') || 'random';
+  const pickedSet = getRadio('setpick');
+  if (pickedSet) S.setId = pickedSet;
+  S.max = +$('#max').value; S.sens = +$('#sens').value; S.bg = $('#bg').value; S.dim = +$('#dim').value; S.safe = $('#safe').checked;
+  const bpm = parseFloat(String($('#bpm').value).replace(',', '.'));
+  S.bpm = bpm >= 50 && bpm <= 220 ? Math.round(bpm * 10) / 10 : 0;
+  S.limit = +getRadio('limit') || 16;
+  S.lead = +$('#lead').value; S.bounce = +$('#bounce').value;
+}
+function refreshUI() {
+  $('#maxv').textContent = S.max; $('#sensv').textContent = S.sens; $('#dimv').textContent = S.dim + '%';
+  $('#leadv').textContent = S.lead + ' ms'; $('#bouncev').textContent = S.bounce;
+  $('#limitfield').hidden = $('#leadfield').hidden = !S.bpm;
+  groove.setBpm(S.bpm); groove.lead = S.lead;
+  if (tintReady) { syncBgInputs(); applyTint(); }
+  $('#maxfield').hidden = S.mode === 'single';
+  $('#src-words').hidden = S.source !== 'words';
+  $('#src-set').hidden = S.source !== 'set';
+  if (S.source === 'set' && !findSet(S.setId) && sets.length) {
+    S.setId = sets[0].id;
+    const r = $('#set-' + S.setId); if (r) r.checked = true;
+    save();
+  }
+  $('#bgclear').hidden = !S.bgImg;
+  stage.style.setProperty('--bgc', S.bg);
+  $('#bgimg').style.backgroundImage = S.bgImg ? `url("${S.bgImg}")` : 'none';
+  $('#shade').style.opacity = String(S.dim / 100);
+  trim();
+  applyBand();
+  sendSens();
+  if (S.order !== lastOrder) { lastOrder = S.order; seq = 0; resetPool(); refreshActive(); }
+}
+let lastOrder = S.order;
+const onForm = () => { readForm(); save(); refreshUI(); };
+form.addEventListener('input', onForm);
+form.addEventListener('change', onForm);
+form.addEventListener('submit', e => { e.preventDefault(); go(true); });
+$('#go-nomic').addEventListener('click', () => go(false));
+
+$('#bgpick').addEventListener('click', () => $('#bgfile').click());
+$('#bgfile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    S.bgImg = String(rd.result);
+    const kept = save(); refreshUI();
+    if (!kept) toast('The background works, but it is too large to remember for next time.');
+  };
+  rd.readAsDataURL(f);
+  e.target.value = '';
+});
+$('#bgclear').addEventListener('click', () => { S.bgImg = ''; save(); refreshUI(); });
+
+function wordList() {
+  const seen = new Set(), out = [];
+  for (const raw of S.words.split(/[,;\n]+/)) {
+    const w = raw.trim(), k = w.toLowerCase();
+    if (w && !seen.has(k)) { seen.add(k); out.push(w); }
+  }
+  return out.slice(0, 10);
+}
+
+/* ---------- Giphy ---------- */
+let items = [], sig = '', loadedFrom = '';
+const sigNow = () => S.source === 'set'
+  ? ['set', S.setId, (findSet(S.setId) || {}).updated || ''].join('#')
+  : [S.key, S.type, S.safe, wordList().join('|').toLowerCase()].join('#');
+function sourceProblem() {
+  if (S.source === 'set') return findSet(S.setId) ? '' : 'Pick a set from the list or import a file.';
+  if (!S.key) return 'Paste your Giphy API key. Instructions are under the field.';
+  if (!wordList().length) return 'Enter at least one keyword.';
+  return '';
+}
+
+function norm(g, sticker) {
+  const im = g.images || {}, o = im.original || {};
+  const pick = (...xs) => xs.find(x => x && x.url);
+  const big = sticker ? (o.webp || o.url) : (pick(im.downsized_medium, im.downsized_large, o) || {}).url;
+  const small = sticker ? (o.webp || o.url) : (pick(im.downsized, im.fixed_height, o) || {}).url;
+  if (!big) return null;
+  // preview: about 200 px on the short side, so the whole animation is readable
+  const landscape = (+o.width || 1) >= (+o.height || 1);
+  const th = (landscape ? pick(im.fixed_height, im.fixed_width) : pick(im.fixed_width, im.fixed_height)) || pick(im.downsized, im.preview_gif) || {};
+  return { id: g.id, sticker, big, small: small || big, thumb: th.webp || th.url || big, w: +o.width || 1, h: +o.height || 1, word: '' };
+}
+async function fetchOne(q, kind) {
+  const url = `https://api.giphy.com/v1/${kind}/search?api_key=${encodeURIComponent(S.key)}&q=${encodeURIComponent(q)}&limit=50&rating=${S.safe ? 'pg-13' : 'r'}`;
+  let r;
+  try { r = await fetch(url); } catch (e) { throw { kind: 'net' }; }
+  if (!r.ok) throw { kind: 'http', status: r.status };
+  const j = await r.json();
+  return (j.data || []).map(g => norm(g, kind === 'stickers')).filter(Boolean);
+}
+async function loadItems() {
+  const next = sigNow();
+  if (next === sig && items.length) return { empty: [] };
+  if (S.source === 'set') {
+    const set = findSet(S.setId);
+    if (!set) throw { kind: 'noset' };
+    items = set.items.map(x => Object.assign({}, x));
+    loadedFrom = set.name; extras = []; seq = 0;
+    sig = next; resetPool(); refreshActive();
+    return { empty: [] };
+  }
+  const ws = wordList();
+  const kinds = S.type === 'both' ? ['gifs', 'stickers'] : [S.type];
+  const jobs = [];
+  for (const w of ws) for (const k of kinds) jobs.push(fetchOne(w, k).then(list => ({ w, list })));
+  const res = await Promise.allSettled(jobs);
+  const ok = res.filter(r => r.status === 'fulfilled').map(r => r.value);
+  if (!ok.length) throw res[0].reason;
+  const perWord = new Map(), seen = new Set(), all = [];
+  for (const { w, list } of ok) {
+    perWord.set(w, (perWord.get(w) || 0) + list.length);
+    for (const it of list) if (!seen.has(it.id)) { seen.add(it.id); it.word = w; all.push(it); }
+  }
+  if (!all.length) throw { kind: 'empty' };
+  items = all; loadedFrom = ''; extras = []; seq = 0; sig = next; resetPool(); refreshActive();
+  return { empty: ws.filter(w => !perWord.get(w)) };
+}
+function errText(e) {
+  if (e && e.kind === 'http') {
+    if (e.status === 401 || e.status === 403) return 'Giphy rejected the API key. Check that you copied all of it.';
+    if (e.status === 429) return 'The free key has used up its 100 requests per hour. Wait a while or use fewer keywords.';
+    return `Giphy returned error ${e.status}. Try again in a moment.`;
+  }
+  if (e && e.kind === 'net') return 'Could not connect to Giphy. Check your internet connection.';
+  if (e && e.kind === 'empty') return 'No keyword returned any animations. Try other words.';
+  if (e && e.kind === 'noset') return 'Pick a set from the list or import a file.';
+  return 'Something went wrong while loading animations. Try again.';
+}
+
+/* ---------- which animations are in use (excluded ids are remembered between sessions) ---------- */
+const EXCL = 'gifbit.excluded';
+let excluded = new Set(), active = [];
+try { excluded = new Set(JSON.parse(localStorage.getItem(EXCL) || '[]')); } catch (e) {}
+function saveExcl() { try { localStorage.setItem(EXCL, JSON.stringify([...excluded].slice(-5000))); } catch (e) {} }
+function refreshActive() {
+  active = items.filter(it => !excluded.has(it.id));
+  bag = [];
+  ready = ready.filter(r => !excluded.has(r.it.id));
+  fill();
+  updateStatus();
+}
+let extras = [];   // names of sets merged into the current list with "Dodaj z setu"
+function updateStatus() {
+  const out = items.length - active.length;
+  const plus = extras.length ? ' + ' + extras.map(x => `“${x}”`).join(' + ') : '';
+  const head = (loadedFrom ? `Set “${loadedFrom}”` : 'Giphy keywords') + plus + `: ${items.length} ${plural(items.length)}`;
+  $('#status').textContent = items.length ? `${head}, on screen ${active.length}${out ? `, put aside ${out}` : ''}.` : '';
+}
+
+/* ---------- saved sets: kept in localStorage, exported and imported as JSON with links ---------- */
+const SETS = 'gifbit.sets';
+let sets = [];
+try { sets = JSON.parse(localStorage.getItem(SETS) || '[]'); if (!Array.isArray(sets)) sets = []; } catch (e) { sets = []; }
+function saveSets() { try { localStorage.setItem(SETS, JSON.stringify(sets)); return true; } catch (e) { return false; } }
+function findSet(id) { return sets.find(s => s.id === id); }
+const httpsUrl = u => (typeof u === 'string' && /^https:\/\//i.test(u)) ? u : '';
+const cleanUrl = u => httpsUrl(u).split('?')[0];   // Giphy tracking params are not needed to load a file
+function packItem(it) {
+  return { id: it.id, sticker: !!it.sticker, big: cleanUrl(it.big), small: cleanUrl(it.small), thumb: cleanUrl(it.thumb), w: +it.w || 1, h: +it.h || 1, word: it.word || '' };
+}
+function unpackItem(x) {
+  if (!x || typeof x.id !== 'string' || !httpsUrl(x.big)) return null;
+  const big = cleanUrl(x.big), small = cleanUrl(x.small) || big;
+  return { id: x.id.slice(0, 80), sticker: !!x.sticker, big, small, thumb: cleanUrl(x.thumb) || small, w: +x.w || 1, h: +x.h || 1, word: typeof x.word === 'string' ? x.word.slice(0, 60) : '' };
+}
+const newId = () => 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function uniqueName(name) {
+  const taken = new Set(sets.map(s => s.name.toLowerCase()));
+  if (!taken.has(name.toLowerCase())) return name;
+  let n = 2;
+  while (taken.has(`${name} (${n})`.toLowerCase())) n++;
+  return `${name} (${n})`;
+}
+const fmtDate = iso => { try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return ''; } };
+const plural = n => n === 1 ? 'animation' : 'animations';
+
+function renderSets() {
+  const box = $('#setlist');
+  box.replaceChildren();
+  for (const s of sets) {
+    const row = document.createElement('div');
+    row.className = 'setrow'; row.dataset.id = s.id;
+    const r = document.createElement('input');
+    r.type = 'radio'; r.name = 'setpick'; r.id = 'set-' + s.id; r.value = s.id; r.checked = S.setId === s.id;
+    const lab = document.createElement('label');
+    lab.htmlFor = r.id;
+    const thumbs = document.createElement('span');
+    thumbs.className = 'setthumbs';
+    for (const it of s.items.slice(0, 4)) { const im = new Image(); im.alt = ''; im.loading = 'lazy'; im.src = it.thumb; thumbs.appendChild(im); }
+    const txt = document.createElement('span');
+    txt.className = 'settxt';
+    const b = document.createElement('b'); b.textContent = s.name;
+    const meta = document.createElement('span'); meta.textContent = `${s.items.length} ${plural(s.items.length)} · ${fmtDate(s.updated)}`;
+    txt.append(b, meta); lab.append(thumbs, txt);
+    const ex = document.createElement('button'); ex.type = 'button'; ex.className = 'btn sm'; ex.dataset.act = 'export'; ex.textContent = 'Export';
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'btn sm'; del.dataset.act = 'delete'; del.textContent = 'Delete';
+    row.append(r, lab, ex, del);
+    box.appendChild(row);
+  }
+  $('#sets-empty').hidden = sets.length > 0;
+  $('#sets-exportall').hidden = !sets.length;
+}
+
+function saveAsSet(rawName) {
+  if (!active.length) { toast('Nothing is on screen, so there is nothing to save.'); return; }
+  const name = rawName.trim().slice(0, 60) || 'Untitled';
+  const now = new Date().toISOString();
+  const data = active.map(packItem);
+  const words = [...new Set(active.map(it => it.word).filter(Boolean))];
+  let set = sets.find(s => s.name.toLowerCase() === name.toLowerCase());
+  const before = set ? Object.assign({}, set) : null;
+  if (set) Object.assign(set, { items: data, words, updated: now });
+  else { set = { id: newId(), name, created: now, updated: now, words, items: data }; sets.push(set); }
+  if (!saveSets()) {
+    if (before) Object.assign(set, before); else sets.pop();
+    toast('The browser storage is full. Export and delete old sets, then try again.', 6000);
+    return;
+  }
+  renderSets();
+  toast(before
+    ? `Updated set “${set.name}”: ${data.length} ${plural(data.length)}.`
+    : `Saved set “${set.name}”: ${data.length} ${plural(data.length)}. Pick it in Settings under “Saved set”.`, 5000);
+}
+
+function exportObj(s) { return { gifbit: 1, name: s.name, created: s.created, updated: s.updated, words: s.words || [], items: s.items }; }
+function slug(name) {
+  return name.toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'set';
+}
+function download(filename, obj) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+function setsFromJson(obj) {
+  const list = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.sets)) ? obj.sets : [obj];
+  const out = [];
+  for (const s of list) {
+    if (!s || !Array.isArray(s.items)) continue;
+    const seen = new Set();
+    const its = s.items.map(unpackItem).filter(it => it && !seen.has(it.id) && seen.add(it.id));
+    if (!its.length) continue;
+    out.push({
+      name: String(s.name || 'Imported set').trim().slice(0, 60) || 'Imported set',
+      words: Array.isArray(s.words) ? s.words.map(String).slice(0, 20) : [...new Set(its.map(i => i.word).filter(Boolean))],
+      items: its
+    });
+  }
+  return out;
+}
+async function importFiles(files) {
+  const added = [];
+  let bad = 0;
+  for (const f of files) {
+    try {
+      const found = setsFromJson(JSON.parse(await f.text()));
+      if (!found.length) { bad++; continue; }
+      const now = new Date().toISOString();
+      for (const s of found) {
+        const set = { id: newId(), name: uniqueName(s.name), created: now, updated: now, words: s.words, items: s.items };
+        sets.push(set); added.push(set);
+      }
+    } catch (e) { bad++; }
+  }
+  if (added.length && !saveSets()) {
+    sets = sets.filter(s => !added.includes(s));
+    toast('The browser storage is full. Delete old sets and try again.', 6000);
+    return;
+  }
+  if (added.length === 1) { S.setId = added[0].id; save(); }
+  renderSets();
+  const msg = [];
+  if (added.length) msg.push(added.length === 1 ? `Imported set “${added[0].name}”.` : `Imported ${added.length} sets.`);
+  if (bad) msg.push(bad === 1 ? "One file doesn't look like a GIFbit set." : `${bad} files don't look like GIFbit sets.`);
+  toast(msg.join(' ') || 'Nothing was imported.', 5000);
+}
+
+$('#setlist').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  const id = b.closest('.setrow').dataset.id, s = findSet(id);
+  if (!s) return;
+  if (b.dataset.act === 'export') { download(`gifbit-${slug(s.name)}.json`, exportObj(s)); return; }
+  if (!b.dataset.armed) {
+    b.dataset.armed = '1'; b.textContent = 'Sure?'; b.classList.add('warn');
+    setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Delete'; b.classList.remove('warn'); } }, 3000);
+    return;
+  }
+  sets = sets.filter(x => x.id !== id);
+  saveSets();
+  if (S.setId === id) { S.setId = ''; save(); }
+  renderSets();
+  toast(`Deleted set “${s.name}”.`);
+});
+$('#sets-import').addEventListener('click', () => $('#sets-file').click());
+$('#sets-file').addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  if (files.length) importFiles(files);
+});
+$('#sets-exportall').addEventListener('click', () => {
+  if (sets.length) download('gifbit-sets.json', { gifbit: 1, sets: sets.map(exportObj) });
+});
+
+/* ---------- preload pool: images are downloaded AND decoded before a hit needs them ---------- */
+let bag = [], ready = [], inflight = 0, gen = 0, seq = 0;
+const AHEAD = 6;
+function resetPool() { bag = []; ready = []; inflight = 0; gen++; }
+function nextItem() {
+  if (S.order === 'seq') {
+    if (seq >= active.length) seq = 0;
+    return active[seq++];
+  }
+  if (!bag.length) {
+    bag = active.map((_, i) => i);
+    for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
+  }
+  return active[bag.pop()];
+}
+function fill() {
+  const g = gen;
+  while (active.length && ready.length + inflight < AHEAD) {
+    const it = nextItem();
+    const img = new Image();
+    img.alt = '';
+    inflight++;
+    img.src = S.mode === 'single' ? it.big : it.small;
+    const done = () => { if (g !== gen) return; inflight--; ready.push({ it, img }); };
+    const fail = () => { if (g !== gen) return; inflight--; };
+    if (img.decode) img.decode().then(done, fail);
+    else { img.onload = done; img.onerror = fail; }
+  }
+}
+
+/* ---------- display ---------- */
+let z = 0;
+function place(node, it) {
+  const W = stage.clientWidth, H = stage.clientHeight, vmin = Math.min(W, H);
+  const ar = Math.max(0.3, Math.min(3, it.w / it.h));
+  let h = vmin * (0.3 + Math.random() * 0.22) * (it.sticker ? 1.1 : 1);
+  let w = h * ar;
+  const maxW = W * 0.62;
+  if (w > maxW) { w = maxW; h = w / ar; }
+  const x = Math.random() * Math.max(0, W - w), y = Math.random() * Math.max(0, H - h);
+  Object.assign(node.style, {
+    width: w + 'px', height: h + 'px', left: x + 'px', top: y + 'px',
+    rotate: ((Math.random() * 2 - 1) * 9).toFixed(1) + 'deg', zIndex: String(++z)
+  });
+}
+let fresh = null;   // the newest animation gets the strongest bounce
+function showNext() {
+  let r = ready.shift();
+  while (r && excluded.has(r.it.id)) r = ready.shift();
+  fill();
+  if (!r) return false;
+  const node = document.createElement('div');
+  node.className = 'g ' + (r.it.sticker ? 'sticker' : 'card');
+  if (fresh) fresh.style.transform = '';
+  fresh = node;
+  if (S.mode === 'single') {
+    node.classList.add('single');
+    node.style.zIndex = String(++z);
+    node.appendChild(r.img);
+    layer.replaceChildren(node);     // hard cut on the hit, no crossfade
+    return true;
+  }
+  place(node, r.it);
+  node.appendChild(r.img);
+  layer.appendChild(node);
+  trim();
+  return true;
+}
+function trim() {
+  const live = layer.children;
+  const max = S.mode === 'single' ? 1 : S.max;
+  while (live.length > max) live[0].remove();   // hard cut, old ones vanish on the same frame
+}
+
+/* ---------- bounce: one damped spring kicked by every hit ----------
+   A kick jumps the spring up at once (the punch lands on the hit's frame), then it settles with a
+   small undershoot. Rolls keep it pumped instead of stacking up. */
+const spring = { x: 0, v: 0, t: 0 };
+const calm = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+function kick(v) {
+  if (calm.matches) return;
+  const a = (S.bounce / 10) * 0.09 * (0.35 + 0.65 * v);
+  if (a > spring.x) { spring.x = a; spring.v = 0; }
+}
+function stepSpring(now) {
+  let dt = Math.min(0.05, Math.max(0, (now - spring.t) / 1000));
+  spring.t = now;
+  const w = 2 * Math.PI / 0.26, zeta = 0.38;
+  while (dt > 0) {
+    const h = Math.min(dt, 0.004);
+    spring.v += (-w * w * spring.x - 2 * zeta * w * spring.v) * h;
+    spring.x += spring.v * h;
+    dt -= h;
+  }
+  if (Math.abs(spring.x) < 1e-4 && Math.abs(spring.v) < 1e-3) { spring.x = 0; spring.v = 0; }
+  const x = spring.x;
+  if (S.mode === 'single') {
+    layer.style.transform = '';
+    if (fresh) fresh.style.transform = x ? `scale(${(1 + x).toFixed(4)})` : '';
+  } else {
+    layer.style.transform = x ? `scale(${(1 + 0.3 * x).toFixed(4)})` : '';
+    if (fresh) fresh.style.transform = x ? `scale(${(1 + 1.4 * x).toFixed(4)})` : '';
+  }
+}
+
+/* ---------- microphone ---------- */
+let actx = null, filters = [], micOn = false, sendSens = () => {};
+let meterIn = -120, meterShown = -120, meterGate = -75, beatN = 0;
+const meterEls = $$('.meter').map(m => ({ fill: $('.fill', m), thr: $('.thr', m) }));
+const BAND_HZ = { bass: [30, 150], mid: [200, 6000], full: [30, 16000] };
+const PROC_SRC = `
+class GifbitProc extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.d = new Det(sampleRate);
+    this.n = 0;
+    this.port.onmessage = e => { if (e.data && e.data.sens) this.d.setSens(e.data.sens); };
+  }
+  process(inputs) {
+    const ch = inputs[0] && inputs[0][0];
+    if (ch) {
+      const h = this.d.block(ch);
+      if (h) this.port.postMessage({ hit: h });
+      this.n += ch.length;
+      if (this.n >= 768) { this.n = 0; this.port.postMessage(this.d.report()); }
+    }
+    return true;
+  }
+}
+registerProcessor('gifbit-det', GifbitProc);`;
+
+function ensureCtx() {
+  if (!actx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) { try { actx = new AC({ latencyHint: 'interactive' }); } catch (e) { actx = new AC(); } }
+  }
+  if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+}
+function applyBand() {
+  if (!filters.length) return;
+  const [lo, hi] = BAND_HZ[S.band] || BAND_HZ.bass;
+  const t = actx.currentTime;
+  filters[0].frequency.setValueAtTime(lo, t); filters[1].frequency.setValueAtTime(lo, t);
+  filters[2].frequency.setValueAtTime(hi, t); filters[3].frequency.setValueAtTime(hi, t);
+}
+function onDet(m) {
+  if (m.hit) {
+    const now = performance.now();
+    flash();
+    if (calOpen) pulseMicDot(now);
+    const ev = groove.onset(now, m.hit);
+    if (ev) fire(ev, now);
+  }
+  if (m.lvl !== undefined) { meterIn = Math.max(meterIn, m.lvl); meterGate = m.gate; }
+}
+async function startMic() {
+  if (micOn) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw { kind: 'nomic' };
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, latency: 0 } });
+  ensureCtx();
+  if (!actx) throw { kind: 'nomic' };
+  if (actx.state === 'suspended') { try { await actx.resume(); } catch (e) {} }
+
+  // mic → 2× high-pass → 2× low-pass (the band you pick) → detector → silent output
+  const src = actx.createMediaStreamSource(stream);
+  filters = ['highpass', 'highpass', 'lowpass', 'lowpass'].map(type => {
+    const f = actx.createBiquadFilter(); f.type = type; f.Q.value = 0.707; return f;
+  });
+  src.connect(filters[0]); filters[0].connect(filters[1]); filters[1].connect(filters[2]); filters[2].connect(filters[3]);
+  applyBand();
+  const mute = actx.createGain(); mute.gain.value = 0; mute.connect(actx.destination);
+
+  let worklet = false;
+  if (actx.audioWorklet && window.AudioWorkletNode) {
+    try {
+      const url = URL.createObjectURL(new Blob([Det.toString() + '\n' + PROC_SRC], { type: 'application/javascript' }));
+      await actx.audioWorklet.addModule(url);
+      const node = new AudioWorkletNode(actx, 'gifbit-det', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+      node.port.onmessage = e => onDet(e.data);
+      filters[3].connect(node); node.connect(mute);
+      sendSens = () => node.port.postMessage({ sens: S.sens });
+      worklet = true;
+    } catch (e) { worklet = false; }
+  }
+  if (!worklet) {
+    // fallback: same detector on the main thread, fed in 128-sample slices
+    const d = new Det(actx.sampleRate);
+    const sp = actx.createScriptProcessor(256, 1, 1);
+    let n = 0;
+    sp.onaudioprocess = ev => {
+      const x = ev.inputBuffer.getChannelData(0);
+      for (let o = 0; o < x.length; o += 128) { const h = d.block(x.subarray(o, o + 128)); if (h) onDet({ hit: h }); }
+      n += x.length;
+      if (n >= 768) { n = 0; onDet(d.report()); }
+    };
+    filters[3].connect(sp); sp.connect(mute);
+    sendSens = () => d.setSens(S.sens);
+  }
+  sendSens();
+  micOn = true;
+  $('#microw').hidden = false; $('#micnote').hidden = true;
+}
+
+/* ---------- one frame loop: predicted hits, bounce, meter, calibration ---------- */
+let lastStatus = 0;
+const recentKinds = [];
+function frame(now) {
+  requestAnimationFrame(frame);
+  for (const ev of groove.tick(now, 8)) fire(ev, now);
+  stepSpring(now);
+  if (tintReady) autoFrame(now);
+  if (calOpen) calFrame(now);
+  if (micOn) {
+    // meter: level jumps up instantly and falls back smoothly, like a VU meter
+    meterShown = Math.max(meterIn, meterShown - 1.2);
+    meterIn = -120;
+    const pos = db => Math.max(0, Math.min(100, (db + 72) / 72 * 100));
+    const fw = pos(meterShown).toFixed(1) + '%', gl = Math.min(99, pos(meterGate)).toFixed(1) + '%';
+    for (const m of meterEls) { m.fill.style.width = fw; m.thr.style.left = gl; }
+  }
+  if (now - lastStatus > 300) { lastStatus = now; updateTempoText(now); }
+}
+requestAnimationFrame(frame);
+
+function updateTempoText(now) {
+  const st = groove.status(now);
+  let t;
+  if (st.mode === 'free') t = 'No tempo: every hit live';
+  else if (st.mode === 'idle') t = `${fmtBpm(st.bpm)} BPM · waiting for the beat`;
+  else if (st.mode === 'search') t = `${fmtBpm(st.bpm)} BPM · finding the grid… (if it takes long, check the tempo)`;
+  else {
+    const n = recentKinds.length, share = n ? Math.round(recentKinds.filter(k => k === 'predict').length / n * 100) : 0;
+    t = `${fmtBpm(st.bpm)} BPM · grid locked · ${share}% of hits with no delay` + (st.paused ? ' · pattern changed, catching live' : '');
+  }
+  $$('.tempo:not(#cal-status)').forEach(el => { el.textContent = micOn ? t : ''; });
+  if (calOpen) {
+    $('#cal-status').textContent = st.mode === 'locked'
+      ? (recentKinds.slice(-4).includes('predict') ? 'Predicting the kick, go ahead and adjust.' : 'Grid locked, learning the pattern…')
+      : st.mode === 'search' ? 'Finding the rhythm…' : 'Waiting for the kick…';
+  }
+}
+const fmtBpm = b => (Math.round(b * 10) / 10).toString();
+
+let flashT;
+function flash() {
+  document.body.classList.add('hit');
+  clearTimeout(flashT);
+  flashT = setTimeout(() => document.body.classList.remove('hit'), 90);
+}
+/* every hit (heard, predicted or manual) bounces; every Nth one swaps the animation,
+   but with a tempo set never faster than the chosen note value */
+let lastSwap = -1e9;
+function fire(ev, now) {
+  if (ev.kind === 'react' || ev.kind === 'predict') { recentKinds.push(ev.kind); if (recentKinds.length > 32) recentKinds.shift(); }
+  if (calOpen) { if (ev.kind === 'predict') pulseRing(now); return; }
+  autoHit(now);
+  kick(ev.v);
+  beatN++;
+  if (!running || beatN % S.every !== 0) return;
+  const gap = S.bpm ? (60000 / S.bpm) * (4 / S.limit) * 0.85 : 0;
+  if (now - lastSwap < gap) return;
+  if (showNext()) lastSwap = now;
+}
+function manualHit() { flash(); fire({ kind: 'manual', v: 1 }, performance.now()); }
+
+/* ---------- tap tempo ---------- */
+let taps = [], tapT;
+function tap() {
+  const now = performance.now(), btn = $('#tap');
+  if (taps.length && now - taps[taps.length - 1] > 2000) taps = [];
+  taps.push(now); if (taps.length > 8) taps.shift();
+  let msg;
+  if (taps.length >= 4) {
+    const iv = [];
+    for (let i = 1; i < taps.length; i++) iv.push(taps[i] - taps[i - 1]);
+    iv.sort((a, b) => a - b);
+    const bpm = Math.round(60000 / iv[iv.length >> 1] * 2) / 2;
+    if (bpm >= 50 && bpm <= 220) { S.bpm = bpm; $('#bpm').value = bpm; save(); refreshUI(); }
+    msg = `${fmtBpm(bpm)} BPM`;
+  } else msg = `${4 - taps.length} more…`;
+  btn.textContent = msg;
+  clearTimeout(tapT);
+  tapT = setTimeout(() => { btn.textContent = 'Tap'; }, 2500);
+  return msg;
+}
+$('#tap').addEventListener('click', tap);
+
+/* ---------- latency calibration ---------- */
+let calOpen = false, ringOff = 0, micOff = 0, calN = 0;
+const calRing = $('#cal-ring'), calMic = $('#cal-mic');
+function pulseRing(now) {
+  calRing.classList.add('on');
+  calRing.textContent = String(calN++ % 4 + 1);
+  ringOff = now + 90;
+}
+function pulseMicDot(now) { calMic.classList.add('on'); micOff = now + 90; }
+function calFrame(now) {
+  if (ringOff && now >= ringOff) { calRing.classList.remove('on'); ringOff = 0; }
+  if (micOff && now >= micOff) { calMic.classList.remove('on'); micOff = 0; }
+}
+function setLead(ms) {
+  S.lead = Math.max(0, Math.min(250, Math.round(ms / 5) * 5));
+  groove.lead = S.lead;
+  $('#lead').value = S.lead; $('#cal-lead').value = S.lead;
+  $('#leadv').textContent = $('#cal-leadv').textContent = S.lead + ' ms';
+  save();
+}
+async function openCal() {
+  hideErr(); readForm(); save(); refreshUI();
+  if (!S.bpm) return showErr('Enter or tap a tempo first.');
+  if (!micOn) {
+    ensureCtx();
+    try { await startMic(); } catch (e) { return showErr(micText(e)); }
+  }
+  $('#cal-bpm').textContent = fmtBpm(S.bpm);
+  setLead(S.lead);
+  calN = 0; calRing.textContent = '–';
+  calOpen = true;
+  $('#cal').hidden = false;
+  $('#cal-lead').focus();
+  wake();
+}
+function closeCal() {
+  calOpen = false;
+  $('#cal').hidden = true;
+  calRing.classList.remove('on'); calMic.classList.remove('on');
+  $('#b-cal').focus();
+}
+$('#b-cal').addEventListener('click', openCal);
+$('#cal-done').addEventListener('click', closeCal);
+$('#cal-lead').addEventListener('input', e => setLead(+e.target.value));
+function micText(e) {
+  const n = e && e.name;
+  if (e && e.kind === 'nomic') return 'This browser gives no microphone access. Open the file in Chrome.';
+  if (n === 'NotAllowedError' || n === 'SecurityError') return 'Chrome was not allowed to use the microphone. Click the icon on the left of the address bar, allow the microphone and try again. You can also start without the microphone.';
+  if (n === 'NotFoundError') return 'No microphone found. Plug one in or start without the microphone.';
+  if (n === 'NotReadableError') return 'The microphone is busy in another program. Close it and try again.';
+  return 'Could not turn on the microphone.';
+}
+
+/* ---------- run state ---------- */
+let running = false, busy = false;
+function showErr(t) { const el = $('#err'); el.textContent = t; el.hidden = false; }
+function hideErr() { $('#err').hidden = true; }
+function updateButtons() {
+  $('#go').textContent = running ? 'Apply and return' : 'Start';
+  $('#go-nomic').hidden = running;
+}
+function setBusy(on, label) {
+  busy = on;
+  $('#go').disabled = on; $('#go-nomic').disabled = on;
+  if (on) $('#go').textContent = label; else updateButtons();
+}
+function openSetup() { setup.hidden = false; document.body.classList.remove('running', 'awake'); }
+function closeSetup() { setup.hidden = true; if (running) document.body.classList.add('running'); }
+
+async function go(useMic) {
+  if (busy) return;
+  hideErr(); readForm(); save();
+  const problem = sourceProblem();
+  if (problem) return showErr(problem);
+  if (useMic) ensureCtx();
+  setBusy(true, S.source === 'set' ? 'Loading set…' : 'Loading animations…');
+  let info;
+  try { info = await loadItems(); } catch (e) { setBusy(false); return showErr(errText(e)); }
+  if (!active.length) { setBusy(false); return showErr('All animations are put aside. Restore a few in “Review animations”.'); }
+  if (useMic && !micOn) {
+    setBusy(true, 'Waiting for the microphone…');
+    try { await startMic(); } catch (e) { setBusy(false); return showErr(micText(e)); }
+  }
+  running = true;
+  setBusy(false);
+  fill(); closeSetup();
+  const msgs = [];
+  if (info.empty.length) msgs.push('No results for: ' + info.empty.join(', ') + '.');
+  msgs.push(micOn ? 'Play. Esc or moving the mouse brings up the settings.' : 'No-microphone mode: Space or a click is a hit.');
+  const full = await goFull();
+  if (!full) msgs.push('F turns on full screen.');
+  toast(msgs.join(' '), 5000);
+  wake();
+}
+
+/* ---------- fullscreen, wake lock, toast ---------- */
+async function goFull() {
+  const el = document.documentElement;
+  if (document.fullscreenElement) return true;
+  if (!el.requestFullscreen) return false;
+  try { await el.requestFullscreen(); return true; } catch (e) { return false; }
+}
+function toggleFull() {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  else goFull().then(ok => { if (!ok) toast('The browser did not allow full screen.'); });
+}
+document.addEventListener('fullscreenchange', () => {
+  $('#b-full').textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+});
+let lock = null;
+async function wake() {
+  try {
+    if ('wakeLock' in navigator && !lock) {
+      lock = await navigator.wakeLock.request('screen');
+      lock.addEventListener('release', () => { lock = null; });
+    }
+  } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && running) wake(); });
+let toastT;
+function toast(msg, ms = 3800) {
+  const el = $('#toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+/* ---------- curator: click or drag tiles between "On screen" and "Put aside" ---------- */
+const curator = $('#curator'), inTiles = $('#in-tiles'), outTiles = $('#out-tiles');
+let curSig = '', curFilter = '', dragId = '';
+
+async function openCurator() {
+  hideErr(); readForm(); save();
+  const problem = sourceProblem();
+  if (problem) return showErr(problem);
+  if (sigNow() !== sig || !items.length) {
+    const b = $('#b-curate');
+    b.disabled = true; b.textContent = S.source === 'set' ? 'Loading…' : 'Loading…';
+    try { await loadItems(); } catch (e) { return showErr(errText(e)); }
+    finally { b.disabled = false; b.textContent = 'Review animations'; }
+  }
+  if (curSig !== sig) buildCurator();
+  const nameEl = $('#setname'), base = loadedFrom || wordList().slice(0, 3).join(', ');
+  if (extras.length) nameEl.value = [base, ...extras].join(' + ').slice(0, 60);
+  else if (loadedFrom || !nameEl.value) nameEl.value = base;
+  curator.hidden = false;
+  $('#cur-done').focus();
+}
+function closeCurator() { curator.hidden = true; $('#b-curate').focus(); }
+
+function buildCurator() {
+  inTiles.replaceChildren(); outTiles.replaceChildren();
+  items.forEach((it, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tile' + (it.sticker ? ' sticker' : '');
+    b.draggable = true;
+    b.dataset.id = it.id; b.dataset.i = String(i); b.dataset.word = it.word;
+    b.title = it.word;
+    const ar = Math.max(0.4, Math.min(3, it.w / it.h));
+    b.style.aspectRatio = ar.toFixed(3);
+    const img = new Image();
+    img.loading = 'lazy'; img.decoding = 'async'; img.alt = it.word; img.src = it.thumb;
+    b.appendChild(img);
+    (excluded.has(it.id) ? outTiles : inTiles).appendChild(b);
+  });
+  const ws = [...new Set(items.map(it => it.word).filter(Boolean))];
+  if (curFilter && !ws.includes(curFilter)) curFilter = '';
+  const chips = [['', 'All', items.length]].concat(ws.map(w => [w, w, items.filter(it => it.word === w).length]));
+  $('#cur-chips').replaceChildren(...chips.map(([val, label, n]) => {
+    const c = document.createElement('button');
+    c.type = 'button'; c.className = 'fchip'; c.dataset.word = val;
+    c.append(label);
+    const s = document.createElement('span'); s.textContent = n; c.append(s);
+    return c;
+  }));
+  curSig = sig;
+  applyFilter();
+}
+function applyFilter() {
+  $$('.fchip', $('#cur-chips')).forEach(c => c.setAttribute('aria-pressed', String(c.dataset.word === curFilter)));
+  for (const t of $$('.tile', curator)) t.hidden = !!curFilter && t.dataset.word !== curFilter;
+  updateCounts();
+}
+function updateCounts() {
+  const vis = el => $$('.tile:not([hidden])', el).length;
+  const nIn = vis(inTiles), nOut = vis(outTiles);
+  $('#in-count').textContent = nIn; $('#out-count').textContent = nOut;
+  $('#in-empty').hidden = nIn > 0; $('#out-empty').hidden = nOut > 0;
+  $('#in-all').disabled = !nIn; $('#out-all').disabled = !nOut;
+}
+// put a tile into a column, keeping the original Giphy order
+function placeTile(tile, toOut) {
+  const target = toOut ? outTiles : inTiles, i = +tile.dataset.i;
+  const after = Array.prototype.find.call(target.children, c => c !== tile && +c.dataset.i > i);
+  target.insertBefore(tile, after || null);
+  if (toOut) excluded.add(tile.dataset.id); else excluded.delete(tile.dataset.id);
+}
+function moveTiles(tiles, toOut) {
+  if (!tiles.length) return;
+  tiles.forEach(t => placeTile(t, toOut));
+  saveExcl(); refreshActive(); updateCounts();
+}
+for (const grid of [inTiles, outTiles]) {
+  grid.addEventListener('click', e => {
+    const t = e.target.closest('.tile');
+    if (t) { moveTiles([t], grid === inTiles); t.focus({ preventScroll: true }); }
+  });
+  grid.addEventListener('dragstart', e => {
+    const t = e.target.closest('.tile');
+    if (!t) return;
+    dragId = t.dataset.id;
+    t.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', dragId); } catch (_) {}
+  });
+  grid.addEventListener('dragend', e => {
+    const t = e.target.closest('.tile');
+    if (t) t.classList.remove('dragging');
+    dragId = '';
+    $$('.bucket').forEach(b => b.classList.remove('over'));
+  });
+}
+for (const bucket of $$('.bucket')) {
+  bucket.addEventListener('dragover', e => { if (!dragId) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; bucket.classList.add('over'); });
+  bucket.addEventListener('dragleave', e => { if (!bucket.contains(e.relatedTarget)) bucket.classList.remove('over'); });
+  bucket.addEventListener('drop', e => {
+    e.preventDefault();
+    bucket.classList.remove('over');
+    const t = dragId && curator.querySelector(`.tile[data-id="${CSS.escape(dragId)}"]`);
+    const toOut = bucket.dataset.side === 'out';
+    if (t && (t.parentElement === outTiles) !== toOut) moveTiles([t], toOut);
+  });
+}
+$('#cur-chips').addEventListener('click', e => {
+  const c = e.target.closest('.fchip');
+  if (c) { curFilter = c.dataset.word; applyFilter(); }
+});
+$('#in-all').addEventListener('click', () => moveTiles($$('.tile:not([hidden])', inTiles), true));
+$('#out-all').addEventListener('click', () => moveTiles($$('.tile:not([hidden])', outTiles), false));
+$('#b-curate').addEventListener('click', openCurator);
+$('#cur-done').addEventListener('click', closeCurator);
+$('#saveset').addEventListener('submit', e => { e.preventDefault(); saveAsSet($('#setname').value); });
+
+/* add animations from a saved set or a JSON file to the current list; everything added lands in "Na ekranie" */
+function mergeItems(list, label) {
+  const have = new Set(items.map(it => it.id));
+  let added = 0, restored = 0;
+  for (const x of list) {
+    if (have.has(x.id)) {
+      if (excluded.has(x.id)) { excluded.delete(x.id); restored++; }
+      continue;
+    }
+    items.push(Object.assign({}, x)); have.add(x.id); added++;
+    excluded.delete(x.id);
+  }
+  if (!added && !restored) { toast(`All animations from “${label}” are already in the list.`); return; }
+  if (added) extras.push(label);
+  saveExcl(); refreshActive(); buildCurator();
+  const nameEl = $('#setname'), base = loadedFrom || wordList().slice(0, 3).join(', ');
+  if (added) nameEl.value = [base, ...extras].join(' + ').slice(0, 60);
+  const parts = [];
+  if (added) parts.push(`added ${added} ${plural(added)}`);
+  if (restored) parts.push(`${restored} restored from put aside`);
+  toast(`From “${label}”: ${parts.join(', ')}. Save the result as a set to keep it.`, 5000);
+}
+const addMenu = $('#add-menu'), addBtn = $('#add-btn');
+function closeAddMenu() { addMenu.hidden = true; addBtn.setAttribute('aria-expanded', 'false'); }
+function openAddMenu() {
+  addMenu.replaceChildren();
+  if (!sets.length) {
+    const p = document.createElement('p'); p.textContent = 'You have no saved sets yet.'; addMenu.appendChild(p);
+  }
+  for (const s of sets) {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.id = s.id;
+    const n = document.createElement('b'); n.textContent = s.name;
+    const c = document.createElement('span'); c.textContent = `${s.items.length} ${plural(s.items.length)}`;
+    b.append(n, c); addMenu.appendChild(b);
+  }
+  const f = document.createElement('button'); f.type = 'button'; f.className = 'fromfile'; f.dataset.file = '1'; f.textContent = 'From a JSON file…';
+  addMenu.appendChild(f);
+  addMenu.hidden = false; addBtn.setAttribute('aria-expanded', 'true');
+  const first = addMenu.querySelector('button'); if (first) first.focus();
+}
+addBtn.addEventListener('click', () => { if (addMenu.hidden) openAddMenu(); else closeAddMenu(); });
+addMenu.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  closeAddMenu();
+  if (b.dataset.file) { $('#add-file').click(); return; }
+  const s = findSet(b.dataset.id);
+  if (s) mergeItems(s.items, s.name);
+});
+document.addEventListener('click', e => { if (!addMenu.hidden && !$('#add-wrap').contains(e.target)) closeAddMenu(); });
+$('#add-file').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  const all = [], names = [];
+  for (const f of files) {
+    try { for (const s of setsFromJson(JSON.parse(await f.text()))) { all.push(...s.items); names.push(s.name); } } catch (err) {}
+  }
+  if (!all.length) { toast("This file doesn't look like a GIFbit set."); return; }
+  const n = names.length;
+  mergeItems(all, n === 1 ? names[0] : `${n} sets from file`);
+});
+
+$('#shuffle').addEventListener('click', () => {
+  for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }
+  seq = 0; resetPool(); refreshActive(); buildCurator();
+  inTiles.parentElement.scrollTop = 0;
+  toast(S.order === 'seq'
+    ? 'Shuffled. Animations will play in this order.'
+    : 'Shuffled. The order is saved with the set. To play animations in this order, choose “In order” in Settings.', 5000);
+});
+function applyThumbSize() { curator.style.setProperty('--tile', (S.thumb || 240) + 'px'); }
+$('#cur-size').value = S.thumb || 240;
+applyThumbSize();
+$('#cur-size').addEventListener('input', e => { S.thumb = +e.target.value; applyThumbSize(); save(); });
+
+/* ---------- live color: one tint for every animation ----------
+   Each pixel's brightness Y is recolored to Y × tint color; "Moc" mixes that with the original,
+   then brightness and contrast are applied. All of it is linear, so it is one SVG color matrix
+   on the whole animation layer, which the GPU applies to every frame of every GIF. */
+var tintReady = false;
+const tintEl = $('#tint'), tintMatrix = $('#tint-m'), bgEl = $('#bgimg');
+const TINT_DOTS = [
+  { name: 'Black and white', h: null, c: '#c9c9c9' },
+  { name: 'Blue', h: 220 }, { name: 'Teal', h: 185 }, { name: 'Green', h: 140 },
+  { name: 'Gold', h: 45 }, { name: 'Orange', h: 22 }, { name: 'Red', h: 355 },
+  { name: 'Magenta', h: 315 }, { name: 'Violet', h: 270 }
+];
+function hueRgb(h) {        // fully saturated color with its brightest channel at 1
+  const f = n => { const k = (n + h / 30) % 12; return 0.5 - 0.5 * Math.max(-1, Math.min(k - 3, 9 - k, 1)); };
+  return [f(0), f(8), f(4)];
+}
+const css = rgb => `rgb(${rgb.map(x => Math.round(x * 255)).join(',')})`;
+
+/* automatic color change: glides (or cuts) between the picked colors */
+const auto = { h: S.tintH, sm: 1, from: null, to: null, t0: 0, dur: 0, idx: -1, nextAt: 0, hits: 0, gap: 500, lastHit: 0, slot: null, gen: -1 };
+const autoRunning = () => S.tintOn && S.autoOn && S.autoCols.length > 0;
+function effHS() {
+  return autoRunning() ? { h: auto.h, s: S.tintS * auto.sm } : { h: S.tintH, s: S.tintS };
+}
+let shownKey = '';
+function applyMatrix() {
+  const { h, s } = effHS();
+  const m = S.tintM / 100, b = S.tintB / 100, c = S.tintC / 100, w = [0.2126, 0.7152, 0.0722];
+  const H = hueRgb(h).map(x => 1 - (s / 100) * (1 - x));
+  const rows = [];
+  for (let i = 0; i < 3; i++) {
+    const r = [];
+    for (let j = 0; j < 3; j++) r.push(b * c * ((1 - m) * (i === j ? 1 : 0) + m * H[i] * w[j]));
+    r.push(0, b * 0.5 * (1 - c));
+    rows.push(r.map(x => +x.toFixed(4)).join(' '));
+  }
+  rows.push('0 0 0 1 0');
+  const values = rows.join('  ');
+  if (values !== shownKey) { tintMatrix.setAttribute('values', values); shownKey = values; }
+  const active = S.tintOn && !(m === 0 && b === 1 && c === 1);
+  layer.classList.toggle('tinted', active);
+  bgEl.classList.toggle('tinted', active && S.tintBg);
+  $('#t-swatch').style.background = S.tintOn ? css(H) : 'transparent';
+  return { h, s };
+}
+function applyTint() {
+  const { h } = applyMatrix();
+  tintEl.style.setProperty('--tc', css(hueRgb(h)));
+  tintEl.classList.toggle('off', !S.tintOn);
+  const run = autoRunning();
+  $('#t-hue-row').classList.toggle('auto', run);
+  if (run) $('#t-h').value = Math.round(h);
+  $('#t-mv').textContent = S.tintM + '%'; $('#t-hv').textContent = Math.round(h) + '°' + (run ? ' auto' : ''); $('#t-sv').textContent = S.tintS + '%';
+  $('#t-bv').textContent = S.tintB + '%'; $('#t-cv').textContent = S.tintC + '%';
+  $('#b-tint').textContent = S.tintOn ? (run ? 'Color: auto' : 'Color: on') : 'Color';
+  for (const d of $$('button', $('#t-dots'))) {
+    const p = TINT_DOTS[+d.dataset.i];
+    const on = S.tintOn && !run && (p.h === null ? S.tintS === 0 : S.tintS > 0 && Math.min(Math.abs(S.tintH - p.h), 360 - Math.abs(S.tintH - p.h)) <= 4);
+    d.setAttribute('aria-pressed', String(on));
+  }
+  const cur = run ? S.autoCols[((auto.idx % S.autoCols.length) + S.autoCols.length) % S.autoCols.length] : -1;
+  for (const d of $$('button', $('#a-dots'))) {
+    const i = +d.dataset.i;
+    d.setAttribute('aria-pressed', String(S.autoCols.includes(i)));
+    d.classList.toggle('now', i === cur);
+  }
+  $('#a-secv').textContent = String(S.autoSec) + ' s';
+  $('#a-smoothv').textContent = S.autoSmooth + '%';
+  $('#a-timerow').hidden = S.autoMode !== 'time';
+  $('#a-beatrow').hidden = S.autoMode !== 'beats';
+  $('#a-beatsv').textContent = S.bpm ? 'quarter notes, on tempo' : 'detected hits';
+}
+function syncTintInputs() {
+  $('#t-on').checked = S.tintOn; $('#t-m').value = S.tintM; $('#t-h').value = S.tintH; $('#t-s').value = S.tintS;
+  $('#t-b').value = S.tintB; $('#t-c').value = S.tintC; $('#t-bg').checked = S.tintBg;
+  $('#a-on').checked = S.autoOn; $('#a-sec').value = S.autoSec; $('#a-smooth').value = S.autoSmooth;
+  const mr = $(`#a-mode-${S.autoMode}`); if (mr) mr.checked = true;
+  const br = $(`#a-b${S.autoBeats}`); if (br) br.checked = true;
+  $('#t-sec-auto').open = !!S.secAuto; $('#t-sec-bg').open = !!S.secBg;
+  syncBgInputs();
+}
+function syncBgInputs() {
+  $('#t-bgc').value = S.bg; $('#t-dim').value = S.dim; $('#t-dimv').textContent = S.dim + '%';
+  $('#t-bgclear').hidden = !S.bgImg;
+}
+function makeDots(box) {
+  box.append(...TINT_DOTS.map((p, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.i = String(i); b.title = p.name; b.setAttribute('aria-label', p.name);
+    b.style.setProperty('--dc', p.c || css(hueRgb(p.h)));
+    return b;
+  }));
+}
+makeDots($('#t-dots')); makeDots($('#a-dots'));
+
+$('#t-dots').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const p = TINT_DOTS[+b.dataset.i];
+  if (p.h === null) S.tintS = 0;
+  else { S.tintH = p.h; if (S.tintS < 30) S.tintS = 70; }
+  S.tintOn = true; S.autoOn = false; if (S.tintM < 20) S.tintM = 100;
+  syncTintInputs(); applyTint(); save();
+});
+$('#a-dots').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const i = +b.dataset.i, set = new Set(S.autoCols);
+  if (set.has(i)) set.delete(i); else set.add(i);
+  S.autoCols = TINT_DOTS.map((_, k) => k).filter(k => set.has(k));   // keep palette order
+  applyTint(); save();
+});
+// moving a slider switches the tint on, so it never looks like the panel does nothing
+const TINT_RANGES = { 't-m': 'tintM', 't-h': 'tintH', 't-s': 'tintS', 't-b': 'tintB', 't-c': 'tintC' };
+tintEl.addEventListener('input', e => {
+  const t = e.target, id = t.id;
+  if (TINT_RANGES[id]) {
+    S[TINT_RANGES[id]] = +t.value;
+    if (id === 't-h' && S.autoOn) { S.autoOn = false; $('#a-on').checked = false; }   // grabbing the hue takes over from auto
+    if (!S.tintOn) { S.tintOn = true; $('#t-on').checked = true; }
+  }
+  else if (id === 't-on') S.tintOn = t.checked;
+  else if (id === 't-bg') S.tintBg = t.checked;
+  else if (id === 'a-on') { S.autoOn = t.checked; if (S.autoOn) { S.tintOn = true; $('#t-on').checked = true; startAuto(); } else stopAuto(); }
+  else if (id === 'a-sec') { S.autoSec = +t.value; auto.nextAt = Math.min(auto.nextAt, performance.now() + S.autoSec * 1000); }
+  else if (id === 'a-smooth') S.autoSmooth = +t.value;
+  else if (t.name === 'a-mode') { S.autoMode = t.value; startAuto(); }
+  else if (t.name === 'a-beats') { S.autoBeats = +t.value; auto.slot = null; auto.hits = 0; }
+  else if (id === 't-bgc') { S.bg = t.value; $('#bg').value = S.bg; refreshUI(); }
+  else if (id === 't-dim') { S.dim = +t.value; $('#dim').value = S.dim; refreshUI(); }
+  else return;
+  applyTint(); save();
+});
+for (const [id, key] of [['t-sec-auto', 'secAuto'], ['t-sec-bg', 'secBg']]) {
+  $('#' + id).addEventListener('toggle', e => { S[key] = e.target.open; save(); });
+}
+$('#t-bgpick').addEventListener('click', () => $('#bgfile').click());
+$('#t-bgclear').addEventListener('click', () => { S.bgImg = ''; save(); refreshUI(); });
+
+function startAuto() {
+  const now = performance.now();
+  if (!(auto.from && auto.to)) { auto.h = S.tintH; auto.sm = S.tintS > 0 ? 1 : 0; }
+  // continue from the color that is on screen, so the first change is always a visible one
+  auto.idx = S.autoCols.findIndex(i => {
+    const p = TINT_DOTS[i];
+    return p.h === null ? auto.sm < 0.5 : auto.sm >= 0.5 && Math.min(Math.abs(auto.h - p.h), 360 - Math.abs(auto.h - p.h)) <= 12;
+  });
+  auto.hits = 0; auto.slot = null; auto.nextAt = now;
+  if (S.autoMode === 'time' || S.bpm) stepAuto(now, intervalMs());   // first color right away
+}
+function stopAuto() {
+  // keep whatever color is on screen now
+  S.tintH = Math.round(((auto.h % 360) + 360) % 360);
+  if (auto.sm < 0.5) S.tintS = 0;
+  auto.from = auto.to = null;
+  syncTintInputs();
+}
+function intervalMs() {
+  if (S.autoMode === 'time') return S.autoSec * 1000;
+  if (S.bpm) return 60000 / S.bpm * S.autoBeats;
+  return Math.max(150, Math.min(6000, auto.gap * S.autoBeats));
+}
+function stepAuto(now, interval) {
+  const list = S.autoCols;
+  if (!list.length) return;
+  auto.idx = (auto.idx + 1) % list.length;
+  const p = TINT_DOTS[list[auto.idx]];
+  const from = { h: auto.h, sm: auto.sm };
+  const to = p.h === null ? { h: auto.h, sm: 0 } : { h: p.h, sm: 1 };
+  if (from.sm < 0.01) from.h = to.h;              // coming out of black-and-white: no hue sweep
+  auto.from = from; auto.to = to; auto.t0 = now;
+  auto.dur = (S.autoSmooth / 100) * interval;
+}
+// called for every hit; in "co uderzenia" without a tempo, hits drive the change
+function autoHit(now) {
+  if (auto.lastHit) auto.gap = auto.gap * 0.8 + Math.min(2000, now - auto.lastHit) * 0.2;
+  auto.lastHit = now;
+  if (!autoRunning() || S.autoMode !== 'beats' || S.bpm) return;
+  if (++auto.hits % S.autoBeats === 0) stepAuto(now, intervalMs());
+}
+let autoUi = 0;
+function autoFrame(now) {
+  if (!autoRunning()) return;
+  if (S.autoMode === 'time') {
+    if (now >= auto.nextAt) { stepAuto(now, intervalMs()); auto.nextAt = now + S.autoSec * 1000; }
+  } else if (S.bpm) {
+    const span = 8 * S.autoBeats;                 // grid slots (1/32) per change
+    if (groove.locked) {
+      // on the music's beat grid, shown early by the same lead as predicted hits
+      if (auto.gen !== groove.gen) { auto.gen = groove.gen; auto.slot = null; }
+      const n = Math.floor(groove.kOf(now + groove.lead) / span);
+      if (auto.slot === null) auto.slot = n;
+      else if (n !== auto.slot) { auto.slot = n; stepAuto(now, intervalMs()); }
+    } else if (now >= auto.nextAt) {               // no music yet: keep time at the set tempo
+      stepAuto(now, intervalMs()); auto.nextAt = now + intervalMs();
+    }
+  }
+  if (auto.from && auto.to) {
+    const p = auto.dur < 20 ? 1 : Math.min(1, (now - auto.t0) / auto.dur);
+    const e = 0.5 - 0.5 * Math.cos(Math.PI * p);
+    const d = ((auto.to.h - auto.from.h + 540) % 360) - 180;   // shortest way around the color wheel
+    auto.h = (auto.from.h + d * e + 360) % 360;
+    auto.sm = auto.from.sm + (auto.to.sm - auto.from.sm) * e;
+  }
+  applyMatrix();
+  if (now - autoUi > 120) { autoUi = now; applyTint(); }
+}
+
+function showTint(on) {
+  S.tintPanel = on; save();
+  tintEl.hidden = !on;
+  $('#b-tint').setAttribute('aria-expanded', String(on));
+}
+$('#b-tint').addEventListener('click', () => showTint(tintEl.hidden));
+$('#t-hide').addEventListener('click', () => showTint(false));
+syncTintInputs(); if (autoRunning()) startAuto(); applyTint(); showTint(!!S.tintPanel);
+tintReady = true;
+
+/* ---------- input on the stage ---------- */
+let idleT;
+document.addEventListener('mousemove', () => {
+  if (!running || !setup.hidden) return;
+  document.body.classList.add('awake');
+  clearTimeout(idleT);
+  idleT = setTimeout(() => document.body.classList.remove('awake'), 2200);
+});
+stage.addEventListener('click', () => { if (running && setup.hidden) manualHit(); });
+$('#b-settings').addEventListener('click', openSetup);
+$('#b-full').addEventListener('click', toggleFull);
+
+document.addEventListener('keydown', e => {
+  if (calOpen) {
+    if (e.key === 'Escape') closeCal();
+    else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.target.id !== 'cal-lead') {
+      e.preventDefault(); setLead(S.lead + (e.key === 'ArrowRight' ? 5 : -5));
+    }
+    return;
+  }
+  if (!curator.hidden) {
+    if (e.key === 'Escape') { if (!addMenu.hidden) { closeAddMenu(); addBtn.focus(); } else closeCurator(); }
+    return;
+  }
+  if (e.key === 'Escape') {
+    if (!running) return;
+    if (setup.hidden) openSetup();
+    else {
+      closeSetup();
+      if (sigNow() !== sig) toast('New keywords take effect after you click “Apply and return”.');
+    }
+    return;
+  }
+  const t = e.target;
+  const typing = t && ((t.tagName === 'INPUT' && (t.type === 'text' || t.type === 'number')) || t.tagName === 'TEXTAREA');
+  if (typing || !setup.hidden || !running) return;
+  const k = e.key.toLowerCase();
+  if (e.key === ' ') { e.preventDefault(); manualHit(); }
+  else if (k === 't') toast('Tempo: ' + tap(), 1500);
+  else if (k === 'f') toggleFull();
+  else if (k === 'k') showTint(tintEl.hidden);
+  else if (k === 'h') $('#hud').hidden = !$('#hud').hidden;
+  else if (k === 'c') layer.replaceChildren();
+  else if (k === 's') openSetup();
+});
+
+populate(); refreshUI(); updateButtons();
+})();
+</script>
+</body>
+</html>
