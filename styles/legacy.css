@@ -1,0 +1,19 @@
+
+:root{
+  
+  --ink:#0f0c15;
+  --panel:#18141f;
+  --well:#211b2b;
+  --line:#342c41;
+  --text:#f3eff8;
+  --muted:#a59cb3;
+  --accent:#ff6b3d;
+  --accent-ink:#1d0b04;
+  --signal:#6ff0ac;
+  --bad:#ff6a85;
+  --f-display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
