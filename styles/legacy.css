@@ -19,3 +19,5 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
+body{margin:0;background:var(--ink);color:var(--text);font:15px/1.5 var(--f-body);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
