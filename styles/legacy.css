@@ -28,3 +28,6 @@ a{color:var(--accent)}
 #stage{position:fixed;inset:0;overflow:hidden;background:var(--bgc,#140f1c)}
 #bgimg{position:absolute;inset:0;background-color:var(--bgc,#140f1c);background-position:center;background-size:cover;background-repeat:no-repeat}
 #layer.tinted,#bgimg.tinted{filter:url(#tint-f)}
+#shade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+
+#layer{position:absolute;inset:0;z-index:1;will-change:transform}
