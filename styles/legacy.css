@@ -33,3 +33,5 @@ a{color:var(--accent)}
 #layer{position:absolute;inset:0;z-index:1;will-change:transform}
 .g{position:absolute;will-change:transform}
 .g img{display:block;width:100%;height:100%;object-fit:cover}
+.g.card img{border-radius:6px;box-shadow:0 14px 44px rgba(0,0,0,.5)}
+.g.sticker img{object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.45))}
