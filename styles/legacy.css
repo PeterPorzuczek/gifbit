@@ -35,3 +35,6 @@ a{color:var(--accent)}
 .g img{display:block;width:100%;height:100%;object-fit:cover}
 .g.card img{border-radius:6px;box-shadow:0 14px 44px rgba(0,0,0,.5)}
 .g.sticker img{object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.45))}
+.g.single{inset:0}
+.g.single img{object-fit:contain;border-radius:0;box-shadow:none}
+#attrib{position:absolute;z-index:2;right:max(14px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));margin:0;font:500 11px/1 var(--f-mono);letter-spacing:.06em;color:#fff;opacity:.55;text-shadow:0 1px 3px rgba(0,0,0,.7)}
