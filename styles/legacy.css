@@ -38,3 +38,7 @@ a{color:var(--accent)}
 .g.single{inset:0}
 .g.single img{object-fit:contain;border-radius:0;box-shadow:none}
 #attrib{position:absolute;z-index:2;right:max(14px,env(safe-area-inset-right,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));margin:0;font:500 11px/1 var(--f-mono);letter-spacing:.06em;color:#fff;opacity:.55;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+
+
+#ctrl{position:fixed;z-index:10;top:max(14px,env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));display:flex;gap:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+body.running.awake #ctrl{opacity:1;pointer-events:auto}
