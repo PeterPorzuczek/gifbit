@@ -42,3 +42,5 @@ a{color:var(--accent)}
 
 #ctrl{position:fixed;z-index:10;top:max(14px,env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));display:flex;gap:8px;opacity:0;pointer-events:none;transition:opacity .2s}
 body.running.awake #ctrl{opacity:1;pointer-events:auto}
+body.running:not(.awake) #stage{cursor:none}
+.chip{background:rgba(15,12,21,.8);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;backdrop-filter:blur(6px)}
