@@ -44,3 +44,5 @@ a{color:var(--accent)}
 body.running.awake #ctrl{opacity:1;pointer-events:auto}
 body.running:not(.awake) #stage{cursor:none}
 .chip{background:rgba(15,12,21,.8);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;backdrop-filter:blur(6px)}
+.chip:hover{border-color:var(--muted)}
+#hud{position:fixed;z-index:10;left:max(14px,env(safe-area-inset-left,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 28px));background:rgba(15,12,21,.8);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;backdrop-filter:blur(6px)}
