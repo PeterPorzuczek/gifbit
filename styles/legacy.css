@@ -53,3 +53,5 @@ body.running:not(.awake) #stage{cursor:none}
 
 #setup{position:fixed;inset:0;z-index:30;overflow-y:auto;background:rgba(12,9,17,.66);backdrop-filter:blur(5px);display:flex;justify-content:center;align-items:flex-start;padding-block:max(28px,env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .console{width:100%;max-width:640px;margin-block:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(20px,4vw,32px);display:grid;gap:24px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.console header{display:grid;gap:10px}
+h1{margin:0;font:800 clamp(42px,8vw,58px)/.9 var(--f-display);letter-spacing:-.035em;display:flex;align-items:flex-start;gap:6px}
