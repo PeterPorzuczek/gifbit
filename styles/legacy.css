@@ -64,3 +64,5 @@ body.hit .dot{background:var(--signal);box-shadow:0 0 18px var(--signal)}
 .field>label,.lab,legend{font:600 12px/1.2 var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0}
 legend{margin-bottom:8px}
 .hint{margin:0;font-size:13px;color:var(--muted);text-wrap:pretty}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+input[type=text],textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
