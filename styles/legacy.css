@@ -66,3 +66,5 @@ legend{margin-bottom:8px}
 .hint{margin:0;font-size:13px;color:var(--muted);text-wrap:pretty}
 .row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
 input[type=text],textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
+input[type=text]:focus,textarea:focus{border-color:var(--accent)}
+#key{font-family:var(--f-mono);font-size:14px}
