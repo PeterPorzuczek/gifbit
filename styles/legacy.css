@@ -68,3 +68,6 @@ legend{margin-bottom:8px}
 input[type=text],textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
 input[type=text]:focus,textarea:focus{border-color:var(--accent)}
 #key{font-family:var(--f-mono);font-size:14px}
+textarea{resize:vertical;min-height:76px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.rangehead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
