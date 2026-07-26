@@ -71,3 +71,5 @@ input[type=text]:focus,textarea:focus{border-color:var(--accent)}
 textarea{resize:vertical;min-height:76px}
 input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .rangehead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+output{font:500 13px var(--f-mono);color:var(--text);font-variant-numeric:tabular-nums}
+.seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--well);border:1px solid var(--line);border-radius:10px;padding:4px}
