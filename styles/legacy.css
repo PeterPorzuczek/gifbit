@@ -73,3 +73,5 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .rangehead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 output{font:500 13px var(--f-mono);color:var(--text);font-variant-numeric:tabular-nums}
 .seg{display:flex;flex-wrap:wrap;gap:4px;background:var(--well);border:1px solid var(--line);border-radius:10px;padding:4px}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.seg label{flex:1 1 auto;text-align:center;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap}
