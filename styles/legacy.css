@@ -77,3 +77,6 @@ output{font:500 13px var(--f-mono);color:var(--text);font-variant-numeric:tabula
 .seg label{flex:1 1 auto;text-align:center;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap}
 .seg label:hover{color:var(--text)}
 .seg input:checked+label{background:var(--text);color:var(--ink)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:500}
+.check input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
