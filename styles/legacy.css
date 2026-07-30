@@ -80,3 +80,5 @@ output{font:500 13px var(--f-mono);color:var(--text);font-variant-numeric:tabula
 .seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
 .check{display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:500}
 .check input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.bgrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=color]{width:48px;height:40px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--well);cursor:pointer}
