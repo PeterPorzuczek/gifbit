@@ -82,3 +82,5 @@ output{font:500 13px var(--f-mono);color:var(--text);font-variant-numeric:tabula
 .check input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
 .bgrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 input[type=color]{width:48px;height:40px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--well);cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--well);border-radius:9px;padding:9px 14px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
