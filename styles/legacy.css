@@ -98,3 +98,5 @@ details p{margin:0}
 .primary:hover{filter:brightness(1.07)}
 .primary:disabled{opacity:.6;cursor:progress}
 .ghost{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 2px;font-weight:600}
+.ghost:hover{color:var(--text)}
+#status{margin:0;font:13px/1.4 var(--f-mono);color:var(--muted)}
