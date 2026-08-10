@@ -104,3 +104,7 @@ details p{margin:0}
 .foot{margin:0;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
 kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--text)}
 .curate{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.subgroup{display:grid;gap:18px}
+
+
+.setlist{display:grid;gap:8px}
