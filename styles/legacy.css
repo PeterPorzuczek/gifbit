@@ -117,3 +117,6 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .setthumbs{display:flex;gap:3px;flex:none}
 .setthumbs img{width:34px;height:34px;object-fit:cover;border-radius:5px;background:var(--panel)}
 .settxt{display:grid;min-width:0}
+.settxt b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.settxt span{font:12px/1.4 var(--f-mono);color:var(--muted)}
+.btn.sm{flex:none;padding:6px 10px;font-size:13px}
