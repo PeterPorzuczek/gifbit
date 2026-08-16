@@ -120,3 +120,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .settxt b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .settxt span{font:12px/1.4 var(--f-mono);color:var(--muted)}
 .btn.sm{flex:none;padding:6px 10px;font-size:13px}
+.btn.warn{border-color:var(--bad);color:var(--bad)}
+@media (max-width:520px){.setrow{flex-wrap:wrap}.setthumbs{display:none}}
