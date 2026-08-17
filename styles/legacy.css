@@ -122,3 +122,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .btn.sm{flex:none;padding:6px 10px;font-size:13px}
 .btn.warn{border-color:var(--bad);color:var(--bad)}
 @media (max-width:520px){.setrow{flex-wrap:wrap}.setthumbs{display:none}}
+.saveset{display:flex;flex-wrap:wrap;gap:8px}
+.saveset input{width:220px;max-width:100%}
