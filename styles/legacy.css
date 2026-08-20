@@ -131,3 +131,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .cur-head h2{margin:0;font:800 30px/1 var(--f-display);letter-spacing:-.025em}
 .cur-head p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:60ch}
 .cur-head .primary{padding:12px 24px;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
