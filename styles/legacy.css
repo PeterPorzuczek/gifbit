@@ -135,3 +135,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .fchip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
 .fchip span{font:500 12px var(--f-mono);margin-left:6px;opacity:.75}
 .fchip:hover{color:var(--text)}
+.fchip[aria-pressed="true"]{background:var(--text);color:var(--ink);border-color:var(--text)}
+.buckets{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:0}
