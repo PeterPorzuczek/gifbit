@@ -142,3 +142,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .bhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .bhead h3{margin:0;font:700 16px/1.2 var(--f-display)}
 .count{font:500 13px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.bhead .btn{padding:6px 10px;font-size:13px}
+.bactions{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
