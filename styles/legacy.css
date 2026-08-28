@@ -149,3 +149,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .menu button{display:flex;justify-content:space-between;align-items:baseline;gap:14px;text-align:left;background:none;border:0;border-radius:7px;padding:8px 10px;cursor:pointer;color:var(--text)}
 .menu button:hover,.menu button:focus-visible{background:var(--well)}
 .menu button b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu button span{flex:none;font:12px var(--f-mono);color:var(--muted)}
+.menu .fromfile{margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 7px 7px;color:var(--muted);font-weight:600}
