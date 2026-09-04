@@ -165,3 +165,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 #in-tiles .tile::after{content:"→"}
 #out-tiles .tile::after{content:"←"}
 .tile:hover::after,.tile:focus-visible::after{opacity:1}
+#out-tiles .tile img{filter:grayscale(.75) brightness(.65)}
+#out-tiles .tile:hover img,#out-tiles .tile:focus-visible img{filter:none}
