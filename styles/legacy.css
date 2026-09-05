@@ -167,3 +167,10 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 .tile:hover::after,.tile:focus-visible::after{opacity:1}
 #out-tiles .tile img{filter:grayscale(.75) brightness(.65)}
 #out-tiles .tile:hover img,#out-tiles .tile:focus-visible img{filter:none}
+.tile.dragging{opacity:.35}
+.empty{margin:24px 8px;color:var(--muted);font-size:14px;text-align:center;text-wrap:pretty}
+@media (max-width:720px){
+  .buckets{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  #in-tiles .tile::after{content:"↓"}
+  #out-tiles .tile::after{content:"↑"}
+}
