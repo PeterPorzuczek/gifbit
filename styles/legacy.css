@@ -177,3 +177,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 
 .bpmrow{display:flex;gap:8px}
 #bpm{font-family:var(--f-mono);font-variant-numeric:tabular-nums;width:120px}
+input[type=number]{background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
+input[type=number]:focus{border-color:var(--accent)}
