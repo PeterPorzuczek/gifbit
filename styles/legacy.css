@@ -179,3 +179,5 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:4px;p
 #bpm{font-family:var(--f-mono);font-variant-numeric:tabular-nums;width:120px}
 input[type=number]{background:var(--well);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none}
 input[type=number]:focus{border-color:var(--accent)}
+#tap{min-width:132px;font-variant-numeric:tabular-nums}
+.leadrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
