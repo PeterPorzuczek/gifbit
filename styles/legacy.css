@@ -184,3 +184,7 @@ input[type=number]:focus{border-color:var(--accent)}
 .leadrow input[type=range]{flex:1 1 220px;width:auto}
 .tempo{margin:0;font:500 13px/1.4 var(--f-mono);color:var(--text);font-variant-numeric:tabular-nums}
 .tempo:empty{display:none}
+
+
+#cal{position:fixed;inset:0;z-index:38;background:var(--ink);display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center;gap:20px;padding-block:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.cal-stage{display:grid;place-items:center;gap:18px;min-height:0;width:100%}
