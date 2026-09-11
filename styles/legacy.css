@@ -188,3 +188,5 @@ input[type=number]:focus{border-color:var(--accent)}
 
 #cal{position:fixed;inset:0;z-index:38;background:var(--ink);display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center;gap:20px;padding-block:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .cal-stage{display:grid;place-items:center;gap:18px;min-height:0;width:100%}
+.cal-ring{width:min(46vh,70vw);aspect-ratio:1;max-width:100%;border-radius:50%;border:6px solid var(--line);display:grid;place-items:center;font:800 clamp(48px,12vh,120px)/1 var(--f-display);color:var(--muted);will-change:transform}
+.cal-ring.on{background:var(--text);border-color:var(--text);color:var(--ink)}
