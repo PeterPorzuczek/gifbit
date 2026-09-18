@@ -204,3 +204,6 @@ body:not(.running) #tint{display:none}
 .t-head{display:flex;align-items:center;gap:10px}
 .t-head b{font:700 15px/1 var(--f-display);margin-right:auto}
 .t-swatch{width:18px;height:18px;border-radius:50%;background:var(--tc,#888);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.t-switch,.t-check{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);font-weight:600}
+.t-switch input,.t-check input{margin:0;width:16px;height:16px;accent-color:var(--accent)}
+.t-x{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;padding:0 2px;cursor:pointer}
