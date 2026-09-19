@@ -207,3 +207,5 @@ body:not(.running) #tint{display:none}
 .t-switch,.t-check{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);font-weight:600}
 .t-switch input,.t-check input{margin:0;width:16px;height:16px;accent-color:var(--accent)}
 .t-x{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;padding:0 2px;cursor:pointer}
+.t-x:hover{color:var(--text)}
+.t-dots{display:flex;flex-wrap:wrap;gap:6px}
