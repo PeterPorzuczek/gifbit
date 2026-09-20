@@ -209,3 +209,5 @@ body:not(.running) #tint{display:none}
 .t-x{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;padding:0 2px;cursor:pointer}
 .t-x:hover{color:var(--text)}
 .t-dots{display:flex;flex-wrap:wrap;gap:6px}
+.t-dots button{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0;cursor:pointer;background:var(--dc);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.t-dots button:hover{border-color:var(--muted)}
