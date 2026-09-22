@@ -213,3 +213,6 @@ body:not(.running) #tint{display:none}
 .t-dots button:hover{border-color:var(--muted)}
 .t-dots button[aria-pressed="true"]{border-color:var(--text)}
 .t-row{display:grid;gap:4px}
+.t-lab{display:flex;justify-content:space-between;color:var(--muted);font-weight:600}
+.t-lab output{font:500 12px var(--f-mono);color:var(--text)}
+#tint input[type=range]{width:100%;margin:0;accent-color:var(--accent)}
