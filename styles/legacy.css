@@ -216,3 +216,5 @@ body:not(.running) #tint{display:none}
 .t-lab{display:flex;justify-content:space-between;color:var(--muted);font-weight:600}
 .t-lab output{font:500 12px var(--f-mono);color:var(--text)}
 #tint input[type=range]{width:100%;margin:0;accent-color:var(--accent)}
+#tint input.t-hue,#tint input.t-sat{-webkit-appearance:none;appearance:none;height:14px;border-radius:7px;background:transparent;cursor:pointer}
+#tint .t-hue::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#f33,#fd3,#3e5,#3ee,#36f,#d3f,#f33)}
