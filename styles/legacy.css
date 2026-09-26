@@ -222,3 +222,6 @@ body:not(.running) #tint{display:none}
 #tint .t-sat::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#eee,var(--tc,#888))}
 #tint .t-sat::-moz-range-track{height:10px;border-radius:5px;background:linear-gradient(90deg,#eee,var(--tc,#888))}
 #tint .t-hue::-webkit-slider-thumb,#tint .t-sat::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-3px;border-radius:50%;background:#fff;border:2px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.6)}
+#tint .t-hue::-moz-range-thumb,#tint .t-sat::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+.t-hint{margin:0;color:var(--muted);font-size:12px}
+#tint.off>.t-row,#tint.off>.t-dots{opacity:.45}
