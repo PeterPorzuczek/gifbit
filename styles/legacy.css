@@ -225,3 +225,5 @@ body:not(.running) #tint{display:none}
 #tint .t-hue::-moz-range-thumb,#tint .t-sat::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
 .t-hint{margin:0;color:var(--muted);font-size:12px}
 #tint.off>.t-row,#tint.off>.t-dots{opacity:.45}
+.t-sec{border-top:1px solid var(--line);padding-top:10px}
+.t-sec summary{cursor:pointer;font:700 13px/1.2 var(--f-display);letter-spacing:.02em;color:var(--text);width:fit-content}
