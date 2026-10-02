@@ -236,3 +236,5 @@ body:not(.running) #tint{display:none}
 .t-seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .t-seg label{flex:1;text-align:center;padding:5px 6px;border-radius:5px;cursor:pointer;color:var(--muted);font-weight:600;font-size:12px;white-space:nowrap}
 .t-seg input:checked+label{background:var(--text);color:var(--ink)}
+.t-seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
+#t-hue-row.auto{opacity:.55}
