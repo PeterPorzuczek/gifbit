@@ -238,3 +238,5 @@ body:not(.running) #tint{display:none}
 .t-seg input:checked+label{background:var(--text);color:var(--ink)}
 .t-seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
 #t-hue-row.auto{opacity:.55}
+.t-bgrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.t-bgrow input[type=color]{width:40px;height:30px;padding:2px;border:1px solid var(--line);border-radius:7px;background:var(--well);cursor:pointer}
