@@ -240,3 +240,6 @@ body:not(.running) #tint{display:none}
 #t-hue-row.auto{opacity:.55}
 .t-bgrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .t-bgrow input[type=color]{width:40px;height:30px;padding:2px;border:1px solid var(--line);border-radius:7px;background:var(--well);cursor:pointer}
+.t-btn{border:1px solid var(--line);background:var(--well);border-radius:7px;padding:5px 10px;font-weight:600;font-size:12px;cursor:pointer;color:var(--text)}
+.t-btn:hover{border-color:var(--muted)}
+@media (prefers-reduced-motion:reduce){#toast,#ctrl{transition:none}}
