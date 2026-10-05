@@ -1,0 +1,261 @@
+#tint {
+  position: fixed;
+  z-index: 12;
+  right: max(14px, env(safe-area-inset-right, 0px));
+  bottom: calc(34px + env(safe-area-inset-bottom, 0px));
+  width: min(320px, calc(100vw - 28px));
+  max-height: calc(100% - 110px);
+  overflow-y: auto;
+  background: rgba(15, 12, 21, 0.86);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px 14px;
+  display: grid;
+  gap: 10px;
+  backdrop-filter: blur(8px);
+  font-size: 13px;
+}
+body:not(.running) #tint {
+  display: none;
+}
+.t-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.t-head b {
+  font: 700 15px/1 var(--f-display);
+  margin-right: auto;
+}
+.t-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--tc, #888);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+.t-switch,
+.t-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+}
+.t-switch input,
+.t-check input {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.t-x {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+.t-x:hover {
+  color: var(--text);
+}
+.t-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.t-dots button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background: var(--dc);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.t-dots button:hover {
+  border-color: var(--muted);
+}
+.t-dots button[aria-pressed='true'] {
+  border-color: var(--text);
+}
+.t-row {
+  display: grid;
+  gap: 4px;
+}
+.t-lab {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-weight: 600;
+}
+.t-lab output {
+  font: 500 12px var(--f-mono);
+  color: var(--text);
+}
+#tint input[type='range'] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent);
+}
+#tint input.t-hue,
+#tint input.t-sat {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+#tint .t-hue::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #f33, #fd3, #3e5, #3ee, #36f, #d3f, #f33);
+}
+#tint .t-hue::-moz-range-track {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #f33, #fd3, #3e5, #3ee, #36f, #d3f, #f33);
+}
+#tint .t-sat::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #eee, var(--tc, #888));
+}
+#tint .t-sat::-moz-range-track {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #eee, var(--tc, #888));
+}
+#tint .t-hue::-webkit-slider-thumb,
+#tint .t-sat::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+#tint .t-hue::-moz-range-thumb,
+#tint .t-sat::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ink);
+}
+.t-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+#tint.off > .t-row,
+#tint.off > .t-dots {
+  opacity: 0.45;
+}
+.t-sec {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.t-sec summary {
+  cursor: pointer;
+  font: 700 13px/1.2 var(--f-display);
+  letter-spacing: 0.02em;
+  color: var(--text);
+  width: fit-content;
+}
+.t-sec summary::marker {
+  color: var(--muted);
+}
+.t-body {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+.a-dots button {
+  opacity: 0.32;
+}
+.a-dots button[aria-pressed='true'] {
+  opacity: 1;
+  border-color: var(--text);
+}
+.a-dots button.now {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.t-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--well);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px;
+}
+.t-seg input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.t-seg label {
+  flex: 1;
+  text-align: center;
+  padding: 5px 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.t-seg input:checked + label {
+  background: var(--text);
+  color: var(--ink);
+}
+.t-seg input:focus-visible + label {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+#t-hue-row.auto {
+  opacity: 0.55;
+}
+.t-bgrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.t-bgrow input[type='color'] {
+  width: 40px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--well);
+  cursor: pointer;
+}
+.t-btn {
+  border: 1px solid var(--line);
+  background: var(--well);
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text);
+}
+.t-btn:hover {
+  border-color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  #toast,
+  #ctrl {
+    transition: none;
+  }
+}
