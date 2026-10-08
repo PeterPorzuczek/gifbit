@@ -1,0 +1,15 @@
+{
+  "name": "gifbit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Buildless, microphone-reactive GIF stage",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/audio.test.js tests/data.test.js",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}
