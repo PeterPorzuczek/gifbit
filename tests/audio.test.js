@@ -23,3 +23,10 @@ test('a fresh attack triggers once while a sustained tone stays quiet', () => {
   assert.equal(detector.report().lvl, -120);
 });
 
+test('without tempo every onset is delivered immediately', () => {
+  const groove = new Groove();
+  assert.deepEqual(groove.onset(1000, 0.7), { kind: 'react', t: 1000, v: 0.7 });
+  assert.deepEqual(groove.tick(1100), []);
+  assert.equal(groove.status(1100).mode, 'free');
+});
+
