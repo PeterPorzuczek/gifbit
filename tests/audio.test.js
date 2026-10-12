@@ -30,3 +30,23 @@ test('without tempo every onset is delivered immediately', () => {
   assert.equal(groove.status(1100).mode, 'free');
 });
 
+test('a repeating beat locks, predicts early and suppresses duplicate onsets', () => {
+  const groove = new Groove();
+  groove.setBpm(120);
+  let predictions = 0;
+  let suppressed = 0;
+  for (let now = 0; now <= 16000; now += 5) {
+    for (const event of groove.tick(now, 0)) {
+      assert.equal(event.kind, 'predict');
+      predictions++;
+    }
+    if (now % 500 === 0 && groove.onset(now, 1) === null) suppressed++;
+  }
+  assert.equal(groove.status(16000).mode, 'locked');
+  assert.ok(predictions > 5);
+  assert.ok(suppressed > 5);
+  assert.ok(Math.abs(groove.status(16000).bpm - 120) < 1);
+  groove.tick(19000);
+  assert.equal(groove.status(19000).mode, 'idle');
+});
+
