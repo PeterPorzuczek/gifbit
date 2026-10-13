@@ -50,3 +50,13 @@ test('a repeating beat locks, predicts early and suppresses duplicate onsets', (
   assert.equal(groove.status(19000).mode, 'idle');
 });
 
+test('changing tempo discards the previous grid and prediction memory', () => {
+  const groove = new Groove();
+  groove.setBpm(120);
+  for (let i = 0; i < 8; i++) groove.onset(i * 500, 1);
+  assert.equal(groove.locked, true);
+  groove.setBpm(90);
+  assert.equal(groove.locked, false);
+  assert.equal(groove.mem.size, 0);
+  assert.equal(groove.pred.size, 0);
+});
