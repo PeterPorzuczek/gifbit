@@ -33,3 +33,8 @@ test('imports discard duplicates and unsafe or malformed URLs', () => {
   assert.deepEqual(setsFromJson(null), []);
 });
 
+test('export filenames support Polish names and empty labels', () => {
+  assert.equal(slug('Żółć i Łódź!'), 'zolc-i-lodz');
+  assert.equal(slug('!!!'), 'set');
+});
+
