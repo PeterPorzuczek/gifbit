@@ -38,3 +38,8 @@ test('export filenames support Polish names and empty labels', () => {
   assert.equal(slug('!!!'), 'set');
 });
 
+test('valid legacy settings and an intentionally empty palette are preserved', () => {
+  const legacy = { ...defaults, bpm: 123.5, source: 'set', setId: 's123', autoCols: [] };
+  assert.deepEqual(normalizeSettings(legacy), legacy);
+});
+
