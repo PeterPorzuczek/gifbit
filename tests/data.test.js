@@ -43,3 +43,23 @@ test('valid legacy settings and an intentionally empty palette are preserved', (
   assert.deepEqual(normalizeSettings(legacy), legacy);
 });
 
+test('corrupt persisted settings cannot break startup or rendering', () => {
+  for (const value of [null, [], 'broken']) assert.deepEqual(normalizeSettings(value), defaults);
+  const clean = normalizeSettings({
+    words: null,
+    max: -5,
+    mode: 'bad',
+    tintB: Infinity,
+    autoCols: [1, 1, 99, '2'],
+    bg: 'invalid',
+    bpm: 300,
+    __proto__: { key: 'unexpected' },
+  });
+  assert.equal(clean.words, defaults.words);
+  assert.equal(clean.max, 1);
+  assert.equal(clean.mode, 'collage');
+  assert.equal(clean.tintB, 100);
+  assert.deepEqual(clean.autoCols, [1]);
+  assert.equal(clean.bpm, 0);
+  assert.equal(clean.key, '');
+});
