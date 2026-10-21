@@ -58,3 +58,31 @@ test('sample, keyword filtering, click and drag selection, bulk restore and pers
   expect(errors).toEqual([]);
 });
 
+test('JSON import, merge, save, update, export and confirmed deletion', async ({ page }) => {
+  await page.locator('label[for="source-set"]').click();
+  await page.locator('#sets-file').setInputFiles(samplePath);
+  await expect(page.locator('.setrow')).toHaveCount(1);
+  await page.locator('#b-curate').click();
+  await page.locator('#in-tiles .tile').first().click();
+  await page.locator('#add-btn').click();
+  await page.locator('#add-menu button[data-id]').first().click();
+  await expect(page.locator('#in-count')).toHaveText('255');
+  await page.locator('#setname').fill('Stage mix');
+  await page.locator('#saveset button').click();
+  await page.locator('#in-tiles .tile').first().click();
+  await page.locator('#saveset button').click();
+  await page.locator('#cur-done').click();
+  await expect(page.locator('.setrow')).toHaveCount(2);
+  const downloaded = page.waitForEvent('download');
+  await page.locator('#sets-exportall').click();
+  const download = await downloaded;
+  const exported = JSON.parse(await readFile(await download.path(), 'utf8'));
+  expect(exported.gifbit).toBe(1);
+  expect(exported.sets.map((set) => set.items.length)).toEqual([255, 254]);
+  const remove = page.locator('.setrow').last().locator('[data-act="delete"]');
+  await remove.click();
+  await expect(remove).toHaveText('Sure?');
+  await remove.click();
+  await expect(page.locator('.setrow')).toHaveCount(1);
+});
+
