@@ -86,3 +86,44 @@ test('JSON import, merge, save, update, export and confirmed deletion', async ({
   await expect(page.locator('.setrow')).toHaveCount(1);
 });
 
+test('manual playback, collage limit, single mode, colors, background and shortcuts', async ({
+  page,
+}) => {
+  await sampleSet(page);
+  await manualStart(page);
+  for (let i = 0; i < 9; i++) await page.keyboard.press('Space');
+  expect(await page.locator('#layer .g').count()).toBeLessThanOrEqual(5);
+  await page.keyboard.press('k');
+  await expect(page.locator('#tint')).toBeVisible();
+  await page.locator('#t-dots button[title="Blue"]').click();
+  await expect(page.locator('#layer')).toHaveClass('tinted');
+  await page.locator('#a-on').check();
+  await expect(page.locator('#b-tint')).toHaveText('Color: auto');
+  await page.locator('label[for="a-mode-beats"]').click();
+  await expect(page.locator('#a-beatrow')).toBeVisible();
+  await page.locator('#t-sec-bg summary').click();
+  await page.locator('#t-bgc').evaluate((el) => {
+    el.value = '#223344';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await expect(page.locator('#stage')).toHaveCSS('background-color', 'rgb(34, 51, 68)');
+  await page.keyboard.press('k');
+  await expect(page.locator('#tint')).toBeHidden();
+  await page.keyboard.press('h');
+  await expect(page.locator('#hud')).toBeVisible();
+  await page.keyboard.press('c');
+  await expect(page.locator('#layer .g')).toHaveCount(0);
+  await page.keyboard.press('s');
+  await page.locator('label[for="mode-single"]').click();
+  await expect(page.locator('#maxfield')).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect
+    .poll(async () => {
+      await page.keyboard.press('Space');
+      return page.locator('#layer .single').count();
+    })
+    .toBe(1);
+  await page.keyboard.press('Space');
+  await expect(page.locator('#layer .g')).toHaveCount(1);
+});
+
