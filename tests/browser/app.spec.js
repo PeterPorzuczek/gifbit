@@ -127,3 +127,29 @@ test('manual playback, collage limit, single mode, colors, background and shortc
   await expect(page.locator('#layer .g')).toHaveCount(1);
 });
 
+test('sequential playback keeps source order when image decoding finishes out of order', async ({
+  page,
+}) => {
+  const smallSet = { ...sample, items: sample.items.slice(0, 3) };
+  await page.locator('label[for="source-set"]').click();
+  await page
+    .locator('#sets-file')
+    .setInputFiles({
+      name: 'order.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(smallSet)),
+    });
+  await page.locator('label[for="order-seq"]').click();
+  await page.locator('label[for="mode-single"]').click();
+  await page.route(smallSet.items[0].big, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.fulfill({ contentType: 'image/svg+xml', body: image });
+  });
+  await manualStart(page);
+  await expect(page.locator('#layer img')).toHaveAttribute('src', smallSet.items[0].big);
+  await page.keyboard.press('Space');
+  await expect(page.locator('#layer img')).toHaveAttribute('src', smallSet.items[1].big);
+  await page.keyboard.press('Space');
+  await expect(page.locator('#layer img')).toHaveAttribute('src', smallSet.items[2].big);
+});
+
