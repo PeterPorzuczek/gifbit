@@ -153,3 +153,37 @@ test('sequential playback keeps source order when image decoding finishes out of
   await expect(page.locator('#layer img')).toHaveAttribute('src', smallSet.items[2].big);
 });
 
+test('Giphy search preserves keywords, both types, ratings and error recovery', async ({
+  page,
+}) => {
+  const requests = [];
+  await page.route('https://api.giphy.com/**', (route) => {
+    const url = new URL(route.request().url());
+    requests.push(url);
+    return route.fulfill({
+      json: {
+        data: [
+          {
+            id: url.pathname + url.searchParams.get('q'),
+            images: { original: { url: sample.items[0].big, width: '480', height: '270' } },
+          },
+        ],
+      },
+    });
+  });
+  await page.locator('#key').fill('test-key');
+  await page.locator('#words').fill('Dance, dance; wow');
+  await page.locator('label[for="type-both"]').click();
+  await page.locator('#b-curate').click();
+  await expect(page.locator('#in-count')).toHaveText('4');
+  expect(requests.length).toBe(4);
+  expect(requests.every((url) => url.searchParams.get('rating') === 'pg-13')).toBe(true);
+  await page.locator('#cur-done').click();
+  await page.unroute('https://api.giphy.com/**');
+  await page.route('https://api.giphy.com/**', (route) => route.fulfill({ status: 429, json: {} }));
+  await page.locator('#words').fill('different');
+  await page.locator('#b-curate').click();
+  await expect(page.locator('#err')).toContainText('request limit');
+  await expect(page.locator('#b-curate')).toBeEnabled();
+});
+
