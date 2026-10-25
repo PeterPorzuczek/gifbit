@@ -187,3 +187,33 @@ test('Giphy search preserves keywords, both types, ratings and error recovery', 
   await expect(page.locator('#b-curate')).toBeEnabled();
 });
 
+test('microphone worklet and latency calibration run with a synthetic audio device', async ({
+  page,
+}) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await sampleSet(page);
+  await page.evaluate(() => {
+    window.workletNodes = 0;
+    const NativeNode = window.AudioWorkletNode;
+    window.AudioWorkletNode = class extends NativeNode {
+      constructor(...args) {
+        super(...args);
+        window.workletNodes++;
+      }
+    };
+  });
+  await page.locator('#bpm').fill('120');
+  await page.locator('#b-cal').click();
+  await expect.poll(() => page.evaluate(() => window.workletNodes)).toBe(1);
+  await expect(page.locator('#cal')).toBeVisible();
+  await expect(page.locator('#microw')).toBeVisible();
+  await page.locator('#cal-done').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#cal-leadv')).toHaveText('85 ms');
+  await page.locator('#cal-done').click();
+  await page.locator('#go').click();
+  await expect(page.locator('#setup')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
