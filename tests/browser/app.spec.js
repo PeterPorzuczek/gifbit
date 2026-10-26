@@ -217,3 +217,14 @@ test('microphone worklet and latency calibration run with a synthetic audio devi
   expect(errors).toEqual([]);
 });
 
+test('mobile settings and curator remain usable without horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await sampleSet(page);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.locator('#b-curate').click();
+  await expect(page.locator('#in-count')).toHaveText('255');
+  const bucket = await page.locator('#out-bucket').boundingBox();
+  expect(bucket.y + bucket.height).toBeLessThanOrEqual(845);
+  expect(bucket.height).toBeGreaterThan(90);
+});
+
