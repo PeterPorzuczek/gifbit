@@ -228,3 +228,25 @@ test('mobile settings and curator remain usable without horizontal overflow', as
   expect(bucket.height).toBeGreaterThan(90);
 });
 
+test('malformed storage recovers and malformed files report an error', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'gifbit.v1',
+      JSON.stringify({ words: null, autoCols: null, mode: 'invalid' }),
+    );
+    localStorage.setItem('gifbit.sets', '[null, {"name":"broken"}]');
+    localStorage.setItem('gifbit.excluded', '{broken');
+  });
+  await page.reload();
+  await expect(page.locator('#source-words')).toBeChecked();
+  await page.locator('label[for="source-set"]').click();
+  await page
+    .locator('#sets-file')
+    .setInputFiles({
+      name: 'bad.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from('{broken'),
+    });
+  await expect(page.locator('#toast')).toContainText("doesn't look like");
+  await expect(page.locator('.setrow')).toHaveCount(0);
+});
