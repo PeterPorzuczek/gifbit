@@ -41,3 +41,14 @@ Wtedy otwórz [localhost:4173](http://localhost:4173). Aplikację należy udost�
 
 ![Przegląd animacji i selekcja zestawu](docs/images/curator.png)
 
+## Rytm i mikrofon
+
+- Wybór pasma: **Kick** (30–150 Hz), **Snare** (200–6000 Hz) lub **Everything** (30–16000 Hz).
+- Czułość detektora 1–10; zmiana animacji co 1, 2 lub 4 uderzenia.
+- Opcjonalne tempo 50–220 BPM wpisywane ręcznie lub wystukiwane przyciskiem **Tap**. Po czterech stuknięciach aplikacja wylicza tempo; dłuższa przerwa rozpoczyna pomiar od nowa.
+- Bez BPM aplikacja reaguje bezpośrednio na wykryte uderzenia. Z BPM dopasowuje siatkę rytmu i przewiduje powtarzający się wzór. Nowe uderzenia i przejścia nadal obsługuje na bieżąco.
+- Ograniczenie szybkości zmiany GIF-ów do 1/32, 1/16, 1/8 lub 1/4 nuty. Szybsze uderzenia nadal wprawiają obraz w ruch.
+- Wyprzedzenie obrazu 0–250 ms i osobny ekran **Calibrate** do dopasowania obrazu do dźwięku na docelowym ekranie.
+- Miernik poziomu sygnału, próg detekcji oraz status synchronizacji i przewidywania.
+- Detekcja w `AudioWorklet`; zachowana ścieżka zapasowa `ScriptProcessor`. Dźwięk jest analizowany lokalnie, bez nagrywania i wysyłania audio na serwer. Strumień mikrofonu jest zwalniany przy opuszczeniu strony.
+
