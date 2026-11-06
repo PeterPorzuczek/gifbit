@@ -52,3 +52,13 @@ Wtedy otwórz [localhost:4173](http://localhost:4173). Aplikację należy udost�
 - Miernik poziomu sygnału, próg detekcji oraz status synchronizacji i przewidywania.
 - Detekcja w `AudioWorklet`; zachowana ścieżka zapasowa `ScriptProcessor`. Dźwięk jest analizowany lokalnie, bez nagrywania i wysyłania audio na serwer. Strumień mikrofonu jest zwalniany przy opuszczeniu strony.
 
+## Scena i kolory
+
+- Kolaż od 1 do 12 animacji albo pojedyncza animacja na całym ekranie.
+- Losowa kolejność lub odtwarzanie zgodnie z kolejnością listy. Obrazy są wstępnie ładowane i dekodowane; wolniejsze pobieranie nie zmienia kolejności w trybie **In order**.
+- Kolor tła lub własny obraz, także GIF, z przyciemnieniem 0–80%.
+- Siła odbicia 0–10. Systemowe ustawienie ograniczenia ruchu wyłącza odbicie.
+- Panel kolorów dostępny podczas pokazu: gotowe kolory, odcień, nasycenie, siła, jasność, kontrast i opcjonalne kolorowanie tła.
+- Automatyczne przechodzenie przez wybraną paletę: co 0,5–30 sekund albo co 1, 2, 4, 8 lub 16 uderzeń. Płynność 0% oznacza cięcie, 100% — ciągłe przejście. Przy ustawionym BPM kolory korzystają z tempa i siatki rytmu.
+- Pełny ekran, automatycznie chowające się przyciski oraz blokada wygaszania ekranu, jeśli przeglądarka ją obsługuje.
+
