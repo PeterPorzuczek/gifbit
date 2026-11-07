@@ -62,3 +62,17 @@ Wtedy otwórz [localhost:4173](http://localhost:4173). Aplikację należy udost�
 - Automatyczne przechodzenie przez wybraną paletę: co 0,5–30 sekund albo co 1, 2, 4, 8 lub 16 uderzeń. Płynność 0% oznacza cięcie, 100% — ciągłe przejście. Przy ustawionym BPM kolory korzystają z tempa i siatki rytmu.
 - Pełny ekran, automatycznie chowające się przyciski oraz blokada wygaszania ekranu, jeśli przeglądarka ją obsługuje.
 
+## Skróty klawiaturowe
+
+| Klawisz | Działanie podczas pokazu |
+| --- | --- |
+| Spacja / kliknięcie sceny | Ręczne uderzenie |
+| T | Wystukiwanie tempa |
+| K | Pokazanie lub ukrycie panelu kolorów |
+| C | Wyczyszczenie sceny |
+| H | Pokazanie lub ukrycie miernika |
+| F | Przełączenie pełnego ekranu |
+| S | Otwarcie ustawień |
+| Esc | Ustawienia / powrót do pokazu; zamknięcie przeglądu lub kalibracji |
+| ← / → w kalibracji | Zmiana wyprzedzenia o 5 ms |
+
