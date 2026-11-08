@@ -76,3 +76,16 @@ Wtedy otwórz [localhost:4173](http://localhost:4173). Aplikację należy udost�
 | Esc | Ustawienia / powrót do pokazu; zamknięcie przeglądu lub kalibracji |
 | ← / → w kalibracji | Zmiana wyprzedzenia o 5 ms |
 
+## GitHub Pages — bez builda
+
+Repozytorium jest gotowe do publikacji bezpośrednio z gałęzi `main`. Wszystkie ścieżki są względne i działają pod `/gifbit/`. Plik `.nojekyll` wyłącza przetwarzanie Jekyll.
+
+Po wypchnięciu kodu, gdy zdecydujesz się go opublikować:
+
+1. Otwórz repozytorium **PeterPorzuczek/gifbit** → **Settings** → **Pages**.
+2. W **Build and deployment** wybierz **Deploy from a branch**.
+3. Wskaż **main** i **/(root)**, a następnie **Save**.
+4. Po zakończeniu wdrożenia aplikacja będzie dostępna pod [peterporzuczek.github.io/gifbit/](https://peterporzuczek.github.io/gifbit/).
+
+Nie są potrzebne własny workflow, katalog `dist`, instalacja zależności ani kompilacja. Kolejne aktualizacje gałęzi publikują zmiany automatycznie. Szczegóły: [oficjalna instrukcja GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
