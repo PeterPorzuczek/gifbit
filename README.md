@@ -89,3 +89,24 @@ Po wypchnięciu kodu, gdy zdecydujesz się go opublikować:
 
 Nie są potrzebne własny workflow, katalog `dist`, instalacja zależności ani kompilacja. Kolejne aktualizacje gałęzi publikują zmiany automatycznie. Szczegóły: [oficjalna instrukcja GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
+## Organizacja kodu
+
+| Ścieżka | Odpowiedzialność |
+| --- | --- |
+| `index.html` | Interfejs aplikacji |
+| `gifbit.html` | Przekierowanie ze starej nazwy pliku |
+| `styles/` | Style podzielone na scenę, ustawienia, kolory, zestawy i pozostałe widoki |
+| `src/app.js` | Utworzenie modułów i kolejność ich inicjalizacji |
+| `src/state.js`, `src/data/settings.js` | Wspólne ustawienia, walidacja i zapis |
+| `src/audio/` | Detektor uderzeń, silnik rytmu i procesor audio |
+| `src/library.js`, `src/sets.js`, `src/data/sets.js` | GIPHY, aktywne animacje, przechowywanie i format zestawów |
+| `src/playback.js`, `src/rhythm.js`, `src/microphone.js` | Ładowanie obrazów, scena, pętla animacji i mikrofon |
+| `src/settings.js`, `src/curator.js`, `src/colors.js`, `src/calibration.js` | Poszczególne panele interfejsu |
+| `src/session.js`, `src/controls.js`, `src/browser.js` | Uruchomienie pokazu, skróty, pełny ekran i blokada wygaszania |
+| `assets/` | Ikona oraz lokalne fonty wraz z licencjami |
+| `sample.json` | Przykładowy zestaw 255 animacji |
+| `scripts/serve.mjs` | Opcjonalny serwer lokalny, bez zależności |
+| `tests/` | Testy silnika audio, danych i zachowania aplikacji w przeglądarce |
+
+Moduły korzystają z natywnych importów ES. Nowe funkcje można dodać do właściwego modułu albo podłączyć jako kolejny moduł w `src/app.js`. Kod aplikacji nie wymaga generowania plików wynikowych.
+
