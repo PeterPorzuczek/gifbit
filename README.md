@@ -110,3 +110,28 @@ Nie są potrzebne własny workflow, katalog `dist`, instalacja zależności ani 
 
 Moduły korzystają z natywnych importów ES. Nowe funkcje można dodać do właściwego modułu albo podłączyć jako kolejny moduł w `src/app.js`. Kod aplikacji nie wymaga generowania plików wynikowych.
 
+## Testowanie
+
+Testy silnika audio, ustawień i formatu JSON nie wymagają instalacji pakietów:
+
+```sh
+npm test
+```
+
+Do testów przeglądarkowych potrzebny jest wyłącznie deweloperski Playwright:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run test:browser
+```
+
+Na Windows można użyć już zainstalowanego Edge, bez pobierania Chromium:
+
+```powershell
+$env:PLAYWRIGHT_CHANNEL = 'msedge'
+npm run test:browser
+```
+
+Testy uruchamiają aplikację również pod prefiksem `/gifbit/`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
+
