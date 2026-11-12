@@ -32,6 +32,11 @@ GIFbit is inspired by [See Hear Party (2014)](https://experiments.withgoogle.com
 
 A simple music visualizer: the microphone detects beats and GIPHY animations appear on screen. You can also control the show manually, without a microphone. The app runs in your browser with no backend or framework. A small build step prepares a static `dist/` directory for publishing; you can run the source directly without building it.
 
+<p align="center">
+<a href="https://youtube.com/shorts/NRQtr-YvMIM"><img src="https://i.ytimg.com/vi/NRQtr-YvMIM/maxresdefault.jpg" width="640" alt="Watch GIFbit in action on YouTube Shorts."></a>
+<br><a href="https://youtube.com/shorts/NRQtr-YvMIM"><b>▶ Watch GIFbit in action on YouTube Shorts</b></a>
+</p>
+
 ## Contributing GIF banks
 
 Share a curated bank through a pull request to **[gif-banks/](gif-banks/)**. You do not need to change the application code or maintain an index.
