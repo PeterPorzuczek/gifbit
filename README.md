@@ -4,96 +4,96 @@
 
 # GIFbit
 
-**Animacje, które trafiają w rytm.**<br>
-Wybierz GIF-y, włącz muzykę i zamień ekran w pokaz sterowany uderzeniami.
+**Animations that land on the beat.**<br>
+Pick your GIFs, play some music, and turn your screen into a beat-driven show.
 
 ![HTML · CSS · JavaScript](https://img.shields.io/badge/HTML%20%C2%B7%20CSS%20%C2%B7%20JavaScript-342c41)
-![Statyczna aplikacja](https://img.shields.io/badge/deploy-statyczny-ff6b3d)
-![W przeglądarce](https://img.shields.io/badge/dzia%C5%82a-w%20przegl%C4%85darce-342c41)
+![Static app](https://img.shields.io/badge/deploy-static-ff6b3d)
+![Runs in your browser](https://img.shields.io/badge/runs-in%20your%20browser-342c41)
 [![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-342c41)](#github-pages)
 
-**[Szybki start](#szybki-start)** ·
-**[Funkcje](#funkcje)** ·
-**[Banki GIF-ów](#banki-gif-ów)** ·
-**[Jeden HTML](#jeden-plik-html)** ·
+**[Quick start](#quick-start)** ·
+**[Features](#features)** ·
+**[GIF banks](#gif-banks)** ·
+**[Single HTML](#single-html-file)** ·
 **[GitHub Pages](#github-pages)** ·
-**[Dokumentacja](#organizacja-kodu)**
+**[Documentation](#project-structure)**
 
 <br>
 
-<a href="https://i.imgur.com/OJO2YLg.png"><img src=".github/readme/stage.svg" width="900" alt="GIFbit: kolaż animacji, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu."></a>
+<a href="https://i.imgur.com/OJO2YLg.png"><img src=".github/readme/stage.svg" width="900" alt="GIFbit: an animation collage, the color panel on the right, and the beat meter in the lower-left corner."></a>
 
 </div>
 
-## Po co GIFbit
+## Why GIFbit
 
-Prosta aplikacja do wizualizacji muzyki: mikrofon wykrywa uderzenia, a na ekranie pojawiają się animacje z GIPHY. Można też sterować pokazem ręcznie, bez mikrofonu. Aplikacja działa w przeglądarce, bez backendu i frameworka. Krótki build przygotowuje statyczny katalog `dist/` do publikacji; źródła można uruchamiać bez budowania.
+A simple music visualizer: the microphone detects beats and GIPHY animations appear on screen. You can also control the show manually, without a microphone. The app runs in your browser with no backend or framework. A small build step prepares a static `dist/` directory for publishing; you can run the source directly without building it.
 
-## Od muzyki do pokazu
+## From music to a show
 
-Po [uruchomieniu aplikacji](#szybki-start) wystarczą cztery kroki:
+After [starting the app](#quick-start), follow these four steps:
 
-1. Kliknij **Browse GIF banks**, otwórz bank i wybierz **Import animations**. Możesz zaznaczyć wszystkie animacje albo wybrane. Nie potrzebujesz klucza GIPHY. Własny plik JSON można też wczytać przez **Saved set → Import from file**.
-2. Wybierz **Review animations**, aby przejrzeć i ograniczyć zestaw, albo od razu **Start without microphone**.
-3. Naciśnij **Spację** lub kliknij scenę, aby wywołać uderzenie i wyświetlić animację.
-4. Wybierz **Start** i zezwól na mikrofon, aby pokaz reagował na muzykę z głośników. Dostęp do mikrofonu wymaga HTTPS lub localhost.
+1. Click **Browse GIF banks**, open a bank, and choose **Import animations**. Import every animation or select individual GIFs. No GIPHY key is required. You can also load your own JSON file through **Saved set → Import from file**.
+2. Choose **Review animations** to review and narrow down the set, or go straight to **Start without microphone**.
+3. Press **Space** or click the stage to trigger a beat and display an animation.
+4. Choose **Start** and allow microphone access to make the show react to music from your speakers. Microphone access requires HTTPS or localhost.
 
-## Funkcje
+## Features
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### Animacje z GIPHY
+### GIPHY animations
 
-Wyszukuj według maksymalnie **10 słów lub fraz**, oddzielanych przecinkami, średnikami albo nowymi liniami. Powtórzone frazy są pomijane. Wybierz GIF-y, naklejki z przezroczystym tłem albo oba typy. Filtr treści PG-13 można wyłączyć.
+Search using up to **10 words or phrases**, separated by commas, semicolons, or line breaks. Duplicate phrases are ignored. Choose GIFs, stickers with transparent backgrounds, or both. The PG-13 content filter can be turned off.
 
-Własny klucz GIPHY wpisujesz w ustawieniach. Limity zależą od planu API; wyszukiwanie używa jednego zapytania na frazę i typ animacji. Wyświetlanie wczytanych wyników nie wykonuje kolejnych zapytań wyszukiwania.
+Enter your own GIPHY key in Settings. Limits depend on your API plan; each search makes one request per phrase and animation type. Displaying loaded results does not make additional search requests.
 
-### Zestawy po swojemu
+### Your own sets
 
-W **Review animations** klikaj lub przeciągaj animacje między **On screen** i **Put aside**. Filtruj po frazach, zmieniaj rozmiar miniaturek i przenoś wszystkie widoczne elementy jednocześnie. **Shuffle** zmienia kolejność listy, a **Add from set** dołącza inny zestaw lub plik JSON bez duplikowania identyfikatorów.
+In **Review animations**, click or drag animations between **On screen** and **Put aside**. Filter by phrase, resize thumbnails, and move all visible items at once. **Shuffle** changes the list order, while **Add from set** merges another saved set or JSON file without duplicating animation IDs.
 
-**Save as set** zapisuje aktywne animacje; istniejąca nazwa aktualizuje zestaw. Importuj wiele plików, eksportuj jeden zestaw lub wszystkie i usuwaj zestawy po ponownym kliknięciu potwierdzenia. Format `gifbit: 1` obsługuje pojedynczy zestaw, tablicę albo obiekt z tablicą `sets`.
+**Save as set** saves the active animations; using an existing name updates that set. Import multiple files, export one set or all sets, and delete sets with a second confirmation click. The `gifbit: 1` format supports a single set, an array, or an object containing a `sets` array.
 
-Przykładowy bank **gif-banks/2026-11-05-hh3.json** zawiera niezmienione 255 animacji z pierwotnej próbki. Zestawy zawierają linki HTTPS do obrazów, więc odtwarzanie wymaga internetu.
+The example bank **gif-banks/2026-11-05-hh3.json** contains the original 255 sample animations, unchanged. Sets contain HTTPS image links, so playback requires an internet connection.
 
-### Banki społeczności
+### Community banks
 
-Przeglądaj banki opublikowane w repozytorium, wyszukuj je po nazwie i opisie, a ulubione **całe banki** oznaczaj gwiazdką. Po otwarciu banku zobaczysz jego opis i animowane miniatury. Zaimportuj całość lub zaznaczone GIF-y do własnych zestawów.
+Browse banks published in the repository, search by name and description, and star your favorite **whole banks**. Opening a bank shows its description and animated thumbnails. Import the entire bank or selected GIFs into your saved sets.
 
-Eksport otwiera formularz **Name** i **Description**. Metadane są zapisywane w JSON, a nazwa pliku zawiera datę, np. `2026-11-12-neon-city.json`.
+Export opens a form with **Name** and **Description** fields. These details are saved in the JSON file, and the filename includes a date, such as `2026-11-12-neon-city.json`.
 
-### Sterowanie podczas pokazu
+### Controls during a show
 
-**Spacja lub kliknięcie sceny** wywołuje ręczne uderzenie, także bez mikrofonu. Skróty otwierają ustawienia, panel kolorów, miernik i pełny ekran oraz pozwalają wystukiwać tempo i czyścić scenę.
+**Space or a click on the stage** triggers a manual beat, even without a microphone. Keyboard shortcuts open Settings, the color panel, the meter, and full screen, and let you tap the tempo or clear the stage.
 
-Przyciski chowają się automatycznie. Aplikacja korzysta z blokady wygaszania ekranu, jeśli przeglądarka ją obsługuje. Ustawienia, zestawy i odłożone animacje są zapamiętywane lokalnie na kolejną sesję.
+Controls hide automatically. The app uses a screen wake lock when the browser supports it. Settings, saved sets, and excluded animations are stored locally for your next session.
 
 </td>
 <td width="50%" valign="top">
 
-### Rytm i mikrofon
+### Rhythm and microphone
 
-Wybierz **Kick** (30–150 Hz), **Snare** (200–6000 Hz) lub **Everything** (30–16000 Hz), czułość 1–10 i zmianę animacji co 1, 2 lub 4 uderzenia.
+Choose **Kick** (30–150 Hz), **Snare** (200–6000 Hz), or **Everything** (30–16000 Hz), sensitivity from 1–10, and an animation change every 1, 2, or 4 beats.
 
-Bez BPM aplikacja reaguje na wykryte uderzenia. Z opcjonalnym tempem **50–220 BPM** dopasowuje siatkę i przewiduje powtarzający się wzór; nowe uderzenia i przejścia nadal obsługuje na bieżąco. Tempo wpisujesz albo wystukujesz przyciskiem **Tap**: po czterech stuknięciach jest wyliczane, a dłuższa przerwa rozpoczyna pomiar od nowa.
+Without a BPM setting, the app reacts to detected hits. With an optional tempo of **50–220 BPM**, it aligns a beat grid and predicts repeating patterns while continuing to respond to new hits and transitions. Enter the tempo or use **Tap**: it is calculated after four taps, and a longer pause starts a new measurement.
 
-Ogranicz zmiany GIF-ów do **1/32, 1/16, 1/8 lub 1/4 nuty** — szybsze uderzenia nadal wprawiają obraz w ruch. Ekran **Calibrate** dopasowuje wyprzedzenie obrazu w zakresie **0–250 ms**. Miernik pokazuje poziom sygnału, próg detekcji oraz status synchronizacji i przewidywania.
+Limit GIF changes to **1/32, 1/16, 1/8, or 1/4 notes**; faster hits still make the image bounce. **Calibrate** adjusts visual lead time from **0–250 ms**. The meter shows the signal level, detection threshold, and synchronization and prediction status.
 
-Detekcja działa w `AudioWorklet`, ze ścieżką zapasową `ScriptProcessor`. Audio jest analizowane lokalnie, bez nagrywania i wysyłania na serwer. Opuszczenie strony zwalnia mikrofon.
+Detection runs in an `AudioWorklet`, with a `ScriptProcessor` fallback. Audio is analyzed locally, without recording or uploading it. Leaving the page releases the microphone.
 
-### Scena na cały ekran
+### A full-screen stage
 
-Wyświetlaj **kolaż od 1 do 12 animacji** albo pojedynczą animację na całym ekranie. Wybierz losową kolejność lub **In order**, zgodnie z listą. Obrazy są wstępnie ładowane i dekodowane; wolniejsze pobieranie nie zmienia kolejności w trybie sekwencyjnym.
+Display a **collage of 1–12 animations** or one animation at a time across the screen. Choose random playback or **In order** to follow the list. Images are preloaded and decoded; slower downloads do not change the sequence in ordered playback.
 
-Ustaw kolor tła albo własny obraz, także GIF, i przyciemnienie **0–80%**. Siła odbicia **0–10** określa, jak mocno obraz reaguje na uderzenia. Systemowe ustawienie ograniczenia ruchu wyłącza odbicie.
+Set a background color or use your own image, including a GIF, with **0–80%** dimming. Bounce strength from **0–10** controls how much the image reacts to beats. The system's reduced-motion preference disables bouncing.
 
-### Kolory zmieniane na żywo
+### Live colors
 
-Panel kolorów pozostaje dostępny podczas pokazu: gotowe kolory, odcień, nasycenie, siła, jasność, kontrast i opcjonalne kolorowanie tła. Ukrycie panelu nie wyłącza ustawionego efektu.
+The color panel stays available during a show: presets, hue, saturation, strength, brightness, contrast, and optional background tinting. Hiding the panel does not turn off the effect.
 
-Automatycznie przechodź przez wybraną paletę co **0,5–30 sekund** lub co **1, 2, 4, 8 albo 16 uderzeń**. Płynność **0%** oznacza cięcie, **100%** — ciągłe przejście. Przy ustawionym BPM kolory korzystają z tempa i siatki rytmu.
+Cycle automatically through a selected palette every **0.5–30 seconds** or every **1, 2, 4, 8, or 16 beats**. Smoothness at **0%** produces a cut; **100%** produces a continuous transition. When BPM is set, colors follow the tempo and beat grid.
 
 </td>
 </tr>
@@ -102,130 +102,130 @@ Automatycznie przechodź przez wybraną paletę co **0,5–30 sekund** lub co **
 <table>
 <tr>
 <td width="50%" align="center" valign="top">
-<a href="https://i.imgur.com/xfoCQh5.png"><img src=".github/readme/curator.svg" width="420" alt="Przegląd animacji z filtrami fraz oraz kolumnami On screen i Put aside."></a>
-<br><sub><b>Przegląd animacji</b> — wybierz, co trafi na ekran, i zapisz własny zestaw.</sub>
+<a href="https://i.imgur.com/xfoCQh5.png"><img src=".github/readme/curator.svg" width="420" alt="The animation picker with phrase filters and On screen and Put aside columns."></a>
+<br><sub><b>Animation picker</b> — choose what appears on screen and save your own set.</sub>
 </td>
 <td width="50%" align="center" valign="top">
-<a href="https://i.imgur.com/i9wk701.png"><img src=".github/readme/settings.svg" width="420" alt="Ustawienia GIFbit z wczytanym przykładowym zestawem 255 animacji."></a>
-<br><sub><b>Ustawienia pokazu</b> — źródło animacji, reakcja na rytm i wygląd sceny.</sub>
+<a href="https://i.imgur.com/i9wk701.png"><img src=".github/readme/settings.svg" width="420" alt="GIFbit settings with the sample set of 255 animations loaded."></a>
+<br><sub><b>Show settings</b> — animation sources, beat response, and stage appearance.</sub>
 </td>
 </tr>
 </table>
 
-## Szybki start
+## Quick start
 
-Wymagany jest Node.js 20 lub nowszy. W katalogu projektu uruchom:
+Requires Node.js 20 or newer. From the project directory, run:
 
 ```sh
 npm ci
 npm start
 ```
 
-Otwórz [localhost:4173/gifbit/](http://127.0.0.1:4173/gifbit/). `npm start` buduje aplikację do `dist/` i uruchamia jej podgląd. Po pierwszej instalacji zależności wystarczy samo `npm start`.
+Open [localhost:4173/gifbit/](http://127.0.0.1:4173/gifbit/). `npm start` builds the app into `dist/` and starts a local preview. After installing dependencies once, you only need `npm start`.
 
-Do pracy nad kodem użyj podglądu źródeł, bez builda i bez instalacji zależności:
+For development, preview the source without building or installing dependencies:
 
 ```sh
 npm run dev
 ```
 
-Adres pozostaje ten sam. Po zmianie plików odśwież stronę. Źródła używają natywnych modułów JavaScript i wymagają HTTP lub HTTPS.
+The address stays the same. Refresh the page after editing files. The source uses native JavaScript modules and requires HTTP or HTTPS.
 
-Sam katalog do publikacji przygotujesz poleceniem `npm run build`, a istniejący build obejrzysz przez `npm run preview`. `dist/` zawiera wyłącznie HTML, CSS, ikonę i dwa pliki JavaScript. Style i ikona trafiają do `dist/assets/`, a procesor audio do `dist/audio/`. Cały `dist/` można udostępnić na dowolnym hostingu statycznym.
+Run `npm run build` to prepare the publishing directory, or `npm run preview` to serve an existing build. `dist/` contains only HTML, CSS, the icon, and two JavaScript files. Styles and the icon go into `dist/assets/`, while the audio processor goes into `dist/audio/`. You can publish the entire `dist/` directory on any static host.
 
-## Banki GIF-ów
+## GIF banks
 
-Źródłem panelu jest katalog **`gif-banks/` na gałęzi `main` w `PeterPorzuczek/gifbit`**. Aplikacja pobiera listę plików przez GitHub Trees API, a zawartość wybranego banku przez GitHub Blobs API, według jego SHA. Pliki JSON są pobierane dopiero po kliknięciu banku. Działa to tak samo w podglądzie źródeł, buildzie i pojedynczym HTML. Nie ma lokalnej listy banków ani kopii JSON w `dist/`. Dokumentacja API: [drzewa repozytorium](https://docs.github.com/en/rest/git/trees#get-a-tree), [zawartość plików](https://docs.github.com/en/rest/git/blobs#get-a-blob).
+The panel reads from **`gif-banks/` on the `main` branch of `PeterPorzuczek/gifbit`**. The app lists files through the GitHub Trees API and fetches a selected bank through the GitHub Blobs API using its SHA. JSON files are downloaded only when you click a bank. This works the same way in the source preview, production build, and single HTML export. There is no local bank index or copy of bank JSON files in `dist/`. API documentation: [repository trees](https://docs.github.com/en/rest/git/trees#get-a-tree), [file contents](https://docs.github.com/en/rest/git/blobs#get-a-blob).
 
-Lista plików z API nie zawiera ich wewnętrznych metadanych. Dlatego nieotwarty bank początkowo ma nazwę pliku bez `.json` i pusty opis. Po otwarciu aplikacja używa pól `name` i `description`, jeśli występują, oraz zapamiętuje je dla następnej wizyty. Zmiana SHA pliku unieważnia zapisane metadane. Jeśli pól nie ma lub są puste, pozostaje nazwa pliku i pusty opis.
+The API file listing does not include metadata stored inside the files. An unopened bank therefore initially shows its filename without `.json` and an empty description. Once opened, the app uses its `name` and `description` fields when available and remembers them for your next visit. A changed file SHA invalidates the cached metadata. Missing or empty fields fall back to the filename and an empty description.
 
-Gwiazdką oznaczasz cały bank, a **Favorites only** ogranicza listę do ulubionych. Pole wyszukiwania uwzględnia nazwę pliku oraz poznaną nazwę i opis. **Refresh** pobiera aktualną listę. Po otwarciu banku **Select all** i **Clear selection** pomagają wybrać animacje do importu. Import tworzy własny zapisany zestaw, który można następnie edytować w **Review animations**.
+A star marks an entire bank as a favorite, and **Favorites only** filters the list. Search matches filenames as well as names and descriptions that have already been loaded. **Refresh** fetches the current list. After opening a bank, use **Select all** and **Clear selection** to choose animations to import. Import creates a saved set that you can then edit in **Review animations**.
 
-Panel korzysta z publicznego API bez tokena. Przy braku sieci, limicie GitHuba, niepoprawnym JSON lub pustym repozytorium pokazuje komunikat i pozwala ponowić próbę. Nowe lokalne pliki staną się widoczne w panelu dopiero po ich opublikowaniu na `main`. Przed publikacją można je sprawdzić przez **Import from file**.
+The panel uses the public API without a token. Connection failures, GitHub rate limits, invalid JSON, and empty repositories produce a message and allow you to retry. New local files appear in the panel only after they are published on `main`. Before publishing, you can check them with **Import from file**.
 
-### Dodawanie banku przez PR
+### Contributing a bank through a PR
 
-1. Przygotuj zestaw w aplikacji i wybierz **Export**. Wpisz nazwę (do 60 znaków) i opcjonalny opis (do 1000 znaków).
-2. Zachowaj wygenerowaną nazwę **`YYYY-MM-DD-nazwa-banku.json`**. Data jest datą eksportu w UTC; część opisowa zawiera małe litery ASCII, cyfry i myślniki.
-3. Dodaj plik do **`gif-banks/`**. Użyj innej nazwy, jeśli plik z tą datą i nazwą już istnieje.
-4. Uruchom `npm run check:banks` i utwórz PR. Workflow **Validate GIF banks** sprawdza format, datę i nazwę pliku oraz poprawność danych animacji. Walidator wymaga tylko Node.js, bez instalacji pakietów.
-5. Po połączeniu PR-a do `main` bank pojawi się po odświeżeniu listy. Nie trzeba zmieniać kodu ani ręcznie utrzymywać indeksu.
+1. Prepare a set in the app and choose **Export**. Enter a name of up to 60 characters and an optional description of up to 1000 characters.
+2. Keep the generated filename: **`YYYY-MM-DD-bank-name.json`**. The date is the export date in UTC; the name uses lowercase ASCII letters, digits, and hyphens.
+3. Add the file to **`gif-banks/`**. Choose a different name if a file with the same date and name already exists.
+4. Run `npm run check:banks` and open a PR. The **Validate GIF banks** workflow checks the format, date, filename, and animation data. The validator needs only Node.js, with no package installation.
+5. After the PR is merged into `main`, the bank appears when the list is refreshed. No application code changes or manually maintained index are required.
 
-Bank używa formatu eksportu aplikacji: `gifbit: 1`, `name`, `description`, `created`, `updated`, `words` i `items`. Stare pliki bez `description` nadal działają. Eksport wszystkich zestawów zawiera `sets`; panel pokazuje taki plik jako jeden bank, łącząc animacje bez powtórzeń. Ręczny import tego pliku zachowuje osobne zestawy.
+Banks use the app's export format: `gifbit: 1`, `name`, `description`, `created`, `updated`, `words`, and `items`. Older files without `description` still work. Exporting all sets produces a `sets` array; the panel treats that file as one bank and combines its animations without duplicates. Importing the file manually preserves the separate sets.
 
-## Jeden plik HTML
+## Single HTML file
 
-Opcjonalny eksport pakuje aplikację do jednego pliku. Zainstaluj narzędzia deweloperskie raz, a następnie uruchom:
+The optional export packages the app into a single file. Install development tools once, then run:
 
 ```sh
 npm ci
 npm run build:single
 ```
 
-Obok zwykłego builda powstanie **`dist/gifbit.html`**. Możesz skopiować tylko ten plik na inny komputer i otworzyć go w przeglądarce. Zawiera interfejs, style, ikonę, kod aplikacji i procesor audio. Nie potrzebuje sąsiednich plików ani lokalnego serwera do ręcznego odtwarzania i obsługi zestawów.
+This creates **`dist/gifbit.html`** alongside the regular build. You can copy that file to another computer and open it in a browser. It includes the interface, styles, icon, application code, and audio processor. Manual playback and set management do not require neighboring files or a local server.
 
-Przeglądanie banków przez GitHub API oraz pobieranie i wyszukiwanie animacji wymagają internetu. Własne zestawy nadal można importować z plików JSON. Mikrofon zależy od uprawnień i obsługi lokalnych plików przez przeglądarkę; jeśli odmawia dostępu, udostępnij ten sam HTML przez HTTPS lub localhost.
+Browsing banks through the GitHub API, downloading animations, and searching require an internet connection. You can still import your own sets from JSON files. Microphone access depends on browser permissions and support for local files; if access is denied, serve the same HTML over HTTPS or localhost.
 
-Build korzysta z esbuild i po instalacji zależności nie wymaga dostępu do sieci. Każde budowanie odtwarza `dist/` od zera; cały katalog jest ignorowany przez Git. Po zmianie źródeł ponownie wykonaj `npm run build:single`, aby odświeżyć eksport.
+The build uses esbuild and needs no network access after dependencies are installed. Every build recreates `dist/` from scratch; Git ignores the entire directory. Run `npm run build:single` again after changing the source to update the export.
 
-## Skróty klawiaturowe
+## Keyboard shortcuts
 
-| Klawisz | Działanie podczas pokazu |
+| Key | Action during a show |
 | --- | --- |
-| Spacja / kliknięcie sceny | Ręczne uderzenie |
-| T | Wystukiwanie tempa |
-| K | Pokazanie lub ukrycie panelu kolorów |
-| C | Wyczyszczenie sceny |
-| H | Pokazanie lub ukrycie miernika |
-| F | Przełączenie pełnego ekranu |
-| S | Otwarcie ustawień |
-| Esc | Ustawienia / powrót do pokazu; zamknięcie przeglądu, banków, eksportu lub kalibracji |
-| ← / → w kalibracji | Zmiana wyprzedzenia o 5 ms |
+| Space / stage click | Trigger a manual beat |
+| T | Tap the tempo |
+| K | Show or hide the color panel |
+| C | Clear the stage |
+| H | Show or hide the meter |
+| F | Toggle full screen |
+| S | Open Settings |
+| Esc | Open Settings or return to the show; close the picker, banks, export, or calibration |
+| ← / → during calibration | Adjust visual lead time by 5 ms |
 
 ## GitHub Pages
 
-Workflow [pages.yml](.github/workflows/pages.yml) instaluje zależności, uruchamia testy jednostkowe, buduje aplikację i publikuje wyłącznie `dist/`. Wszystkie ścieżki są względne i działają pod `/gifbit/`.
+The [pages.yml](.github/workflows/pages.yml) workflow installs dependencies, runs unit tests, builds the app, and publishes only `dist/`. All paths are relative and work under `/gifbit/`.
 
-Po wypchnięciu kodu, gdy zdecydujesz się go opublikować:
+To configure publishing after pushing the code:
 
-1. Otwórz repozytorium **PeterPorzuczek/gifbit** → **Settings** → **Pages**.
-2. W **Build and deployment** → **Source** wybierz **GitHub Actions**.
-3. Otwórz **Actions** → **Deploy to GitHub Pages** → **Run workflow**, wybierz **main** i uruchom workflow.
-4. Po zakończeniu wdrożenia aplikacja będzie dostępna pod [peterporzuczek.github.io/gifbit/](https://peterporzuczek.github.io/gifbit/).
+1. Open **PeterPorzuczek/gifbit** → **Settings** → **Pages**.
+2. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+3. Open **Actions** → **Deploy to GitHub Pages** → **Run workflow**, select **main**, and start the workflow.
+4. Once deployment finishes, the app is available at [peterporzuczek.github.io/gifbit/](https://peterporzuczek.github.io/gifbit/).
 
-Kolejne aktualizacje `main` publikują zmiany automatycznie. Nie trzeba commitować wygenerowanych plików. Szczegóły: [oficjalna instrukcja GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+Subsequent updates to `main` publish changes automatically. Generated files do not need to be committed. See the [official GitHub Pages guide](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) for details.
 
-## Organizacja kodu
+## Project structure
 
-Kod aplikacji w **`src/`** jest podzielony według funkcji. W jego katalogu głównym pozostają tylko `index.html` i `app.js`. Banki są osobno w **`gif-banks/`**, narzędzia w **`scripts/`**, a testy w **`tests/`**. **`dist/`** powstaje automatycznie.
+Application code in **`src/`** is organized by feature. Only `index.html` and `app.js` remain at its root. Banks live separately in **`gif-banks/`**, tools in **`scripts/`**, and tests in **`tests/`**. **`dist/`** is generated automatically.
 
-| Ścieżka | Odpowiedzialność |
+| Path | Responsibility |
 | --- | --- |
-| `src/index.html` | Interfejs i punkt wejścia aplikacji |
-| `src/app.js` | Utworzenie modułów i kolejność ich inicjalizacji |
-| `src/audio/` | Mikrofon (`microphone.js`), wykrywanie uderzeń (`detector.js`, `worklet.js`), przewidywanie rytmu (`groove.js`), tempo i zdarzenia uderzeń (`rhythm.js`), kalibracja (`calibration.js`) |
-| `src/library/` | Wczytywanie animacji z GIPHY lub zestawu (`catalog.js`), przegląd i selekcja (`curator.js`), zarządzanie zestawami (`sets.js`), walidacja i format importu/eksportu (`format.js`) |
-| `src/banks/` | GitHub API (`api.js`), odczyt banków (`format.js`), panel przeglądania, ulubione i import (`panel.js`) |
-| `src/stage/` | Odtwarzanie i układ animacji (`playback.js`), kolory (`colors.js`), skróty i przyciski (`controls.js`), pełny ekran i blokada wygaszania (`browser.js`), uruchamianie pokazu i powrót do ustawień (`session.js`) |
-| `src/settings/` | Formularz ustawień (`form.js`) oraz wartości domyślne i walidacja (`schema.js`) |
-| `src/core/` | Wspólny stan i zapis ustawień (`state.js`), dostęp do elementów interfejsu (`dom.js`), ładowanie zewnętrznych zasobów (`resources.js`) |
-| `src/assets/` | Arkusz `style.css` i ikona `favicon.svg`; fonty systemowe |
-| `gif-banks/` | Banki JSON dodawane przez PR-y; początkowy `2026-11-05-hh3.json` zawiera 255 animacji |
-| `scripts/serve.mjs` | Podgląd `dist/` lub źródeł, bez zależności |
-| `scripts/build.mjs` | Build do `dist/` i opcjonalny eksport do jednego HTML |
-| `scripts/check-banks.mjs` | Walidacja nazw i formatu banków |
-| `tests/` | Testy silnika audio, danych, eksportu i zachowania aplikacji w przeglądarce |
-| `.github/workflows/pages.yml` | Automatyczne budowanie i publikacja na GitHub Pages |
-| `.github/workflows/banks.yml` | Sprawdzanie banków w PR-ach |
-| `dist/` | Gotowa aplikacja; pliki generowane, pomijane przez Git |
+| `src/index.html` | Interface and HTML entry point |
+| `src/app.js` | Module creation and initialization order |
+| `src/audio/` | Microphone (`microphone.js`), hit detection (`detector.js`, `worklet.js`), beat prediction (`groove.js`), tempo and beat events (`rhythm.js`), calibration (`calibration.js`) |
+| `src/library/` | Loading animations from GIPHY or sets (`catalog.js`), review and selection (`curator.js`), set management (`sets.js`), import/export validation and format (`format.js`) |
+| `src/banks/` | GitHub API (`api.js`), bank parsing (`format.js`), browsing panel, favorites, and import (`panel.js`) |
+| `src/stage/` | Animation playback and layout (`playback.js`), colors (`colors.js`), shortcuts and buttons (`controls.js`), full screen and wake lock (`browser.js`), starting a show and returning to Settings (`session.js`) |
+| `src/settings/` | Settings form (`form.js`), defaults and validation (`schema.js`) |
+| `src/core/` | Shared state and settings persistence (`state.js`), interface element access (`dom.js`), resource loading (`resources.js`) |
+| `src/assets/` | `style.css` and `favicon.svg`; system fonts |
+| `gif-banks/` | JSON banks contributed through PRs; the initial `2026-11-05-hh3.json` contains 255 animations |
+| `scripts/serve.mjs` | Dependency-free source or `dist/` preview |
+| `scripts/build.mjs` | Build into `dist/` and optional single HTML export |
+| `scripts/check-banks.mjs` | Bank filename and format validation |
+| `tests/` | Audio engine, data, export, and browser behavior tests |
+| `.github/workflows/pages.yml` | Automatic build and deployment to GitHub Pages |
+| `.github/workflows/banks.yml` | Bank validation in PRs |
+| `dist/` | Ready-to-publish app; generated files ignored by Git |
 
-Moduły korzystają z natywnych importów ES. Nowe funkcje trafiają do odpowiedniego katalogu, a ich inicjalizacja do `src/app.js`. Kod współdzielony przez funkcje jest w `core/`.
+Modules use native ES imports. Add new features to the relevant directory and initialize them in `src/app.js`. Code shared across features belongs in `core/`.
 
-Banki są pobierane wyłącznie przez GitHub API; lokalny serwer nie udostępnia katalogu `gif-banks/`, a build go nie kopiuje. Podglądy README w `.github/readme/` mają jednakowe proporcje i zaokrąglone ramki SVG. Kliknięcie otwiera oryginał na Imgur. Projekt nie przechowuje plików fontów.
+Banks are fetched exclusively through the GitHub API; the local server does not serve `gif-banks/`, and the build does not copy it. README previews in `.github/readme/` have matching aspect ratios and rounded SVG frames. Clicking a preview opens the original on Imgur. The project does not store font files.
 
-## Testowanie
+## Testing
 
-Zainstaluj zależności deweloperskie, uruchom testy danych, audio i eksportu, a następnie testy przeglądarkowe:
+Install development dependencies, run the data, audio, and export tests, then run the browser tests:
 
 ```sh
 npm ci
@@ -234,17 +234,17 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-Na Windows można użyć już zainstalowanego Edge, bez pobierania Chromium:
+On Windows, you can use an existing Edge installation without downloading Chromium:
 
 ```powershell
 $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:browser
 ```
 
-Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją pod prefiksem `/gifbit/` w trzech wariantach: bezpośrednio ze źródeł, jako gotowy `dist/` oraz pojedynczy HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza import banku, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Testy banków zastępują odpowiedzi GitHub API kontrolowanymi danymi: sprawdzają pobieranie dopiero po kliknięciu, metadane, ulubione, import wybranych GIF-ów, datowane eksporty, zmienione pliki, opóźnione odpowiedzi i błędy API. Pozostałe obejmują selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
+Browser tests first build the app, then check it under the `/gifbit/` prefix in three forms: directly from source, as the production `dist/`, and as a single HTML file. A separate test copies only the generated HTML into an empty directory and checks bank import, playback, and the audio processor through `file://`. Bank tests use controlled GitHub API responses to check downloads on demand, metadata, favorites, selective GIF import, dated exports, changed files, delayed responses, and API errors. Other tests cover selection and dragging, saving and deleting sets, image order, rendering, colors, shortcuts, mobile layout, malformed data, GIPHY requests, microphone denial, `AudioWorklet`, the fallback detector, and stream cleanup. Test audio comes from a synthetic device; calibrate a real microphone and display on the target hardware.
 
-## Dane i zasoby
+## Data and assets
 
-Ustawienia, klucz API, zestawy i wykluczone animacje są przechowywane w `localStorage` tej przeglądarki (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Ulubione banki zapisuje `gifbit.banks.favorites`, a poznane nazwy i opisy `gifbit.banks.metadata`. Zachowano zgodność z wcześniejszym formatem zestawów. Klucz GIPHY nie jest zaszyfrowany. Zmiana adresu aplikacji, przeglądarki lub wyczyszczenie danych witryny oznacza osobny magazyn; zestawy warto wcześniej wyeksportować do JSON.
+Settings, the API key, saved sets, and excluded animations are stored in this browser's `localStorage` (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Favorite banks use `gifbit.banks.favorites`, and cached names and descriptions use `gifbit.banks.metadata`. Older set formats remain compatible. The GIPHY key is not encrypted. A different app address, browser, or cleared site data means a separate storage area; export your sets to JSON beforehand if you want to keep them.
 
-Animacje są pobierane bezpośrednio z GIPHY i należą do ich twórców. Ich dostępność zależy od źródłowych linków. Interfejs korzysta z fontów systemowych i nie pobiera plików fontów. Oryginały screenshotów są udostępniane przez Imgur; ramki SVG służą wyłącznie do prezentacji w README.
+Animations are fetched directly from GIPHY and belong to their creators. Availability depends on the original image links. The interface uses system fonts and downloads no font files. Original screenshots are hosted on Imgur; the SVG frames are used only for README presentation.
