@@ -3,7 +3,15 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = fileURLToPath(new URL('./', import.meta.url));
+const args = process.argv.slice(2);
+if (args.some((arg) => arg !== '--source'))
+  throw new Error('Usage: node scripts/serve.mjs [--source]');
+const root = fileURLToPath(
+  new URL(args.includes('--source') ? '../src/' : '../dist/', import.meta.url),
+);
+await stat(resolve(root, 'index.html')).catch(() => {
+  throw new Error('No app to serve. Run npm run build first or use npm run dev.');
+});
 const port = Number(process.env.PORT || 4173);
 const types = {
   '.html': 'text/html; charset=utf-8',

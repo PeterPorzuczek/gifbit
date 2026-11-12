@@ -1,5 +1,5 @@
 export async function loadSampleText() {
-  const response = await fetch(new URL('../sample.json', import.meta.url));
+  const response = await fetch(new URL('./sample.json', import.meta.url));
   if (!response.ok) throw new Error('Sample unavailable');
   return response.text();
 }

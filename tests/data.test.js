@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { setsFromJson, exportObj, unpackItem, slug } from '../src/sets-data.js';
 import { normalizeSettings, defaults } from '../src/settings-data.js';
 
-const sample = JSON.parse(await readFile(new URL('../sample.json', import.meta.url)));
+const sample = JSON.parse(await readFile(new URL('../src/sample.json', import.meta.url)));
 
 test('the complete sample survives a set export and import', () => {
   const [set] = setsFromJson(sample);

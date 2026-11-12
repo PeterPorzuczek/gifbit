@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Buildless, microphone-reactive GIF stage",
+  "description": "Microphone-reactive GIF stage",
   "scripts": {
-    "start": "node serve.mjs",
+    "start": "npm run build && node scripts/serve.mjs",
+    "dev": "node scripts/serve.mjs --source",
+    "preview": "node scripts/serve.mjs",
     "test": "node --test tests/audio.test.js tests/data.test.js tests/build.test.js",
-    "test:browser": "node build.mjs && playwright test",
-    "build": "node build.mjs"
+    "test:browser": "npm run build:single && playwright test --config tests/playwright.config.js",
+    "build": "node scripts/build.mjs",
+    "build:single": "node scripts/build.mjs --single"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",

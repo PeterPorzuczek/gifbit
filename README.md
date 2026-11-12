@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="favicon.svg" width="104" alt="">
+<img src="src/favicon.svg" width="104" alt="">
 
 # GIFbit
 
@@ -8,7 +8,7 @@
 Wybierz GIF-y, włącz muzykę i zamień ekran w pokaz sterowany uderzeniami.
 
 ![HTML · CSS · JavaScript](https://img.shields.io/badge/HTML%20%C2%B7%20CSS%20%C2%B7%20JavaScript-342c41)
-![Bez builda](https://img.shields.io/badge/build-niewymagany-ff6b3d)
+![Statyczna aplikacja](https://img.shields.io/badge/deploy-statyczny-ff6b3d)
 ![W przeglądarce](https://img.shields.io/badge/dzia%C5%82a-w%20przegl%C4%85darce-342c41)
 [![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-342c41)](#github-pages)
 
@@ -26,7 +26,7 @@ Wybierz GIF-y, włącz muzykę i zamień ekran w pokaz sterowany uderzeniami.
 
 ## Po co GIFbit
 
-Prosta aplikacja do wizualizacji muzyki: mikrofon wykrywa uderzenia, a na ekranie pojawiają się animacje z GIPHY. Można też sterować pokazem ręcznie, bez mikrofonu. Aplikacja działa w przeglądarce, bez backendu, frameworka i procesu budowania.
+Prosta aplikacja do wizualizacji muzyki: mikrofon wykrywa uderzenia, a na ekranie pojawiają się animacje z GIPHY. Można też sterować pokazem ręcznie, bez mikrofonu. Aplikacja działa w przeglądarce, bez backendu i frameworka. Krótki build przygotowuje statyczny katalog `dist/` do publikacji; źródła można uruchamiać bez budowania.
 
 ## Od muzyki do pokazu
 
@@ -107,21 +107,24 @@ Automatycznie przechodź przez wybraną paletę co **0,5–30 sekund** lub co **
 
 ## Szybki start
 
-W katalogu projektu uruchom jeden z poniższych serwerów:
+Wymagany jest Node.js 20 lub nowszy. W katalogu projektu uruchom:
 
 ```sh
-node serve.mjs
+npm ci
+npm start
 ```
 
-Otwórz [localhost:4173/gifbit/](http://127.0.0.1:4173/gifbit/). Wystarczy Node.js 20 lub nowszy. Nie trzeba wykonywać `npm install`. Skrót `npm start` uruchamia ten sam serwer.
+Otwórz [localhost:4173/gifbit/](http://127.0.0.1:4173/gifbit/). `npm start` buduje aplikację do `dist/` i uruchamia jej podgląd. Po pierwszej instalacji zależności wystarczy samo `npm start`.
 
-Alternatywnie, z Pythonem:
+Do pracy nad kodem użyj podglądu źródeł, bez builda i bez instalacji zależności:
 
 ```sh
-python -m http.server 4173 --bind 127.0.0.1
+npm run dev
 ```
 
-Wtedy otwórz [localhost:4173](http://localhost:4173). Aplikację należy udostępniać przez HTTP lub HTTPS, ponieważ używa natywnych modułów JavaScript. Otwarcie `index.html` przez `file://` nie wystarczy.
+Adres pozostaje ten sam. Po zmianie plików odśwież stronę. Źródła używają natywnych modułów JavaScript i wymagają HTTP lub HTTPS.
+
+Sam katalog do publikacji przygotujesz poleceniem `npm run build`, a istniejący build obejrzysz przez `npm run preview`. `dist/` zawiera wyłącznie HTML, CSS, ikonę, dane przykładowe i dwa pliki JavaScript. Można go udostępnić na dowolnym hostingu statycznym.
 
 ## Jeden plik HTML
 
@@ -129,14 +132,14 @@ Opcjonalny eksport pakuje aplikację do jednego pliku. Zainstaluj narzędzia dew
 
 ```sh
 npm ci
-npm run build
+npm run build:single
 ```
 
-Powstanie **`gifbit.html` w katalogu głównym projektu**. Możesz skopiować tylko ten plik na inny komputer i otworzyć go w przeglądarce. Zawiera interfejs, style, ikonę, kod aplikacji, procesor audio i przykładowy zestaw 255 animacji. Nie potrzebuje sąsiednich plików ani lokalnego serwera do ręcznego odtwarzania i obsługi zestawów.
+Obok zwykłego builda powstanie **`dist/gifbit.html`**. Możesz skopiować tylko ten plik na inny komputer i otworzyć go w przeglądarce. Zawiera interfejs, style, ikonę, kod aplikacji, procesor audio i przykładowy zestaw 255 animacji. Nie potrzebuje sąsiednich plików ani lokalnego serwera do ręcznego odtwarzania i obsługi zestawów.
 
 Animacje pozostają linkami do GIPHY, więc ich pobieranie oraz wyszukiwanie wymagają internetu. Mikrofon zależy od uprawnień i obsługi lokalnych plików przez przeglądarkę; jeśli odmawia dostępu, udostępnij ten sam HTML przez HTTPS lub localhost.
 
-Eksport korzysta z esbuild, nie wymaga dostępu do sieci po instalacji zależności i jest ignorowany przez Git. Po zmianie źródeł ponownie wykonaj `npm run build`. Zwykłe `npm start` i publikacja źródeł na GitHub Pages nadal działają bez builda i bez instalacji pakietów.
+Build korzysta z esbuild i po instalacji zależności nie wymaga dostępu do sieci. Każde budowanie odtwarza `dist/` od zera; cały katalog jest ignorowany przez Git. Po zmianie źródeł ponownie wykonaj `npm run build:single`, aby odświeżyć eksport.
 
 ## Skróty klawiaturowe
 
@@ -154,33 +157,35 @@ Eksport korzysta z esbuild, nie wymaga dostępu do sieci po instalacji zależno�
 
 ## GitHub Pages
 
-Repozytorium jest gotowe do publikacji bezpośrednio z gałęzi `main`. Wszystkie ścieżki są względne i działają pod `/gifbit/`. Plik `.nojekyll` wyłącza przetwarzanie Jekyll.
+Workflow [pages.yml](.github/workflows/pages.yml) instaluje zależności, uruchamia testy jednostkowe, buduje aplikację i publikuje wyłącznie `dist/`. Wszystkie ścieżki są względne i działają pod `/gifbit/`.
 
 Po wypchnięciu kodu, gdy zdecydujesz się go opublikować:
 
 1. Otwórz repozytorium **PeterPorzuczek/gifbit** → **Settings** → **Pages**.
-2. W **Build and deployment** wybierz **Deploy from a branch**.
-3. Wskaż **main** i **/(root)**, a następnie **Save**.
+2. W **Build and deployment** → **Source** wybierz **GitHub Actions**.
+3. Otwórz **Actions** → **Deploy to GitHub Pages** → **Run workflow**, wybierz **main** i uruchom workflow.
 4. Po zakończeniu wdrożenia aplikacja będzie dostępna pod [peterporzuczek.github.io/gifbit/](https://peterporzuczek.github.io/gifbit/).
 
-Nie są potrzebne własny workflow, katalog `dist`, instalacja zależności ani kompilacja. Kolejne aktualizacje gałęzi publikują zmiany automatycznie. Szczegóły: [oficjalna instrukcja GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+Kolejne aktualizacje `main` publikują zmiany automatycznie. Nie trzeba commitować wygenerowanych plików. Szczegóły: [oficjalna instrukcja GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 ## Organizacja kodu
 
-Projekt ma dwa katalogi źródłowe: **`src`** i **`tests`**. Pozostałe pliki wejściowe i narzędzia są w katalogu głównym.
+Pliki aplikacji są w **`src/`**, narzędzia w **`scripts/`**, a testy w **`tests/`**. Katalog główny zawiera README i konfigurację projektu. **`dist/`** powstaje automatycznie.
 
 | Ścieżka | Odpowiedzialność |
 | --- | --- |
-| `index.html` | Interfejs i punkt wejścia aplikacji |
-| `style.css`, `favicon.svg` | Wszystkie style oraz ikona; fonty systemowe |
+| `src/index.html` | Interfejs i punkt wejścia aplikacji |
+| `src/style.css`, `src/favicon.svg` | Wszystkie style oraz ikona; fonty systemowe |
 | `src/app.js` | Utworzenie modułów i kolejność ich inicjalizacji |
 | `src/` | Płaska struktura modułów: audio, rytm, odtwarzanie, ustawienia, zestawy, kolory i pozostałe panele |
 | `src/settings-data.js`, `src/sets-data.js` | Walidacja ustawień i format zestawów JSON |
 | `src/resources.js` | Ładowanie próbki i procesora audio; przy eksporcie zastępowane zasobami osadzonymi w HTML |
-| `sample.json` | Niezmieniony zestaw 255 przykładowych animacji |
-| `serve.mjs` | Serwer lokalny, bez zależności |
-| `build.mjs` | Opcjonalny eksport do `gifbit.html` |
+| `src/sample.json` | Niezmieniony zestaw 255 przykładowych animacji |
+| `scripts/serve.mjs` | Podgląd `dist/` lub `src/`, bez zależności |
+| `scripts/build.mjs` | Build do `dist/` i opcjonalny eksport do jednego HTML |
 | `tests/` | Testy silnika audio, danych, eksportu i zachowania aplikacji w przeglądarce |
+| `.github/workflows/pages.yml` | Automatyczne budowanie i publikacja na GitHub Pages |
+| `dist/` | Gotowa aplikacja; pliki generowane, pomijane przez Git |
 
 Moduły korzystają z natywnych importów ES. Nowe funkcje można dodać do właściwego modułu albo podłączyć w `src/app.js`. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
 
@@ -202,7 +207,7 @@ $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:browser
 ```
 
-Testy uruchamiają aplikację pod prefiksem `/gifbit/` w dwóch wariantach: ze źródeł oraz z pojedynczego HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza próbkę, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
+Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją pod prefiksem `/gifbit/` w dwóch wariantach: jako gotowy `dist/` oraz pojedynczy HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza próbkę, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
 
 ## Dane i zasoby
 

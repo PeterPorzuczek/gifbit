@@ -17,7 +17,7 @@ test('copied HTML runs alone from disk with sample data and an embedded audio wo
       localRequests.push(request.url());
   });
   try {
-    await copyFile(new URL('../gifbit.html', import.meta.url), file);
+    await copyFile(new URL('../dist/gifbit.html', import.meta.url), file);
     await page.route(/https:\/\/media\d*\.giphy\.com\//, (route) =>
       route.fulfill({
         contentType: 'image/svg+xml',

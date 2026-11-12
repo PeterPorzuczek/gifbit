@@ -1,9 +1,11 @@
 import { defineConfig } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: '.',
+  outputDir: '../test-results',
   projects: [
-    { name: 'source', testIgnore: '**/standalone.spec.js' },
+    { name: 'dist', testIgnore: '**/standalone.spec.js' },
     {
       name: 'single-html',
       testIgnore: '**/standalone.spec.js',
@@ -23,7 +25,8 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: 'node serve.mjs',
+    command: 'node scripts/serve.mjs',
+    cwd: fileURLToPath(new URL('../', import.meta.url)),
     url: 'http://127.0.0.1:4173/gifbit/',
     reuseExistingServer: !process.env.CI,
   },
