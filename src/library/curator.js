@@ -1,5 +1,5 @@
-import { $, $$ } from './dom.js';
-import { settings, saveSettings } from './state.js';
+import { $, $$ } from '../core/dom.js';
+import { settings, saveSettings } from '../core/state.js';
 export function createCurator(app) {
   const curator = $('#curator'),
     inTiles = $('#in-tiles'),

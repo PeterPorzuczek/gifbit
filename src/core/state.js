@@ -1,5 +1,5 @@
-import { Groove } from './groove.js';
-import { normalizeSettings } from './settings-data.js';
+import { Groove } from '../audio/groove.js';
+import { normalizeSettings } from '../settings/schema.js';
 const STORE = 'gifbit.v1';
 let stored;
 try {

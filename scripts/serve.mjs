@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url';
 const args = process.argv.slice(2);
 if (args.some((arg) => arg !== '--source'))
   throw new Error('Usage: node scripts/serve.mjs [--source]');
-const root = fileURLToPath(
-  new URL(args.includes('--source') ? '../src/' : '../dist/', import.meta.url),
-);
+const source = args.includes('--source');
+const root = fileURLToPath(new URL(source ? '../src/' : '../dist/', import.meta.url));
+const dataRoot = fileURLToPath(new URL('../data/', import.meta.url));
 await stat(resolve(root, 'index.html')).catch(() => {
   throw new Error('No app to serve. Run npm run build first or use npm run dev.');
 });
@@ -35,8 +35,10 @@ const server = createServer(async (request, response) => {
       response.writeHead(404).end();
       return;
     }
-    let file = resolve(root, '.' + relative);
-    if (file !== resolve(root) && !file.startsWith(resolve(root) + sep)) {
+    const isData = source && relative.startsWith('/data/');
+    const directory = isData ? dataRoot : root;
+    let file = resolve(directory, '.' + (isData ? relative.slice(5) : relative));
+    if (file !== resolve(directory) && !file.startsWith(resolve(directory) + sep)) {
       response.writeHead(404).end();
       return;
     }

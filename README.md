@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/favicon.svg" width="104" alt="">
+<img src="src/assets/favicon.svg" width="104" alt="">
 
 # GIFbit
 
@@ -32,7 +32,7 @@ Prosta aplikacja do wizualizacji muzyki: mikrofon wykrywa uderzenia, a na ekrani
 
 Po [uruchomieniu aplikacji](#szybki-start) wystarczą cztery kroki:
 
-1. Kliknij **Load sample animations**, aby wczytać 255 animacji z dołączonego `sample.json`. Nie potrzebujesz klucza API.
+1. Kliknij **Load sample animations**, aby wczytać 255 animacji z dołączonego `data/sample.json`. Nie potrzebujesz klucza API.
 2. Wybierz **Review animations**, aby przejrzeć i ograniczyć zestaw, albo od razu **Start without microphone**.
 3. Naciśnij **Spację** lub kliknij scenę, aby wywołać uderzenie i wyświetlić animację.
 4. Wybierz **Start** i zezwól na mikrofon, aby pokaz reagował na muzykę z głośników. Dostęp do mikrofonu wymaga HTTPS lub localhost.
@@ -55,7 +55,7 @@ W **Review animations** klikaj lub przeciągaj animacje między **On screen** i 
 
 **Save as set** zapisuje aktywne animacje; istniejąca nazwa aktualizuje zestaw. Importuj wiele plików, eksportuj jeden zestaw lub wszystkie i usuwaj zestawy po ponownym kliknięciu potwierdzenia. Format `gifbit: 1` obsługuje pojedynczy zestaw, tablicę albo obiekt z tablicą `sets`.
 
-Dołączony **sample.json** zachowano bez zmian — to 255 animacji do wypróbowania bez klucza API. Zestawy zawierają linki HTTPS do obrazów, więc odtwarzanie wymaga internetu.
+Dołączony **data/sample.json** zachowano bez zmian — to 255 animacji do wypróbowania bez klucza API. Zestawy zawierają linki HTTPS do obrazów, więc odtwarzanie wymaga internetu.
 
 ### Sterowanie podczas pokazu
 
@@ -124,7 +124,7 @@ npm run dev
 
 Adres pozostaje ten sam. Po zmianie plików odśwież stronę. Źródła używają natywnych modułów JavaScript i wymagają HTTP lub HTTPS.
 
-Sam katalog do publikacji przygotujesz poleceniem `npm run build`, a istniejący build obejrzysz przez `npm run preview`. `dist/` zawiera wyłącznie HTML, CSS, ikonę, dane przykładowe i dwa pliki JavaScript. Można go udostępnić na dowolnym hostingu statycznym.
+Sam katalog do publikacji przygotujesz poleceniem `npm run build`, a istniejący build obejrzysz przez `npm run preview`. `dist/` zawiera wyłącznie HTML, CSS, ikonę, dane przykładowe i dwa pliki JavaScript. Dane trafiają do `dist/data/`, style i ikona do `dist/assets/`, a procesor audio do `dist/audio/`. Cały `dist/` można udostępnić na dowolnym hostingu statycznym.
 
 ## Jeden plik HTML
 
@@ -170,24 +170,28 @@ Kolejne aktualizacje `main` publikują zmiany automatycznie. Nie trzeba commitow
 
 ## Organizacja kodu
 
-Pliki aplikacji są w **`src/`**, narzędzia w **`scripts/`**, a testy w **`tests/`**. Katalog główny zawiera README i konfigurację projektu. **`dist/`** powstaje automatycznie.
+Kod aplikacji w **`src/`** jest podzielony według funkcji. W jego katalogu głównym pozostają tylko `index.html` i `app.js`. Dane są osobno w **`data/`**, narzędzia w **`scripts/`**, a testy w **`tests/`**. **`dist/`** powstaje automatycznie.
 
 | Ścieżka | Odpowiedzialność |
 | --- | --- |
 | `src/index.html` | Interfejs i punkt wejścia aplikacji |
-| `src/style.css`, `src/favicon.svg` | Wszystkie style oraz ikona; fonty systemowe |
 | `src/app.js` | Utworzenie modułów i kolejność ich inicjalizacji |
-| `src/` | Płaska struktura modułów: audio, rytm, odtwarzanie, ustawienia, zestawy, kolory i pozostałe panele |
-| `src/settings-data.js`, `src/sets-data.js` | Walidacja ustawień i format zestawów JSON |
-| `src/resources.js` | Ładowanie próbki i procesora audio; przy eksporcie zastępowane zasobami osadzonymi w HTML |
-| `src/sample.json` | Niezmieniony zestaw 255 przykładowych animacji |
-| `scripts/serve.mjs` | Podgląd `dist/` lub `src/`, bez zależności |
+| `src/audio/` | Mikrofon (`microphone.js`), wykrywanie uderzeń (`detector.js`, `worklet.js`), przewidywanie rytmu (`groove.js`), tempo i zdarzenia uderzeń (`rhythm.js`), kalibracja (`calibration.js`) |
+| `src/library/` | Wczytywanie animacji z GIPHY lub zestawu (`catalog.js`), przegląd i selekcja (`curator.js`), zarządzanie zestawami (`sets.js`), walidacja i format importu/eksportu (`format.js`) |
+| `src/stage/` | Odtwarzanie i układ animacji (`playback.js`), kolory (`colors.js`), skróty i przyciski (`controls.js`), pełny ekran i blokada wygaszania (`browser.js`), uruchamianie pokazu i powrót do ustawień (`session.js`) |
+| `src/settings/` | Formularz ustawień (`form.js`) oraz wartości domyślne i walidacja (`schema.js`) |
+| `src/core/` | Wspólny stan i zapis ustawień (`state.js`), dostęp do elementów interfejsu (`dom.js`), ładowanie zewnętrznych zasobów (`resources.js`) |
+| `src/assets/` | Arkusz `style.css` i ikona `favicon.svg`; fonty systemowe |
+| `data/sample.json` | Niezmieniony zestaw 255 przykładowych animacji, niezależny od kodu aplikacji |
+| `scripts/serve.mjs` | Podgląd `dist/` lub źródeł z danymi, bez zależności |
 | `scripts/build.mjs` | Build do `dist/` i opcjonalny eksport do jednego HTML |
 | `tests/` | Testy silnika audio, danych, eksportu i zachowania aplikacji w przeglądarce |
 | `.github/workflows/pages.yml` | Automatyczne budowanie i publikacja na GitHub Pages |
 | `dist/` | Gotowa aplikacja; pliki generowane, pomijane przez Git |
 
-Moduły korzystają z natywnych importów ES. Nowe funkcje można dodać do właściwego modułu albo podłączyć w `src/app.js`. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
+Moduły korzystają z natywnych importów ES. Nowe funkcje trafiają do odpowiedniego katalogu, a ich inicjalizacja do `src/app.js`. Kod współdzielony przez funkcje jest w `core/`.
+
+`npm run dev` udostępnia źródła i montuje osobny katalog `data/` pod adresem `/gifbit/data/`. Zwykły build kopiuje próbkę do `dist/data/sample.json`, a eksport jednego HTML osadza ją razem z procesorem audio w pliku. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
 
 ## Testowanie
 
@@ -207,7 +211,7 @@ $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:browser
 ```
 
-Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją pod prefiksem `/gifbit/` w dwóch wariantach: jako gotowy `dist/` oraz pojedynczy HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza próbkę, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
+Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją pod prefiksem `/gifbit/` w trzech wariantach: bezpośrednio ze źródeł, jako gotowy `dist/` oraz pojedynczy HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza próbkę, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
 
 ## Dane i zasoby
 

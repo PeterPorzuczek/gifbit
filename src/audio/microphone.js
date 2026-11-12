@@ -1,7 +1,7 @@
-import { $, $$ } from './dom.js';
-import { settings, groove } from './state.js';
+import { $, $$ } from '../core/dom.js';
+import { settings, groove } from '../core/state.js';
 import { Det } from './detector.js';
-import { loadWorklet } from './resources.js';
+import { loadWorklet } from '../core/resources.js';
 export function createMicrophone(app) {
   let actx = null,
     filters = [],

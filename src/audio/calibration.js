@@ -1,5 +1,5 @@
-import { $ } from './dom.js';
-import { settings, groove, saveSettings } from './state.js';
+import { $ } from '../core/dom.js';
+import { settings, groove, saveSettings } from '../core/state.js';
 export function createCalibration(app) {
   let calOpen = false,
     ringOff = 0,

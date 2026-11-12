@@ -1,5 +1,5 @@
-import { $, $$, layer } from './dom.js';
-import { settings, groove, saveSettings } from './state.js';
+import { $, $$, layer } from '../core/dom.js';
+import { settings, groove, saveSettings } from '../core/state.js';
 export function createColors(app) {
   var tintReady = false;
   const tintEl = $('#tint'),

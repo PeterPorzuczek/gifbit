@@ -1,5 +1,5 @@
-import { $, stage, form } from './dom.js';
-import { settings, groove, saveSettings } from './state.js';
+import { $, stage, form } from '../core/dom.js';
+import { settings, groove, saveSettings } from '../core/state.js';
 export function createSettings(app) {
   const setRadio = (name, val) => {
     const el = form.querySelector(`input[name="${name}"][value="${val}"]`);

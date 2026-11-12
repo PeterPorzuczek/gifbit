@@ -1,5 +1,5 @@
-import { $, setup } from './dom.js';
-import { settings, saveSettings } from './state.js';
+import { $, setup } from '../core/dom.js';
+import { settings, saveSettings } from '../core/state.js';
 export function createSession(app) {
   let running = false,
     busy = false;

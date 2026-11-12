@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-const samplePath = fileURLToPath(new URL('../src/sample.json', import.meta.url));
+const samplePath = fileURLToPath(new URL('../data/sample.json', import.meta.url));
 const sample = JSON.parse(await readFile(samplePath));
 const image =
   '<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><rect width="480" height="270" fill="#ff6b3d"/></svg>';

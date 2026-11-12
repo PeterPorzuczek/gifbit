@@ -1,5 +1,5 @@
-import { $, $$ } from './dom.js';
-import { settings, groove, saveSettings } from './state.js';
+import { $, $$ } from '../core/dom.js';
+import { settings, groove, saveSettings } from '../core/state.js';
 export function createRhythm(app) {
   let lastStatus = 0;
   const recentKinds = [];

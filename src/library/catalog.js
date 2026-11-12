@@ -1,5 +1,5 @@
-import { $ } from './dom.js';
-import { settings } from './state.js';
+import { $ } from '../core/dom.js';
+import { settings } from '../core/state.js';
 export function createLibrary(app) {
   let items = [],
     sig = '',

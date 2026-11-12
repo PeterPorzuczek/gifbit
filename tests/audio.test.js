@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Det } from '../src/detector.js';
-import { Groove } from '../src/groove.js';
+import { Det } from '../src/audio/detector.js';
+import { Groove } from '../src/audio/groove.js';
 
 test('silence never triggers the transient detector at any sensitivity', () => {
   for (let sensitivity = 1; sensitivity <= 10; sensitivity++) {

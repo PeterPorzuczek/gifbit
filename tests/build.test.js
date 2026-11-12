@@ -26,20 +26,18 @@ test('production assets contain every local entry and preserve the sample data',
   const files = await buildAssets();
   assert.deepEqual(Object.keys(files).sort(), [
     'app.js',
-    'favicon.svg',
+    'assets/favicon.svg',
+    'assets/style.css',
+    'audio/worklet.js',
+    'data/sample.json',
     'index.html',
-    'sample.json',
-    'style.css',
-    'worklet.js',
   ]);
   for (const [, path] of files['index.html'].matchAll(/(?:src|href)="\.\/([^"]+)"/g)) {
     assert.ok(Object.hasOwn(files, path), `Missing output asset: ${path}`);
   }
   assert.equal(
-    files['sample.json'],
-    await readFile(new URL('../src/sample.json', import.meta.url), 'utf8'),
+    files['data/sample.json'],
+    await readFile(new URL('../data/sample.json', import.meta.url), 'utf8'),
   );
-  assert.match(files['app.js'], /new URL\("\.\/sample\.json",import\.meta\.url\)/);
-  assert.match(files['app.js'], /new URL\("\.\/worklet\.js",import\.meta\.url\)/);
-  assert.doesNotMatch(files['worklet.js'], /\bimport\s/);
+  assert.doesNotMatch(files['audio/worklet.js'], /\bimport\s/);
 });

@@ -1,5 +1,5 @@
-import { stage, layer } from './dom.js';
-import { settings } from './state.js';
+import { stage, layer } from '../core/dom.js';
+import { settings } from '../core/state.js';
 export function createPlayback(app) {
   let bag = [],
     ready = [],

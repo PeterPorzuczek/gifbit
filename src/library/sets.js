@@ -1,7 +1,7 @@
-import { packItem, exportObj, slug, setsFromJson } from './sets-data.js';
-import { loadSampleText } from './resources.js';
-import { $ } from './dom.js';
-import { settings, saveSettings } from './state.js';
+import { packItem, exportObj, slug, setsFromJson } from './format.js';
+import { loadSampleText } from '../core/resources.js';
+import { $ } from '../core/dom.js';
+import { settings, saveSettings } from '../core/state.js';
 export function createSets(app) {
   const SETS = 'gifbit.sets';
   let sets = [];

@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { build, transform } from 'esbuild';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -19,10 +19,10 @@ const options = {
 async function loadAssets() {
   const [template, css, icon, sample, worklet] = await Promise.all([
     readFile(new URL('../src/index.html', import.meta.url), 'utf8'),
-    readFile(new URL('../src/style.css', import.meta.url), 'utf8'),
-    readFile(new URL('../src/favicon.svg', import.meta.url)),
-    readFile(new URL('../src/sample.json', import.meta.url), 'utf8'),
-    build({ ...options, entryPoints: ['src/worklet.js'] }),
+    readFile(new URL('../src/assets/style.css', import.meta.url), 'utf8'),
+    readFile(new URL('../src/assets/favicon.svg', import.meta.url)),
+    readFile(new URL('../data/sample.json', import.meta.url), 'utf8'),
+    build({ ...options, entryPoints: ['src/audio/worklet.js'] }),
   ]);
   const style = await transform(css, {
     loader: 'css',
@@ -53,7 +53,7 @@ export function loadWorklet(context) {
         name: 'embedded-resources',
         setup(builder) {
           builder.onLoad({ filter: /[\\/]resources\.js$/ }, ({ path }) => {
-            if (path !== resolve(root, 'src/resources.js')) return;
+            if (path !== resolve(root, 'src/core/resources.js')) return;
             return { contents: embedded, loader: 'js' };
           });
         },
@@ -62,10 +62,10 @@ export function loadWorklet(context) {
   });
   const replacements = [
     [
-      '<link rel="stylesheet" href="./style.css" />',
+      '<link rel="stylesheet" href="./assets/style.css" />',
       `<style>${style.replace(/<\/style/gi, '<\\/style')}</style>`,
     ],
-    ['href="./favicon.svg"', `href="data:image/svg+xml;base64,${icon.toString('base64')}"`],
+    ['href="./assets/favicon.svg"', `href="data:image/svg+xml;base64,${icon.toString('base64')}"`],
     [
       '<script type="module" src="./app.js"></script>',
       `<script>${app.outputFiles[0].text.replace(/<\/script/gi, '<\\/script')}</script>`,
@@ -88,11 +88,11 @@ export async function buildAssets({ single = false } = {}) {
   });
   const files = {
     'index.html': assets.template,
-    'style.css': assets.style,
-    'favicon.svg': assets.icon,
-    'sample.json': assets.sample,
+    'assets/style.css': assets.style,
+    'assets/favicon.svg': assets.icon,
+    'data/sample.json': assets.sample,
     'app.js': app.outputFiles[0].text,
-    'worklet.js': assets.worklet,
+    'audio/worklet.js': assets.worklet,
   };
   if (single) files['gifbit.html'] = await buildHtml(assets);
   return files;
@@ -109,7 +109,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   await rm(output, { recursive: true, force: true });
   await mkdir(output, { recursive: true });
   await Promise.all(
-    Object.entries(files).map(([name, contents]) => writeFile(resolve(output, name), contents)),
+    Object.entries(files).map(async ([name, contents]) => {
+      const file = resolve(output, name);
+      await mkdir(dirname(file), { recursive: true });
+      await writeFile(file, contents);
+    }),
   );
   console.log(`Built ${Object.keys(files).length} files in ${output}`);
 }

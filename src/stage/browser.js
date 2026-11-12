@@ -1,4 +1,4 @@
-import { $ } from './dom.js';
+import { $ } from '../core/dom.js';
 export function createBrowser(app) {
   async function goFull() {
     const el = document.documentElement;

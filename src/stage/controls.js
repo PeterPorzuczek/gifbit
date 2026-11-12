@@ -1,5 +1,5 @@
-import { $, stage, layer, setup } from './dom.js';
-import { settings } from './state.js';
+import { $, stage, layer, setup } from '../core/dom.js';
+import { settings } from '../core/state.js';
 export function createControls(app) {
   let idleT;
   function init() {
