@@ -8,11 +8,14 @@ import { validateBankFile } from '../scripts/check-banks.mjs';
 
 test('PR validation accepts exports and rejects invalid filenames, dates, metadata and animations', () => {
   assert.doesNotThrow(() => validateBankFile(sample, '2026-11-05-hh3.json'));
+  assert.doesNotThrow(() => validateBankFile(sample, 'sample.json'));
   assert.doesNotThrow(() =>
     validateBankFile({ gifbit: 1, sets: [sample] }, '2026-11-12-all-sets.json'),
   );
   for (const filename of [
-    'sample.json',
+    'undated.json',
+    'nested/sample.json',
+    'Sample.json',
     '2026-11-12-Bank.JSON',
     '2026-02-30-bank.json',
     '2026-13-01-bank.json',
@@ -27,8 +30,10 @@ test('PR validation accepts exports and rejects invalid filenames, dates, metada
     { ...sample, items: [sample.items[0], sample.items[0]] },
     { ...sample, items: [{ id: 'bad', big: 'javascript:alert(1)' }] },
     { gifbit: 1, sets: [null] },
-  ])
+  ]) {
     assert.throws(() => validateBankFile(invalid, '2026-11-12-bank.json'));
+    assert.throws(() => validateBankFile(invalid, 'sample.json'));
+  }
 });
 
 test('bank metadata survives import and export, with filename and empty description fallbacks', () => {
