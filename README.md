@@ -21,7 +21,7 @@ Wybierz GIF-y, włącz muzykę i zamień ekran w pokaz sterowany uderzeniami.
 
 <br>
 
-<img src="https://i.imgur.com/OJO2YLg.png" width="900" alt="GIFbit: kolaż animacji, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu.">
+<a href="https://i.imgur.com/OJO2YLg.png"><img src=".github/readme/stage.svg" width="900" alt="GIFbit: kolaż animacji, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu."></a>
 
 </div>
 
@@ -101,12 +101,12 @@ Automatycznie przechodź przez wybraną paletę co **0,5–30 sekund** lub co **
 
 <table>
 <tr>
-<td width="62%" align="center" valign="top">
-<img src="https://i.imgur.com/xfoCQh5.png" alt="Przegląd animacji z filtrami fraz oraz kolumnami On screen i Put aside.">
+<td width="50%" align="center" valign="top">
+<a href="https://i.imgur.com/xfoCQh5.png"><img src=".github/readme/curator.svg" width="420" alt="Przegląd animacji z filtrami fraz oraz kolumnami On screen i Put aside."></a>
 <br><sub><b>Przegląd animacji</b> — wybierz, co trafi na ekran, i zapisz własny zestaw.</sub>
 </td>
-<td width="38%" align="center" valign="top">
-<img src="https://i.imgur.com/i9wk701.png" alt="Ustawienia GIFbit z wczytanym przykładowym zestawem 255 animacji.">
+<td width="50%" align="center" valign="top">
+<a href="https://i.imgur.com/i9wk701.png"><img src=".github/readme/settings.svg" width="420" alt="Ustawienia GIFbit z wczytanym przykładowym zestawem 255 animacji."></a>
 <br><sub><b>Ustawienia pokazu</b> — źródło animacji, reakcja na rytm i wygląd sceny.</sub>
 </td>
 </tr>
@@ -221,7 +221,7 @@ Kod aplikacji w **`src/`** jest podzielony według funkcji. W jego katalogu gł�
 
 Moduły korzystają z natywnych importów ES. Nowe funkcje trafiają do odpowiedniego katalogu, a ich inicjalizacja do `src/app.js`. Kod współdzielony przez funkcje jest w `core/`.
 
-Banki są pobierane wyłącznie przez GitHub API; lokalny serwer nie udostępnia katalogu `gif-banks/`, a build go nie kopiuje. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
+Banki są pobierane wyłącznie przez GitHub API; lokalny serwer nie udostępnia katalogu `gif-banks/`, a build go nie kopiuje. Podglądy README w `.github/readme/` mają jednakowe proporcje i zaokrąglone ramki SVG. Kliknięcie otwiera oryginał na Imgur. Projekt nie przechowuje plików fontów.
 
 ## Testowanie
 
@@ -247,4 +247,4 @@ Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją po
 
 Ustawienia, klucz API, zestawy i wykluczone animacje są przechowywane w `localStorage` tej przeglądarki (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Ulubione banki zapisuje `gifbit.banks.favorites`, a poznane nazwy i opisy `gifbit.banks.metadata`. Zachowano zgodność z wcześniejszym formatem zestawów. Klucz GIPHY nie jest zaszyfrowany. Zmiana adresu aplikacji, przeglądarki lub wyczyszczenie danych witryny oznacza osobny magazyn; zestawy warto wcześniej wyeksportować do JSON.
 
-Animacje są pobierane bezpośrednio z GIPHY i należą do ich twórców. Ich dostępność zależy od źródłowych linków. Interfejs korzysta z fontów systemowych i nie pobiera plików fontów. Screenshoty README są udostępniane przez Imgur.
+Animacje są pobierane bezpośrednio z GIPHY i należą do ich twórców. Ich dostępność zależy od źródłowych linków. Interfejs korzysta z fontów systemowych i nie pobiera plików fontów. Oryginały screenshotów są udostępniane przez Imgur; ramki SVG służą wyłącznie do prezentacji w README.
