@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { setsFromJson, exportObj, unpackItem, slug } from '../src/data/sets.js';
-import { normalizeSettings, defaults } from '../src/data/settings.js';
+import { setsFromJson, exportObj, unpackItem, slug } from '../src/sets-data.js';
+import { normalizeSettings, defaults } from '../src/settings-data.js';
 
 const sample = JSON.parse(await readFile(new URL('../sample.json', import.meta.url)));
 

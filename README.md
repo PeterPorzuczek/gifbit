@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/favicon.svg" width="104" alt="">
+<img src="favicon.svg" width="104" alt="">
 
 # GIFbit
 
@@ -14,12 +14,13 @@ Wybierz GIF-y, włącz muzykę i zamień ekran w pokaz sterowany uderzeniami.
 
 **[Szybki start](#szybki-start)** ·
 **[Funkcje](#funkcje)** ·
+**[Jeden HTML](#jeden-plik-html)** ·
 **[GitHub Pages](#github-pages)** ·
 **[Dokumentacja](#organizacja-kodu)**
 
 <br>
 
-<img src="docs/images/stage.png" width="900" alt="GIFbit: kolaż animacji z sample.json, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu.">
+<img src="https://i.imgur.com/OJO2YLg.png" width="900" alt="GIFbit: kolaż animacji z sample.json, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu.">
 
 </div>
 
@@ -94,11 +95,11 @@ Automatycznie przechodź przez wybraną paletę co **0,5–30 sekund** lub co **
 <table>
 <tr>
 <td width="62%" align="center" valign="top">
-<img src="docs/images/curator.png" alt="Przegląd animacji z filtrami fraz oraz kolumnami On screen i Put aside.">
+<img src="https://i.imgur.com/xfoCQh5.png" alt="Przegląd animacji z filtrami fraz oraz kolumnami On screen i Put aside.">
 <br><sub><b>Przegląd animacji</b> — wybierz, co trafi na ekran, i zapisz własny zestaw.</sub>
 </td>
 <td width="38%" align="center" valign="top">
-<img src="docs/images/settings.png" alt="Ustawienia GIFbit z wczytanym przykładowym zestawem 255 animacji.">
+<img src="https://i.imgur.com/i9wk701.png" alt="Ustawienia GIFbit z wczytanym przykładowym zestawem 255 animacji.">
 <br><sub><b>Ustawienia pokazu</b> — źródło animacji, reakcja na rytm i wygląd sceny.</sub>
 </td>
 </tr>
@@ -109,7 +110,7 @@ Automatycznie przechodź przez wybraną paletę co **0,5–30 sekund** lub co **
 W katalogu projektu uruchom jeden z poniższych serwerów:
 
 ```sh
-node scripts/serve.mjs
+node serve.mjs
 ```
 
 Otwórz [localhost:4173/gifbit/](http://127.0.0.1:4173/gifbit/). Wystarczy Node.js 20 lub nowszy. Nie trzeba wykonywać `npm install`. Skrót `npm start` uruchamia ten sam serwer.
@@ -121,6 +122,21 @@ python -m http.server 4173 --bind 127.0.0.1
 ```
 
 Wtedy otwórz [localhost:4173](http://localhost:4173). Aplikację należy udostępniać przez HTTP lub HTTPS, ponieważ używa natywnych modułów JavaScript. Otwarcie `index.html` przez `file://` nie wystarczy.
+
+## Jeden plik HTML
+
+Opcjonalny eksport pakuje aplikację do jednego pliku. Zainstaluj narzędzia deweloperskie raz, a następnie uruchom:
+
+```sh
+npm ci
+npm run build
+```
+
+Powstanie **`gifbit.html` w katalogu głównym projektu**. Możesz skopiować tylko ten plik na inny komputer i otworzyć go w przeglądarce. Zawiera interfejs, style, ikonę, kod aplikacji, procesor audio i przykładowy zestaw 255 animacji. Nie potrzebuje sąsiednich plików ani lokalnego serwera do ręcznego odtwarzania i obsługi zestawów.
+
+Animacje pozostają linkami do GIPHY, więc ich pobieranie oraz wyszukiwanie wymagają internetu. Mikrofon zależy od uprawnień i obsługi lokalnych plików przez przeglądarkę; jeśli odmawia dostępu, udostępnij ten sam HTML przez HTTPS lub localhost.
+
+Eksport korzysta z esbuild, nie wymaga dostępu do sieci po instalacji zależności i jest ignorowany przez Git. Po zmianie źródeł ponownie wykonaj `npm run build`. Zwykłe `npm start` i publikacja źródeł na GitHub Pages nadal działają bez builda i bez instalacji pakietów.
 
 ## Skróty klawiaturowe
 
@@ -151,37 +167,30 @@ Nie są potrzebne własny workflow, katalog `dist`, instalacja zależności ani 
 
 ## Organizacja kodu
 
+Projekt ma dwa katalogi źródłowe: **`src`** i **`tests`**. Pozostałe pliki wejściowe i narzędzia są w katalogu głównym.
+
 | Ścieżka | Odpowiedzialność |
 | --- | --- |
-| `index.html` | Interfejs aplikacji |
-| `gifbit.html` | Przekierowanie ze starej nazwy pliku |
-| `styles/` | Style podzielone na scenę, ustawienia, kolory, zestawy i pozostałe widoki |
+| `index.html` | Interfejs i punkt wejścia aplikacji |
+| `style.css`, `favicon.svg` | Wszystkie style oraz ikona; fonty systemowe |
 | `src/app.js` | Utworzenie modułów i kolejność ich inicjalizacji |
-| `src/state.js`, `src/data/settings.js` | Wspólne ustawienia, walidacja i zapis |
-| `src/audio/` | Detektor uderzeń, silnik rytmu i procesor audio |
-| `src/library.js`, `src/sets.js`, `src/data/sets.js` | GIPHY, aktywne animacje, przechowywanie i format zestawów |
-| `src/playback.js`, `src/rhythm.js`, `src/microphone.js` | Ładowanie obrazów, scena, pętla animacji i mikrofon |
-| `src/settings.js`, `src/curator.js`, `src/colors.js`, `src/calibration.js` | Poszczególne panele interfejsu |
-| `src/session.js`, `src/controls.js`, `src/browser.js` | Uruchomienie pokazu, skróty, pełny ekran i blokada wygaszania |
-| `assets/` | Ikona oraz lokalne fonty wraz z licencjami |
-| `sample.json` | Przykładowy zestaw 255 animacji |
-| `scripts/serve.mjs` | Opcjonalny serwer lokalny, bez zależności |
-| `tests/` | Testy silnika audio, danych i zachowania aplikacji w przeglądarce |
+| `src/` | Płaska struktura modułów: audio, rytm, odtwarzanie, ustawienia, zestawy, kolory i pozostałe panele |
+| `src/settings-data.js`, `src/sets-data.js` | Walidacja ustawień i format zestawów JSON |
+| `src/resources.js` | Ładowanie próbki i procesora audio; przy eksporcie zastępowane zasobami osadzonymi w HTML |
+| `sample.json` | Niezmieniony zestaw 255 przykładowych animacji |
+| `serve.mjs` | Serwer lokalny, bez zależności |
+| `build.mjs` | Opcjonalny eksport do `gifbit.html` |
+| `tests/` | Testy silnika audio, danych, eksportu i zachowania aplikacji w przeglądarce |
 
-Moduły korzystają z natywnych importów ES. Nowe funkcje można dodać do właściwego modułu albo podłączyć jako kolejny moduł w `src/app.js`. Kod aplikacji nie wymaga generowania plików wynikowych.
+Moduły korzystają z natywnych importów ES. Nowe funkcje można dodać do właściwego modułu albo podłączyć w `src/app.js`. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
 
 ## Testowanie
 
-Testy silnika audio, ustawień i formatu JSON nie wymagają instalacji pakietów:
-
-```sh
-npm test
-```
-
-Do testów przeglądarkowych potrzebny jest wyłącznie deweloperski Playwright:
+Zainstaluj zależności deweloperskie, uruchom testy danych, audio i eksportu, a następnie testy przeglądarkowe:
 
 ```sh
 npm ci
+npm test
 npx playwright install chromium
 npm run test:browser
 ```
@@ -193,10 +202,10 @@ $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:browser
 ```
 
-Testy uruchamiają aplikację również pod prefiksem `/gifbit/`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
+Testy uruchamiają aplikację pod prefiksem `/gifbit/` w dwóch wariantach: ze źródeł oraz z pojedynczego HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza próbkę, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
 
 ## Dane i zasoby
 
 Ustawienia, klucz API, zestawy i wykluczone animacje są przechowywane w `localStorage` tej przeglądarki (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Zachowano zgodność z wcześniejszym formatem. Klucz nie jest zaszyfrowany. Zmiana adresu aplikacji, przeglądarki lub wyczyszczenie danych witryny oznacza osobny magazyn; zestawy warto wcześniej wyeksportować do JSON.
 
-Animacje są pobierane bezpośrednio z GIPHY i należą do ich twórców. Ich dostępność zależy od źródłowych linków. Fonty Bricolage Grotesque, Figtree i JetBrains Mono są dostarczane lokalnie na licencjach SIL Open Font License; treści licencji znajdują się w `assets/fonts/`.
+Animacje są pobierane bezpośrednio z GIPHY i należą do ich twórców. Ich dostępność zależy od źródłowych linków. Interfejs korzysta z fontów systemowych i nie pobiera plików fontów. Screenshoty README są udostępniane przez Imgur.

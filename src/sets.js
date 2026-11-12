@@ -1,4 +1,5 @@
-import { packItem, exportObj, slug, setsFromJson } from './data/sets.js';
+import { packItem, exportObj, slug, setsFromJson } from './sets-data.js';
+import { loadSampleText } from './resources.js';
 import { $ } from './dom.js';
 import { settings, saveSettings } from './state.js';
 export function createSets(app) {
@@ -186,9 +187,7 @@ export function createSets(app) {
     const button = $('#sample-load');
     button.disabled = true;
     try {
-      const response = await fetch(new URL('../sample.json', import.meta.url));
-      if (!response.ok) throw new Error('Sample unavailable');
-      const text = await response.text();
+      const text = await loadSampleText();
       const added = await importFiles([{ text: async () => text }]);
       if (!added?.length) return;
       settings.source = 'set';

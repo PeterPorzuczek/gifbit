@@ -1,7 +1,17 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/browser',
+  testDir: './tests',
+  projects: [
+    { name: 'source', testIgnore: '**/standalone.spec.js' },
+    {
+      name: 'single-html',
+      testIgnore: '**/standalone.spec.js',
+      use: { baseURL: 'http://127.0.0.1:4173/gifbit/gifbit.html' },
+    },
+    { name: 'file', testMatch: '**/standalone.spec.js' },
+  ],
+  testMatch: '**/*.spec.js',
   fullyParallel: true,
   workers: 2,
   use: {
@@ -13,7 +23,7 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: 'node scripts/serve.mjs',
+    command: 'node serve.mjs',
     url: 'http://127.0.0.1:4173/gifbit/',
     reuseExistingServer: !process.env.CI,
   },

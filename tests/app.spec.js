@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-const samplePath = fileURLToPath(new URL('../../sample.json', import.meta.url));
+const samplePath = fileURLToPath(new URL('../sample.json', import.meta.url));
 const sample = JSON.parse(await readFile(samplePath));
 const image =
   '<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><rect width="480" height="270" fill="#ff6b3d"/></svg>';
@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
   await page.route(/https:\/\/media\d*\.giphy\.com\//, (route) =>
     route.fulfill({ contentType: 'image/svg+xml', body: image }),
   );
-  await page.goto('./');
+  await page.goto('');
   await expect(page.locator('#source-words')).toBeChecked();
 });
 

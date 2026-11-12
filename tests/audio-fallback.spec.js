@@ -6,7 +6,7 @@ test('microphone denial leaves manual playback available', async ({ page }) => {
       throw new DOMException('Denied', 'NotAllowedError');
     };
   });
-  await page.goto('./');
+  await page.goto('');
   await page.locator('#sample-load').click();
   await page.locator('#go').click();
   await expect(page.locator('#err')).toContainText('not allowed');
@@ -24,7 +24,7 @@ test('the fallback detector works and page exit releases its audio stream', asyn
       return window.testStream;
     };
   });
-  await page.goto('./');
+  await page.goto('');
   await page.locator('#sample-load').click();
   await page.locator('#bpm').fill('120');
   await page.locator('#b-cal').click();

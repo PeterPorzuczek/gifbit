@@ -1,6 +1,7 @@
 import { $, $$ } from './dom.js';
 import { settings, groove } from './state.js';
-import { Det } from './audio/detector.js';
+import { Det } from './detector.js';
+import { loadWorklet } from './resources.js';
 export function createMicrophone(app) {
   let actx = null,
     filters = [],
@@ -96,7 +97,7 @@ export function createMicrophone(app) {
     let worklet = false;
     if (actx.audioWorklet && window.AudioWorkletNode) {
       try {
-        await actx.audioWorklet.addModule(new URL('./audio/worklet.js', import.meta.url));
+        await loadWorklet(actx);
         const node = new AudioWorkletNode(actx, 'gifbit-det', {
           numberOfInputs: 1,
           numberOfOutputs: 1,
