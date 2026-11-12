@@ -12,6 +12,7 @@ Pick your GIFs, play some music, and turn your screen into a beat-driven show.
 ![Runs in your browser](https://img.shields.io/badge/runs-in%20your%20browser-342c41)
 [![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-342c41)](#github-pages)
 
+**[Contribute](#contributing-gif-banks)** ·
 **[Quick start](#quick-start)** ·
 **[Features](#features)** ·
 **[GIF banks](#gif-banks)** ·
@@ -27,7 +28,36 @@ Pick your GIFs, play some music, and turn your screen into a beat-driven show.
 
 ## Why GIFbit
 
+GIFbit is inspired by [See Hear Party (2014)](https://experiments.withgoogle.com/see-hear-party), Peter Javidpour's GIF-based music visualizer.
+
 A simple music visualizer: the microphone detects beats and GIPHY animations appear on screen. You can also control the show manually, without a microphone. The app runs in your browser with no backend or framework. A small build step prepares a static `dist/` directory for publishing; you can run the source directly without building it.
+
+## Contributing GIF banks
+
+Share a curated bank through a pull request to **[gif-banks/](gif-banks/)**. You do not need to change the application code or maintain an index.
+
+### Bank requirements
+
+- Use JSON exported by GIFbit, with `gifbit: 1` and a nonempty list of animations. Each animation must have a unique ID within its set and a valid HTTPS image URL. Submit the JSON links, not the GIF image files.
+- Give the bank a descriptive **Name** (up to 60 characters) and, when useful, a **Description** (up to 1000 characters) explaining its theme. Older banks without these fields remain supported: the app uses the filename and an empty description.
+- Keep the filename format **`YYYY-MM-DD-bank-name.json`**, for example `2026-11-12-neon-city.json`. Use the export date in UTC, lowercase ASCII letters, digits, and hyphens. The date must be valid.
+- Add a new file for a new bank. If that filename already exists, choose another name; only replace an existing file when your PR intentionally updates that bank.
+- Preview the animations before submitting. Keep a bank-only PR limited to JSON files in `gif-banks/`; generated builds and dependencies do not belong in the PR.
+
+### Submit a bank
+
+1. In the [app](https://peterporzuczek.github.io/gifbit/), choose your animations in **Review animations** and use **Save as set**.
+2. Open the saved set in Settings, click **Export**, fill in **Name** and **Description**, and download the JSON file.
+3. Fork this repository, create a branch, and add the exported file to **`gif-banks/`**.
+4. From the repository directory, validate the bank with Node.js 20 or newer; no package installation is needed:
+
+   ```sh
+   npm run check:banks
+   ```
+
+5. Commit the file and open a pull request against **`PeterPorzuczek/gifbit:main`**. Briefly describe the bank's theme and whether it adds a new bank or updates an existing one. The **Validate GIF banks** check must pass; fix any reported filename, metadata, or animation errors.
+
+After the PR is merged, click **Refresh** in **Browse GIF banks** to see the bank. Its contents are downloaded when opened, and its name and description are then remembered in the list.
 
 ## From music to a show
 
@@ -143,13 +173,7 @@ A star marks an entire bank as a favorite, and **Favorites only** filters the li
 
 The panel uses the public API without a token. Connection failures, GitHub rate limits, invalid JSON, and empty repositories produce a message and allow you to retry. New local files appear in the panel only after they are published on `main`. Before publishing, you can check them with **Import from file**.
 
-### Contributing a bank through a PR
-
-1. Prepare a set in the app and choose **Export**. Enter a name of up to 60 characters and an optional description of up to 1000 characters.
-2. Keep the generated filename: **`YYYY-MM-DD-bank-name.json`**. The date is the export date in UTC; the name uses lowercase ASCII letters, digits, and hyphens.
-3. Add the file to **`gif-banks/`**. Choose a different name if a file with the same date and name already exists.
-4. Run `npm run check:banks` and open a PR. The **Validate GIF banks** workflow checks the format, date, filename, and animation data. The validator needs only Node.js, with no package installation.
-5. After the PR is merged into `main`, the bank appears when the list is refreshed. No application code changes or manually maintained index are required.
+To add or update a bank, follow the [contribution guide](#contributing-gif-banks) near the top of this README.
 
 Banks use the app's export format: `gifbit: 1`, `name`, `description`, `created`, `updated`, `words`, and `items`. Older files without `description` still work. Exporting all sets produces a `sets` array; the panel treats that file as one bank and combines its animations without duplicates. Importing the file manually preserves the separate sets.
 
