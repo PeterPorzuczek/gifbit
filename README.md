@@ -145,6 +145,16 @@ Cycle automatically through a selected palette every **0.5–30 seconds** or eve
 <br><sub><b>Show settings</b> — animation sources, beat response, and stage appearance.</sub>
 </td>
 </tr>
+<tr>
+<td width="50%" align="center" valign="top">
+<a href="https://i.imgur.com/OJO2YLg.png"><img src=".github/readme/stage.svg" width="420" alt="GIFbit: an animation collage, live color controls, and the beat meter."></a>
+<br><sub><b>Live stage</b> — turn music into an animation collage and adjust colors during the show.</sub>
+</td>
+<td width="50%" align="center" valign="top">
+<a href="https://i.imgur.com/HfZ1X0z.jpeg"><img src=".github/readme/banks.svg" width="420" alt="The GIF banks panel with the hh3 bank open, animation previews, and import controls."></a>
+<br><sub><b>GIF banks</b> — browse community collections, preview animations, and import your selection.</sub>
+</td>
+</tr>
 </table>
 
 ## Quick start
