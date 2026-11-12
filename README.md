@@ -51,6 +51,7 @@ Share a curated bank through a pull request to **[gif-banks/](gif-banks/)**. You
 - Use JSON exported by GIFbit, with `gifbit: 1` and a nonempty list of animations. Each animation must have a unique ID within its set and a valid HTTPS image URL. Submit the JSON links, not the GIF image files.
 - Give the bank a descriptive **Name** (up to 60 characters) and, when useful, a **Description** (up to 1000 characters) explaining its theme. Older banks without these fields remain supported: the app uses the filename and an empty description.
 - Keep the filename format **`YYYY-MM-DD-bank-name.json`**, for example `2026-11-12-neon-city.json`. Use the export date in UTC, lowercase ASCII letters, digits, and hyphens. The date must be valid.
+- **`gif-banks/sample.json`** is reserved for the app's starter bank and is the only exception to the dated filename rule. It must pass the same metadata and animation checks as other banks.
 - Add a new file for a new bank. If that filename already exists, choose another name; only replace an existing file when your PR intentionally updates that bank.
 - Preview the animations before submitting. Keep a bank-only PR limited to JSON files in `gif-banks/`; generated builds and dependencies do not belong in the PR.
 

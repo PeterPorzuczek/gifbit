@@ -22,11 +22,13 @@ async function check(directory, prefix = '') {
 }
 export function validateBankFile(value, path) {
   const filename = path.split('/').pop();
-  if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(filename))
-    throw new Error(`${path}: use YYYY-MM-DD-name.json`);
-  const date = filename.slice(0, 10);
-  if (Number.isNaN(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date)
-    throw new Error(`${path}: invalid date`);
+  if (path !== 'sample.json') {
+    if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(filename))
+      throw new Error(`${path}: use YYYY-MM-DD-name.json`);
+    const date = filename.slice(0, 10);
+    if (Number.isNaN(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date)
+      throw new Error(`${path}: invalid date`);
+  }
   if (value?.gifbit !== 1) throw new Error(`${path}: expected gifbit: 1`);
   const sets = Array.isArray(value.sets) ? value.sets : [value];
   for (const set of [value, ...sets]) {
