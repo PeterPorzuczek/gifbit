@@ -36,6 +36,11 @@ A simple music visualizer: the microphone detects beats and GIPHY animations app
 
 Share a curated bank through a pull request to **[gif-banks/](gif-banks/)**. You do not need to change the application code or maintain an index.
 
+<p align="center">
+<a href="https://i.imgur.com/HfZ1X0z.jpeg"><img src=".github/readme/banks.svg" width="900" alt="The GIF banks panel with the hh3 bank open, animation previews, selection controls, and the Import 255 animations button."></a>
+<br><sub><b>Bank preview</b> — open a community bank, preview its animations, and import your selection.</sub>
+</p>
+
 ### Bank requirements
 
 - Use JSON exported by GIFbit, with `gifbit: 1` and a nonempty list of animations. Each animation must have a unique ID within its set and a valid HTTPS image URL. Submit the JSON links, not the GIF image files.
