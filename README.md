@@ -74,10 +74,14 @@ After the PR is merged, click **Refresh** in **Browse GIF banks** to see the ban
 
 After [starting the app](#quick-start), follow these four steps:
 
-1. Click **Browse GIF banks**, open a bank, and choose **Import animations**. Import every animation or select individual GIFs. No GIPHY key is required. You can also load your own JSON file through **Saved set → Import from file**.
+1. Open the app. The starter bank **`sample.json`** is added to **Your sets** and selected automatically, ready to use without a GIPHY key. The supplied bank is **my6**, with **330 animations**.
 2. Choose **Review animations** to review and narrow down the set, or go straight to **Start without microphone**.
 3. Press **Space** or click the stage to trigger a beat and display an animation.
 4. Choose **Start** and allow microphone access to make the show react to music from your speakers. Microphone access requires HTTPS or localhost.
+
+To try another collection, click **Browse GIF banks**, open a bank, and use **Import animations**. Import the whole bank or choose individual GIFs. You can also use **Saved set → Import from file**.
+
+Each visit opens with the saved starter set selected. The app reuses one local copy without duplicating it or removing your other sets and settings. Deleting the starter set restores it from GitHub on the next visit. If GitHub is unavailable on the first visit, use **Retry starter set** or choose another source. If browser storage is unavailable, the downloaded starter still works for that visit.
 
 ## Features
 
@@ -97,7 +101,7 @@ In **Review animations**, click or drag animations between **On screen** and **P
 
 **Save as set** saves the active animations; using an existing name updates that set. Import multiple files, export one set or all sets, and delete sets with a second confirmation click. The `gifbit: 1` format supports a single set, an array, or an object containing a `sets` array.
 
-The example bank **gif-banks/2026-11-05-hh3.json** contains the original 255 sample animations, unchanged. Sets contain HTTPS image links, so playback requires an internet connection.
+The starter bank **gif-banks/sample.json** contains 330 animations and is selected automatically when the app opens. The separate **gif-banks/2026-11-05-hh3.json** bank retains the original 255 example animations, unchanged. Sets contain HTTPS image links, so playback requires an internet connection.
 
 ### Community banks
 
@@ -186,7 +190,9 @@ Run `npm run build` to prepare the publishing directory, or `npm run preview` to
 
 ## GIF banks
 
-The panel reads from **`gif-banks/` on the `main` branch of `PeterPorzuczek/gifbit`**. The app lists files through the GitHub Trees API and fetches a selected bank through the GitHub Blobs API using its SHA. JSON files are downloaded only when you click a bank. This works the same way in the source preview, production build, and single HTML export. There is no local bank index or copy of bank JSON files in `dist/`. API documentation: [repository trees](https://docs.github.com/en/rest/git/trees#get-a-tree), [file contents](https://docs.github.com/en/rest/git/blobs#get-a-blob).
+The panel reads from **`gif-banks/` on the `main` branch of `PeterPorzuczek/gifbit`**. The app lists files through the GitHub Trees API and fetches a selected bank through the GitHub Blobs API using its SHA. Browsing downloads a bank only when you click it. The starter bank is the exception: when its saved set is missing, the app fetches **`sample.json`** automatically through the GitHub Contents API. This works the same way in the source preview, production build, and single HTML export. There is no local bank index or copy of bank JSON files in `dist/`. API documentation: [repository trees](https://docs.github.com/en/rest/git/trees#get-a-tree), [blobs](https://docs.github.com/en/rest/git/blobs#get-a-blob), [repository contents](https://docs.github.com/en/rest/repos/contents#get-repository-content).
+
+The saved starter copy is reused on later visits, so startup needs no further GitHub request. Your edits to that copy are preserved. To load the latest published `sample.json`, delete its saved set and reload the app. A source or set chosen while the initial download is in progress takes priority over automatic selection.
 
 The API file listing does not include metadata stored inside the files. An unopened bank therefore initially shows its filename without `.json` and an empty description. Once opened, the app uses its `name` and `description` fields when available and remembers them for your next visit. A changed file SHA invalidates the cached metadata. Missing or empty fields fall back to the filename and an empty description.
 
@@ -252,12 +258,12 @@ Application code in **`src/`** is organized by feature. Only `index.html` and `a
 | `src/app.js` | Module creation and initialization order |
 | `src/audio/` | Microphone (`microphone.js`), hit detection (`detector.js`, `worklet.js`), beat prediction (`groove.js`), tempo and beat events (`rhythm.js`), calibration (`calibration.js`) |
 | `src/library/` | Loading animations from GIPHY or sets (`catalog.js`), review and selection (`curator.js`), set management (`sets.js`), import/export validation and format (`format.js`) |
-| `src/banks/` | GitHub API (`api.js`), bank parsing (`format.js`), browsing panel, favorites, and import (`panel.js`) |
+| `src/banks/` | GitHub API (`api.js`), bank parsing (`format.js`), default starter set and loading recovery (`starter.js`), browsing panel, favorites, and import (`panel.js`) |
 | `src/stage/` | Animation playback and layout (`playback.js`), colors (`colors.js`), shortcuts and buttons (`controls.js`), full screen and wake lock (`browser.js`), starting a show and returning to Settings (`session.js`) |
 | `src/settings/` | Settings form (`form.js`), defaults and validation (`schema.js`) |
 | `src/core/` | Shared state and settings persistence (`state.js`), interface element access (`dom.js`), resource loading (`resources.js`) |
 | `src/assets/` | `style.css` and `favicon.svg`; no local font files |
-| `gif-banks/` | JSON banks contributed through PRs; the initial `2026-11-05-hh3.json` contains 255 animations |
+| `gif-banks/` | JSON banks contributed through PRs; reserved `sample.json` starts the app with 330 animations, and `2026-11-05-hh3.json` contains the original 255 examples |
 | `scripts/serve.mjs` | Dependency-free source or `dist/` preview |
 | `scripts/build.mjs` | Build into `dist/` and optional single HTML export |
 | `scripts/check-banks.mjs` | Bank filename and format validation |

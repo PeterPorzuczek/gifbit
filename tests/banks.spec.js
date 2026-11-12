@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { apiRoot, sample, sampleEntry } from './bank-fixtures.js';
+import { apiRoot, sample, sampleEntry, mockStarter } from './bank-fixtures.js';
 
 const other = { ...sampleEntry, path: 'gif-banks/2026-11-12-night.json', sha: 'b'.repeat(40) };
 const night = {
@@ -13,6 +13,7 @@ const image =
   '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"><rect width="160" height="120" fill="#793c91"/></svg>';
 
 test.beforeEach(async ({ page }) => {
+  await mockStarter(page);
   await page.route(/https:\/\/media\d*\.giphy\.com\//, (route) =>
     route.fulfill({ contentType: 'image/svg+xml', body: image }),
   );

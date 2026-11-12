@@ -62,3 +62,10 @@ export async function readBank(file, fetcher = fetch) {
   if (!shaPattern.test(file.sha)) throw new Error('Invalid bank reference. Refresh the list.');
   return bankFromJson(await request(`/git/blobs/${file.sha}`, true, fetcher), file.path);
 }
+
+export async function readStarterBank(fetcher = fetch) {
+  return bankFromJson(
+    await request('/contents/gif-banks/sample.json?ref=main', true, fetcher),
+    'gif-banks/sample.json',
+  );
+}

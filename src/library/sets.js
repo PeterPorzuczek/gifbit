@@ -3,6 +3,7 @@ import { $ } from '../core/dom.js';
 import { settings, saveSettings } from '../core/state.js';
 export function createSets(app) {
   const SETS = 'gifbit.sets';
+  const starterId = 'starter-sample';
   let sets = [];
   let exportTarget = null;
   function saveSets() {
@@ -89,6 +90,23 @@ export function createSets(app) {
     }
     $('#sets-empty').hidden = sets.length > 0;
     $('#sets-exportall').hidden = !sets.length;
+    app.starter?.refresh();
+  }
+  function addStarter(bank) {
+    const existing = findSet(starterId);
+    if (existing) return { set: existing, saved: true };
+    const now = new Date().toISOString();
+    const set = {
+      ...bank,
+      id: starterId,
+      name: uniqueName(bank.name),
+      created: bank.created || now,
+      updated: bank.updated || now,
+    };
+    sets.unshift(set);
+    const saved = saveSets();
+    renderSets();
+    return { set, saved };
   }
   function saveAsSet(rawName) {
     if (!app.library.active.length) {
@@ -299,6 +317,10 @@ export function createSets(app) {
       return sets;
     },
     findSet,
+    get starter() {
+      return findSet(starterId);
+    },
+    addStarter,
     plural,
     renderSets,
     saveAsSet,

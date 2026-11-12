@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { listBanks, readBank } from '../src/banks/api.js';
+import { listBanks, readBank, readStarterBank } from '../src/banks/api.js';
 import { bankFromJson } from '../src/banks/format.js';
 import { exportFilename, exportObj, setsFromJson } from '../src/library/format.js';
-import { sample, sampleEntry, apiRoot } from './bank-fixtures.js';
+import { sample, sampleEntry, apiRoot, starter, starterUrl } from './bank-fixtures.js';
 import { validateBankFile } from '../scripts/check-banks.mjs';
 
 test('PR validation accepts exports and rejects invalid filenames, dates, metadata and animations', () => {
@@ -120,5 +120,22 @@ test('GitHub errors and incomplete lists are reported without returning partial 
       throw new Error('offline');
     }),
     /connection/,
+  );
+});
+
+test('the starter bank uses one GitHub API request to the reserved file on main', async () => {
+  const calls = [];
+  const bank = await readStarterBank(async (url, options) => {
+    calls.push({ url, options });
+    return new Response(JSON.stringify(starter));
+  });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, starterUrl);
+  assert.equal(calls[0].options.headers.Accept, 'application/vnd.github.raw+json');
+  assert.equal(bank.name, starter.name);
+  assert.equal(bank.items.length, 330);
+  await assert.rejects(
+    readStarterBank(async () => new Response('{broken')),
+    /valid JSON/,
   );
 });

@@ -10,6 +10,7 @@ test.beforeEach(async ({ page }) => {
     route.fulfill({ contentType: 'image/svg+xml', body: image }),
   );
   await page.goto('');
+  await page.locator('label[for="source-words"]').click();
   await expect(page.locator('#source-words')).toBeChecked();
 });
 
@@ -131,13 +132,11 @@ test('sequential playback keeps source order when image decoding finishes out of
 }) => {
   const smallSet = { ...sample, items: sample.items.slice(0, 3) };
   await page.locator('label[for="source-set"]').click();
-  await page
-    .locator('#sets-file')
-    .setInputFiles({
-      name: 'order.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(JSON.stringify(smallSet)),
-    });
+  await page.locator('#sets-file').setInputFiles({
+    name: 'order.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(smallSet)),
+  });
   await page.locator('label[for="order-seq"]').click();
   await page.locator('label[for="mode-single"]').click();
   await page.route(smallSet.items[0].big, async (route) => {
@@ -237,15 +236,13 @@ test('malformed storage recovers and malformed files report an error', async ({ 
     localStorage.setItem('gifbit.excluded', '{broken');
   });
   await page.reload();
-  await expect(page.locator('#source-words')).toBeChecked();
+  await expect(page.locator('#source-set')).toBeChecked();
   await page.locator('label[for="source-set"]').click();
-  await page
-    .locator('#sets-file')
-    .setInputFiles({
-      name: 'bad.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from('{broken'),
-    });
+  await page.locator('#sets-file').setInputFiles({
+    name: 'bad.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{broken'),
+  });
   await expect(page.locator('#toast')).toContainText("doesn't look like");
   await expect(page.locator('.setrow')).toHaveCount(0);
 });

@@ -11,7 +11,7 @@ export const defaults = {
   bgImg: '',
   dim: 0,
   safe: true,
-  source: 'words',
+  source: 'set',
   setId: '',
   thumb: 240,
   order: 'random',

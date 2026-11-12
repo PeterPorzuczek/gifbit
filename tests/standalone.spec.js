@@ -3,7 +3,7 @@ import { mkdtemp, copyFile, rm, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { mockBanks, importSampleBank } from './bank-fixtures.js';
+import { mockBanks, mockStarter, starter } from './bank-fixtures.js';
 
 test('copied HTML runs alone from disk with remote banks and an embedded audio worklet', async ({
   page,
@@ -26,11 +26,12 @@ test('copied HTML runs alone from disk with remote banks and an embedded audio w
       }),
     );
     await mockBanks(page);
+    await mockStarter(page, starter);
     await page.goto(pathToFileURL(file).href);
-    await importSampleBank(page);
     await expect(page.locator('.setrow')).toHaveCount(1);
+    await expect(page.locator('#set-starter-sample')).toBeChecked();
     await page.locator('#b-curate').click();
-    await expect(page.locator('#in-count')).toHaveText('255');
+    await expect(page.locator('#in-count')).toHaveText('330');
     await page.locator('#cur-done').click();
     await page.evaluate(() => {
       window.workletNodes = 0;
