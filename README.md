@@ -195,6 +195,8 @@ This creates **`dist/gifbit.html`** alongside the regular build. You can copy th
 
 Browsing banks through the GitHub API, downloading animations, and searching require an internet connection. You can still import your own sets from JSON files. Microphone access depends on browser permissions and support for local files; if access is denied, serve the same HTML over HTTPS or localhost.
 
+Fonts load from Google Fonts when online, including in the single HTML export. System fonts keep the interface usable if they cannot be downloaded.
+
 The build uses esbuild and needs no network access after dependencies are installed. Every build recreates `dist/` from scratch; Git ignores the entire directory. Run `npm run build:single` again after changing the source to update the export.
 
 ## Keyboard shortcuts
@@ -238,7 +240,7 @@ Application code in **`src/`** is organized by feature. Only `index.html` and `a
 | `src/stage/` | Animation playback and layout (`playback.js`), colors (`colors.js`), shortcuts and buttons (`controls.js`), full screen and wake lock (`browser.js`), starting a show and returning to Settings (`session.js`) |
 | `src/settings/` | Settings form (`form.js`), defaults and validation (`schema.js`) |
 | `src/core/` | Shared state and settings persistence (`state.js`), interface element access (`dom.js`), resource loading (`resources.js`) |
-| `src/assets/` | `style.css` and `favicon.svg`; system fonts |
+| `src/assets/` | `style.css` and `favicon.svg`; no local font files |
 | `gif-banks/` | JSON banks contributed through PRs; the initial `2026-11-05-hh3.json` contains 255 animations |
 | `scripts/serve.mjs` | Dependency-free source or `dist/` preview |
 | `scripts/build.mjs` | Build into `dist/` and optional single HTML export |
@@ -276,4 +278,4 @@ Browser tests first build the app, then check it under the `/gifbit/` prefix in 
 
 Settings, the API key, saved sets, and excluded animations are stored in this browser's `localStorage` (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Favorite banks use `gifbit.banks.favorites`, and cached names and descriptions use `gifbit.banks.metadata`. Older set formats remain compatible. The GIPHY key is not encrypted. A different app address, browser, or cleared site data means a separate storage area; export your sets to JSON beforehand if you want to keep them.
 
-Animations are fetched directly from GIPHY and belong to their creators. Availability depends on the original image links. The interface uses system fonts and downloads no font files. Original screenshots are hosted on Imgur; the SVG frames are used only for README presentation.
+Animations are fetched directly from GIPHY and belong to their creators. Availability depends on the original image links. The interface loads Bricolage Grotesque, Figtree, and JetBrains Mono from Google Fonts, with system fallbacks while loading or offline. Font files are not stored in the repository or build output. Original screenshots are hosted on Imgur; the SVG frames are used only for README presentation.

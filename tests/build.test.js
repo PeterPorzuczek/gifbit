@@ -14,7 +14,10 @@ test('single-file export embeds its assets and preserves every interface element
       (match) => match[1],
     );
   assert.deepEqual(ids(html), ids(source));
-  assert.doesNotMatch(html, /<script[^>]+\bsrc=|<link[^>]+rel="stylesheet"/i);
+  assert.doesNotMatch(
+    html,
+    /<script[^>]+\bsrc=|<link[^>]+rel="stylesheet"[^>]+href="(?!https:\/\/fonts\.googleapis\.com\/css2\?)/i,
+  );
   assert.match(html, /href="data:image\/svg\+xml;base64,/);
   assert.doesNotMatch(html, /import\.meta/);
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
