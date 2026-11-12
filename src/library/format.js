@@ -39,6 +39,7 @@ export function exportObj(s) {
   return {
     gifbit: 1,
     name: s.name,
+    description: typeof s.description === 'string' ? s.description.trim().slice(0, 1000) : '',
     created: s.created,
     updated: s.updated,
     words: s.words || [],
@@ -56,7 +57,15 @@ export function slug(name) {
       .replace(/^-+|-+$/g, '') || 'set'
   );
 }
-export function setsFromJson(obj) {
+export const filenameName = (path) =>
+  path
+    .split('/')
+    .pop()
+    .replace(/\.json$/i, '');
+export function exportFilename(name, date = new Date()) {
+  return `${date.toISOString().slice(0, 10)}-${slug(name)}.json`;
+}
+export function setsFromJson(obj, fallbackName = 'Imported set') {
   const list = Array.isArray(obj) ? obj : obj && Array.isArray(obj.sets) ? obj.sets : [obj];
   const out = [];
   for (const s of list) {
@@ -66,9 +75,10 @@ export function setsFromJson(obj) {
     if (!its.length) continue;
     out.push({
       name:
-        String(s.name || 'Imported set')
+        String(s.name || fallbackName)
           .trim()
-          .slice(0, 60) || 'Imported set',
+          .slice(0, 60) || fallbackName,
+      description: typeof s.description === 'string' ? s.description.trim().slice(0, 1000) : '',
       words: Array.isArray(s.words)
         ? s.words.map(String).slice(0, 20)
         : [...new Set(its.map((i) => i.word).filter(Boolean))],

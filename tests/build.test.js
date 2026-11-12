@@ -22,22 +22,18 @@ test('single-file export embeds its assets and preserves every interface element
   assert.doesNotThrow(() => new Script(scripts[0][1]));
 });
 
-test('production assets contain every local entry and preserve the sample data', async () => {
+test('production assets contain every local entry without bundling remote banks', async () => {
   const files = await buildAssets();
   assert.deepEqual(Object.keys(files).sort(), [
     'app.js',
     'assets/favicon.svg',
     'assets/style.css',
     'audio/worklet.js',
-    'data/sample.json',
     'index.html',
   ]);
   for (const [, path] of files['index.html'].matchAll(/(?:src|href)="\.\/([^"]+)"/g)) {
     assert.ok(Object.hasOwn(files, path), `Missing output asset: ${path}`);
   }
-  assert.equal(
-    files['data/sample.json'],
-    await readFile(new URL('../data/sample.json', import.meta.url), 'utf8'),
-  );
+  assert.doesNotMatch(files['app.js'], /2026-11-05-hh3\.json/);
   assert.doesNotMatch(files['audio/worklet.js'], /\bimport\s/);
 });

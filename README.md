@@ -14,13 +14,14 @@ Wybierz GIF-y, włącz muzykę i zamień ekran w pokaz sterowany uderzeniami.
 
 **[Szybki start](#szybki-start)** ·
 **[Funkcje](#funkcje)** ·
+**[Banki GIF-ów](#banki-gif-ów)** ·
 **[Jeden HTML](#jeden-plik-html)** ·
 **[GitHub Pages](#github-pages)** ·
 **[Dokumentacja](#organizacja-kodu)**
 
 <br>
 
-<img src="https://i.imgur.com/OJO2YLg.png" width="900" alt="GIFbit: kolaż animacji z sample.json, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu.">
+<img src="https://i.imgur.com/OJO2YLg.png" width="900" alt="GIFbit: kolaż animacji, panel kolorów po prawej i miernik uderzeń w lewym dolnym rogu.">
 
 </div>
 
@@ -32,7 +33,7 @@ Prosta aplikacja do wizualizacji muzyki: mikrofon wykrywa uderzenia, a na ekrani
 
 Po [uruchomieniu aplikacji](#szybki-start) wystarczą cztery kroki:
 
-1. Kliknij **Load sample animations**, aby wczytać 255 animacji z dołączonego `data/sample.json`. Nie potrzebujesz klucza API.
+1. Kliknij **Browse GIF banks**, otwórz bank i wybierz **Import animations**. Możesz zaznaczyć wszystkie animacje albo wybrane. Nie potrzebujesz klucza GIPHY. Własny plik JSON można też wczytać przez **Saved set → Import from file**.
 2. Wybierz **Review animations**, aby przejrzeć i ograniczyć zestaw, albo od razu **Start without microphone**.
 3. Naciśnij **Spację** lub kliknij scenę, aby wywołać uderzenie i wyświetlić animację.
 4. Wybierz **Start** i zezwól na mikrofon, aby pokaz reagował na muzykę z głośników. Dostęp do mikrofonu wymaga HTTPS lub localhost.
@@ -55,7 +56,13 @@ W **Review animations** klikaj lub przeciągaj animacje między **On screen** i 
 
 **Save as set** zapisuje aktywne animacje; istniejąca nazwa aktualizuje zestaw. Importuj wiele plików, eksportuj jeden zestaw lub wszystkie i usuwaj zestawy po ponownym kliknięciu potwierdzenia. Format `gifbit: 1` obsługuje pojedynczy zestaw, tablicę albo obiekt z tablicą `sets`.
 
-Dołączony **data/sample.json** zachowano bez zmian — to 255 animacji do wypróbowania bez klucza API. Zestawy zawierają linki HTTPS do obrazów, więc odtwarzanie wymaga internetu.
+Przykładowy bank **gif-banks/2026-11-05-hh3.json** zawiera niezmienione 255 animacji z pierwotnej próbki. Zestawy zawierają linki HTTPS do obrazów, więc odtwarzanie wymaga internetu.
+
+### Banki społeczności
+
+Przeglądaj banki opublikowane w repozytorium, wyszukuj je po nazwie i opisie, a ulubione **całe banki** oznaczaj gwiazdką. Po otwarciu banku zobaczysz jego opis i animowane miniatury. Zaimportuj całość lub zaznaczone GIF-y do własnych zestawów.
+
+Eksport otwiera formularz **Name** i **Description**. Metadane są zapisywane w JSON, a nazwa pliku zawiera datę, np. `2026-11-12-neon-city.json`.
 
 ### Sterowanie podczas pokazu
 
@@ -124,7 +131,27 @@ npm run dev
 
 Adres pozostaje ten sam. Po zmianie plików odśwież stronę. Źródła używają natywnych modułów JavaScript i wymagają HTTP lub HTTPS.
 
-Sam katalog do publikacji przygotujesz poleceniem `npm run build`, a istniejący build obejrzysz przez `npm run preview`. `dist/` zawiera wyłącznie HTML, CSS, ikonę, dane przykładowe i dwa pliki JavaScript. Dane trafiają do `dist/data/`, style i ikona do `dist/assets/`, a procesor audio do `dist/audio/`. Cały `dist/` można udostępnić na dowolnym hostingu statycznym.
+Sam katalog do publikacji przygotujesz poleceniem `npm run build`, a istniejący build obejrzysz przez `npm run preview`. `dist/` zawiera wyłącznie HTML, CSS, ikonę i dwa pliki JavaScript. Style i ikona trafiają do `dist/assets/`, a procesor audio do `dist/audio/`. Cały `dist/` można udostępnić na dowolnym hostingu statycznym.
+
+## Banki GIF-ów
+
+Źródłem panelu jest katalog **`gif-banks/` na gałęzi `main` w `PeterPorzuczek/gifbit`**. Aplikacja pobiera listę plików przez GitHub Trees API, a zawartość wybranego banku przez GitHub Blobs API, według jego SHA. Pliki JSON są pobierane dopiero po kliknięciu banku. Działa to tak samo w podglądzie źródeł, buildzie i pojedynczym HTML. Nie ma lokalnej listy banków ani kopii JSON w `dist/`. Dokumentacja API: [drzewa repozytorium](https://docs.github.com/en/rest/git/trees#get-a-tree), [zawartość plików](https://docs.github.com/en/rest/git/blobs#get-a-blob).
+
+Lista plików z API nie zawiera ich wewnętrznych metadanych. Dlatego nieotwarty bank początkowo ma nazwę pliku bez `.json` i pusty opis. Po otwarciu aplikacja używa pól `name` i `description`, jeśli występują, oraz zapamiętuje je dla następnej wizyty. Zmiana SHA pliku unieważnia zapisane metadane. Jeśli pól nie ma lub są puste, pozostaje nazwa pliku i pusty opis.
+
+Gwiazdką oznaczasz cały bank, a **Favorites only** ogranicza listę do ulubionych. Pole wyszukiwania uwzględnia nazwę pliku oraz poznaną nazwę i opis. **Refresh** pobiera aktualną listę. Po otwarciu banku **Select all** i **Clear selection** pomagają wybrać animacje do importu. Import tworzy własny zapisany zestaw, który można następnie edytować w **Review animations**.
+
+Panel korzysta z publicznego API bez tokena. Przy braku sieci, limicie GitHuba, niepoprawnym JSON lub pustym repozytorium pokazuje komunikat i pozwala ponowić próbę. Nowe lokalne pliki staną się widoczne w panelu dopiero po ich opublikowaniu na `main`. Przed publikacją można je sprawdzić przez **Import from file**.
+
+### Dodawanie banku przez PR
+
+1. Przygotuj zestaw w aplikacji i wybierz **Export**. Wpisz nazwę (do 60 znaków) i opcjonalny opis (do 1000 znaków).
+2. Zachowaj wygenerowaną nazwę **`YYYY-MM-DD-nazwa-banku.json`**. Data jest datą eksportu w UTC; część opisowa zawiera małe litery ASCII, cyfry i myślniki.
+3. Dodaj plik do **`gif-banks/`**. Użyj innej nazwy, jeśli plik z tą datą i nazwą już istnieje.
+4. Uruchom `npm run check:banks` i utwórz PR. Workflow **Validate GIF banks** sprawdza format, datę i nazwę pliku oraz poprawność danych animacji. Walidator wymaga tylko Node.js, bez instalacji pakietów.
+5. Po połączeniu PR-a do `main` bank pojawi się po odświeżeniu listy. Nie trzeba zmieniać kodu ani ręcznie utrzymywać indeksu.
+
+Bank używa formatu eksportu aplikacji: `gifbit: 1`, `name`, `description`, `created`, `updated`, `words` i `items`. Stare pliki bez `description` nadal działają. Eksport wszystkich zestawów zawiera `sets`; panel pokazuje taki plik jako jeden bank, łącząc animacje bez powtórzeń. Ręczny import tego pliku zachowuje osobne zestawy.
 
 ## Jeden plik HTML
 
@@ -135,9 +162,9 @@ npm ci
 npm run build:single
 ```
 
-Obok zwykłego builda powstanie **`dist/gifbit.html`**. Możesz skopiować tylko ten plik na inny komputer i otworzyć go w przeglądarce. Zawiera interfejs, style, ikonę, kod aplikacji, procesor audio i przykładowy zestaw 255 animacji. Nie potrzebuje sąsiednich plików ani lokalnego serwera do ręcznego odtwarzania i obsługi zestawów.
+Obok zwykłego builda powstanie **`dist/gifbit.html`**. Możesz skopiować tylko ten plik na inny komputer i otworzyć go w przeglądarce. Zawiera interfejs, style, ikonę, kod aplikacji i procesor audio. Nie potrzebuje sąsiednich plików ani lokalnego serwera do ręcznego odtwarzania i obsługi zestawów.
 
-Animacje pozostają linkami do GIPHY, więc ich pobieranie oraz wyszukiwanie wymagają internetu. Mikrofon zależy od uprawnień i obsługi lokalnych plików przez przeglądarkę; jeśli odmawia dostępu, udostępnij ten sam HTML przez HTTPS lub localhost.
+Przeglądanie banków przez GitHub API oraz pobieranie i wyszukiwanie animacji wymagają internetu. Własne zestawy nadal można importować z plików JSON. Mikrofon zależy od uprawnień i obsługi lokalnych plików przez przeglądarkę; jeśli odmawia dostępu, udostępnij ten sam HTML przez HTTPS lub localhost.
 
 Build korzysta z esbuild i po instalacji zależności nie wymaga dostępu do sieci. Każde budowanie odtwarza `dist/` od zera; cały katalog jest ignorowany przez Git. Po zmianie źródeł ponownie wykonaj `npm run build:single`, aby odświeżyć eksport.
 
@@ -152,7 +179,7 @@ Build korzysta z esbuild i po instalacji zależności nie wymaga dostępu do sie
 | H | Pokazanie lub ukrycie miernika |
 | F | Przełączenie pełnego ekranu |
 | S | Otwarcie ustawień |
-| Esc | Ustawienia / powrót do pokazu; zamknięcie przeglądu lub kalibracji |
+| Esc | Ustawienia / powrót do pokazu; zamknięcie przeglądu, banków, eksportu lub kalibracji |
 | ← / → w kalibracji | Zmiana wyprzedzenia o 5 ms |
 
 ## GitHub Pages
@@ -170,7 +197,7 @@ Kolejne aktualizacje `main` publikują zmiany automatycznie. Nie trzeba commitow
 
 ## Organizacja kodu
 
-Kod aplikacji w **`src/`** jest podzielony według funkcji. W jego katalogu głównym pozostają tylko `index.html` i `app.js`. Dane są osobno w **`data/`**, narzędzia w **`scripts/`**, a testy w **`tests/`**. **`dist/`** powstaje automatycznie.
+Kod aplikacji w **`src/`** jest podzielony według funkcji. W jego katalogu głównym pozostają tylko `index.html` i `app.js`. Banki są osobno w **`gif-banks/`**, narzędzia w **`scripts/`**, a testy w **`tests/`**. **`dist/`** powstaje automatycznie.
 
 | Ścieżka | Odpowiedzialność |
 | --- | --- |
@@ -178,20 +205,23 @@ Kod aplikacji w **`src/`** jest podzielony według funkcji. W jego katalogu gł�
 | `src/app.js` | Utworzenie modułów i kolejność ich inicjalizacji |
 | `src/audio/` | Mikrofon (`microphone.js`), wykrywanie uderzeń (`detector.js`, `worklet.js`), przewidywanie rytmu (`groove.js`), tempo i zdarzenia uderzeń (`rhythm.js`), kalibracja (`calibration.js`) |
 | `src/library/` | Wczytywanie animacji z GIPHY lub zestawu (`catalog.js`), przegląd i selekcja (`curator.js`), zarządzanie zestawami (`sets.js`), walidacja i format importu/eksportu (`format.js`) |
+| `src/banks/` | GitHub API (`api.js`), odczyt banków (`format.js`), panel przeglądania, ulubione i import (`panel.js`) |
 | `src/stage/` | Odtwarzanie i układ animacji (`playback.js`), kolory (`colors.js`), skróty i przyciski (`controls.js`), pełny ekran i blokada wygaszania (`browser.js`), uruchamianie pokazu i powrót do ustawień (`session.js`) |
 | `src/settings/` | Formularz ustawień (`form.js`) oraz wartości domyślne i walidacja (`schema.js`) |
 | `src/core/` | Wspólny stan i zapis ustawień (`state.js`), dostęp do elementów interfejsu (`dom.js`), ładowanie zewnętrznych zasobów (`resources.js`) |
 | `src/assets/` | Arkusz `style.css` i ikona `favicon.svg`; fonty systemowe |
-| `data/sample.json` | Niezmieniony zestaw 255 przykładowych animacji, niezależny od kodu aplikacji |
-| `scripts/serve.mjs` | Podgląd `dist/` lub źródeł z danymi, bez zależności |
+| `gif-banks/` | Banki JSON dodawane przez PR-y; początkowy `2026-11-05-hh3.json` zawiera 255 animacji |
+| `scripts/serve.mjs` | Podgląd `dist/` lub źródeł, bez zależności |
 | `scripts/build.mjs` | Build do `dist/` i opcjonalny eksport do jednego HTML |
+| `scripts/check-banks.mjs` | Walidacja nazw i formatu banków |
 | `tests/` | Testy silnika audio, danych, eksportu i zachowania aplikacji w przeglądarce |
 | `.github/workflows/pages.yml` | Automatyczne budowanie i publikacja na GitHub Pages |
+| `.github/workflows/banks.yml` | Sprawdzanie banków w PR-ach |
 | `dist/` | Gotowa aplikacja; pliki generowane, pomijane przez Git |
 
 Moduły korzystają z natywnych importów ES. Nowe funkcje trafiają do odpowiedniego katalogu, a ich inicjalizacja do `src/app.js`. Kod współdzielony przez funkcje jest w `core/`.
 
-`npm run dev` udostępnia źródła i montuje osobny katalog `data/` pod adresem `/gifbit/data/`. Zwykły build kopiuje próbkę do `dist/data/sample.json`, a eksport jednego HTML osadza ją razem z procesorem audio w pliku. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
+Banki są pobierane wyłącznie przez GitHub API; lokalny serwer nie udostępnia katalogu `gif-banks/`, a build go nie kopiuje. Screenshoty README są hostowane na Imgur; projekt nie przechowuje ich lokalnych kopii ani plików fontów.
 
 ## Testowanie
 
@@ -211,10 +241,10 @@ $env:PLAYWRIGHT_CHANNEL = 'msedge'
 npm run test:browser
 ```
 
-Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją pod prefiksem `/gifbit/` w trzech wariantach: bezpośrednio ze źródeł, jako gotowy `dist/` oraz pojedynczy HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza próbkę, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Obejmują import i eksport, selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów przy różnym czasie ładowania, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
+Testy przeglądarkowe najpierw budują aplikację, następnie sprawdzają ją pod prefiksem `/gifbit/` w trzech wariantach: bezpośrednio ze źródeł, jako gotowy `dist/` oraz pojedynczy HTML. Osobny test kopiuje wyłącznie wygenerowany plik do pustego katalogu i sprawdza import banku, odtwarzanie oraz procesor audio po otwarciu przez `file://`. Testy banków zastępują odpowiedzi GitHub API kontrolowanymi danymi: sprawdzają pobieranie dopiero po kliknięciu, metadane, ulubione, import wybranych GIF-ów, datowane eksporty, zmienione pliki, opóźnione odpowiedzi i błędy API. Pozostałe obejmują selekcję i przeciąganie, zapis i usuwanie zestawów, kolejność obrazów, wyświetlanie, kolory, skróty, widok mobilny, błędne dane, żądania GIPHY, odmowę mikrofonu, `AudioWorklet`, zapasowy detektor i zwalnianie strumienia. Audio w testach pochodzi z urządzenia syntetycznego; kalibrację rzeczywistego mikrofonu i ekranu wykonuje się na docelowym sprzęcie.
 
 ## Dane i zasoby
 
-Ustawienia, klucz API, zestawy i wykluczone animacje są przechowywane w `localStorage` tej przeglądarki (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Zachowano zgodność z wcześniejszym formatem. Klucz nie jest zaszyfrowany. Zmiana adresu aplikacji, przeglądarki lub wyczyszczenie danych witryny oznacza osobny magazyn; zestawy warto wcześniej wyeksportować do JSON.
+Ustawienia, klucz API, zestawy i wykluczone animacje są przechowywane w `localStorage` tej przeglądarki (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Ulubione banki zapisuje `gifbit.banks.favorites`, a poznane nazwy i opisy `gifbit.banks.metadata`. Zachowano zgodność z wcześniejszym formatem zestawów. Klucz GIPHY nie jest zaszyfrowany. Zmiana adresu aplikacji, przeglądarki lub wyczyszczenie danych witryny oznacza osobny magazyn; zestawy warto wcześniej wyeksportować do JSON.
 
 Animacje są pobierane bezpośrednio z GIPHY i należą do ich twórców. Ich dostępność zależy od źródłowych linków. Interfejs korzysta z fontów systemowych i nie pobiera plików fontów. Screenshoty README są udostępniane przez Imgur.

@@ -17,11 +17,10 @@ const options = {
 };
 
 async function loadAssets() {
-  const [template, css, icon, sample, worklet] = await Promise.all([
+  const [template, css, icon, worklet] = await Promise.all([
     readFile(new URL('../src/index.html', import.meta.url), 'utf8'),
     readFile(new URL('../src/assets/style.css', import.meta.url), 'utf8'),
     readFile(new URL('../src/assets/favicon.svg', import.meta.url)),
-    readFile(new URL('../data/sample.json', import.meta.url), 'utf8'),
     build({ ...options, entryPoints: ['src/audio/worklet.js'] }),
   ]);
   const style = await transform(css, {
@@ -33,15 +32,13 @@ async function loadAssets() {
     template,
     style: style.code,
     icon,
-    sample,
     worklet: worklet.outputFiles[0].text,
   };
 }
 
 export async function buildHtml(assets) {
-  const { template, style, icon, sample, worklet } = assets || (await loadAssets());
+  const { template, style, icon, worklet } = assets || (await loadAssets());
   const embedded = `
-export async function loadSampleText() { return ${JSON.stringify(JSON.stringify(JSON.parse(sample)))}; }
 export function loadWorklet(context) {
   return context.audioWorklet.addModule(${JSON.stringify('data:text/javascript;base64,' + Buffer.from(worklet).toString('base64'))});
 }`;
@@ -90,7 +87,6 @@ export async function buildAssets({ single = false } = {}) {
     'index.html': assets.template,
     'assets/style.css': assets.style,
     'assets/favicon.svg': assets.icon,
-    'data/sample.json': assets.sample,
     'app.js': app.outputFiles[0].text,
     'audio/worklet.js': assets.worklet,
   };

@@ -1,10 +1,10 @@
-import { packItem, exportObj, slug, setsFromJson } from './format.js';
-import { loadSampleText } from '../core/resources.js';
+import { packItem, exportObj, exportFilename, filenameName, setsFromJson } from './format.js';
 import { $ } from '../core/dom.js';
 import { settings, saveSettings } from '../core/state.js';
 export function createSets(app) {
   const SETS = 'gifbit.sets';
   let sets = [];
+  let exportTarget = null;
   function saveSets() {
     try {
       localStorage.setItem(SETS, JSON.stringify(sets));
@@ -68,6 +68,11 @@ export function createSets(app) {
       const meta = document.createElement('span');
       meta.textContent = `${s.items.length} ${plural(s.items.length)} · ${fmtDate(s.updated)}`;
       txt.append(b, meta);
+      if (s.description) {
+        const description = document.createElement('span');
+        description.textContent = s.description;
+        txt.append(description);
+      }
       lab.append(thumbs, txt);
       const ex = document.createElement('button');
       ex.type = 'button';
@@ -98,7 +103,7 @@ export function createSets(app) {
     const before = set ? Object.assign({}, set) : null;
     if (set) Object.assign(set, { items: data, words, updated: now });
     else {
-      set = { id: newId(), name, created: now, updated: now, words, items: data };
+      set = { id: newId(), name, description: '', created: now, updated: now, words, items: data };
       sets.push(set);
     }
     if (!saveSets()) {
@@ -137,7 +142,10 @@ export function createSets(app) {
     let bad = 0;
     for (const f of files) {
       try {
-        const found = setsFromJson(JSON.parse(await f.text()));
+        const found = setsFromJson(
+          JSON.parse(await f.text()),
+          f.name ? filenameName(f.name) : 'Imported set',
+        );
         if (!found.length) {
           bad++;
           continue;
@@ -147,6 +155,7 @@ export function createSets(app) {
           const set = {
             id: newId(),
             name: uniqueName(s.name),
+            description: s.description,
             created: now,
             updated: now,
             words: s.words,
@@ -183,27 +192,14 @@ export function createSets(app) {
     app.browser.toast(msg.join(' ') || 'Nothing was imported.', 5000);
     return added;
   }
-  async function loadSample() {
-    const button = $('#sample-load');
-    button.disabled = true;
-    try {
-      const text = await loadSampleText();
-      const added = await importFiles([{ text: async () => text }]);
-      if (!added?.length) return;
-      settings.source = 'set';
-      saveSettings();
-      app.settings.populate();
-      app.settings.refreshUI();
-    } catch {
-      app.session.showErr(
-        'Could not load the sample. Try again or import sample.json from a file.',
-      );
-    } finally {
-      button.disabled = false;
-    }
+  function openExport(set = null) {
+    exportTarget = set;
+    $('#bank-export-name').value = set?.name || 'All sets';
+    $('#bank-export-description').value = set?.description || '';
+    $('#bank-export-filename').textContent = exportFilename($('#bank-export-name').value);
+    $('#bank-export').showModal();
   }
   function init() {
-    $('#sample-load').addEventListener('click', loadSample);
     try {
       sets = JSON.parse(localStorage.getItem(SETS) || '[]');
       sets = Array.isArray(sets)
@@ -215,7 +211,11 @@ export function createSets(app) {
                 typeof s.name === 'string' &&
                 Array.isArray(s.items),
             )
-            .map((s) => ({ ...s, items: setsFromJson(s)[0]?.items || [] }))
+            .map((s) => ({
+              ...s,
+              description: typeof s.description === 'string' ? s.description.slice(0, 1000) : '',
+              items: setsFromJson(s)[0]?.items || [],
+            }))
             .filter((s) => s.items.length)
         : [];
     } catch (e) {
@@ -228,7 +228,7 @@ export function createSets(app) {
         s = findSet(id);
       if (!s) return;
       if (b.dataset.act === 'export') {
-        download(`gifbit-${slug(s.name)}.json`, exportObj(s));
+        openExport(s);
         return;
       }
       if (!b.dataset.armed) {
@@ -265,7 +265,32 @@ export function createSets(app) {
       if (files.length) importFiles(files);
     });
     $('#sets-exportall').addEventListener('click', () => {
-      if (sets.length) download('gifbit-sets.json', { gifbit: 1, sets: sets.map(exportObj) });
+      if (sets.length) openExport();
+    });
+    $('#bank-export-cancel').addEventListener('click', () => $('#bank-export').close());
+    $('#bank-export-name').addEventListener('input', () => {
+      $('#bank-export-filename').textContent = exportFilename($('#bank-export-name').value);
+    });
+    $('#bank-export-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = $('#bank-export-name').value.trim() || 'Untitled';
+      const description = $('#bank-export-description').value.trim();
+      const updated = new Date().toISOString();
+      let value;
+      if (exportTarget) {
+        const before = { ...exportTarget };
+        Object.assign(exportTarget, { name, description, updated });
+        value = exportObj(exportTarget);
+        if (!saveSets()) {
+          Object.assign(exportTarget, before);
+          app.browser.toast(
+            'The export is ready, but its details could not be saved in this browser.',
+          );
+        }
+        renderSets();
+      } else value = { gifbit: 1, name, description, updated, sets: sets.map(exportObj) };
+      download(exportFilename(name), value);
+      $('#bank-export').close();
     });
   }
   return {
@@ -277,6 +302,7 @@ export function createSets(app) {
     plural,
     renderSets,
     saveAsSet,
+    importFiles,
     setsFromJson,
   };
 }

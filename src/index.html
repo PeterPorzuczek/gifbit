@@ -209,8 +209,10 @@
         <div class="group">
           <h2>Source</h2>
           <div class="curate">
-            <button type="button" class="btn" id="sample-load">Load sample animations</button>
-            <p class="hint">Try the included set without an API key.</p>
+            <button type="button" class="btn" id="banks-open">Browse GIF banks</button>
+            <p class="hint">
+              Preview community banks, save favorites and import animations without a GIPHY key.
+            </p>
           </div>
           <fieldset class="field">
             <legend>Where animations come from</legend>
@@ -590,6 +592,75 @@
         </div>
       </div>
     </section>
+
+    <dialog id="banks" aria-labelledby="banks-title">
+      <header class="banks-header">
+        <div>
+          <h2 id="banks-title">GIF banks</h2>
+          <p>Find a collection for your next show.</p>
+        </div>
+        <button type="button" class="btn" id="banks-close">Done</button>
+      </header>
+      <div class="banks-toolbar">
+        <input
+          type="search"
+          id="banks-search"
+          placeholder="Search banks"
+          aria-label="Search banks"
+        />
+        <label><input type="checkbox" id="banks-favorites" /> Favorites only</label>
+        <button type="button" class="btn" id="banks-refresh">Refresh</button>
+      </div>
+      <p id="banks-status" role="status" aria-live="polite"></p>
+      <div class="banks-layout">
+        <aside class="banks-sidebar" aria-label="Available banks">
+          <p id="banks-count"></p>
+          <div id="banks-list"></div>
+          <p id="banks-empty" class="empty" hidden>No matching banks.</p>
+        </aside>
+        <p id="banks-placeholder" class="empty">
+          Open a bank to see its description and animations.
+        </p>
+        <section id="bank-detail" aria-labelledby="bank-name" hidden>
+          <header class="bank-heading">
+            <h3 id="bank-name" tabindex="-1"></h3>
+            <p id="bank-description"></p>
+            <p id="bank-meta"></p>
+            <div class="bank-selection">
+              <button type="button" class="btn sm" id="bank-select-all">Select all</button>
+              <button type="button" class="btn sm" id="bank-select-none">Clear selection</button>
+              <span id="bank-selected"></span>
+            </div>
+          </header>
+          <div id="bank-tiles"></div>
+          <footer>
+            <button type="button" class="primary" id="bank-import" disabled>
+              Import animations
+            </button>
+          </footer>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog id="bank-export" aria-labelledby="bank-export-title">
+      <form id="bank-export-form" autocomplete="off">
+        <h2 id="bank-export-title">Export GIF bank</h2>
+        <label for="bank-export-name">Name</label>
+        <input type="text" id="bank-export-name" maxlength="60" required />
+        <label for="bank-export-description">Description</label>
+        <textarea
+          id="bank-export-description"
+          maxlength="1000"
+          rows="4"
+          placeholder="What is in this bank?"
+        ></textarea>
+        <output id="bank-export-filename" for="bank-export-name"></output>
+        <div class="actions">
+          <button type="button" class="btn" id="bank-export-cancel">Cancel</button>
+          <button type="submit" class="primary" id="bank-export-download">Download bank</button>
+        </div>
+      </form>
+    </dialog>
 
     <noscript
       ><p class="err">GIFbit needs JavaScript to load animations and react to music.</p></noscript

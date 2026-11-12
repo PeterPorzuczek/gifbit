@@ -1,0 +1,23 @@
+name: Validate GIF banks
+
+on:
+  pull_request:
+    paths:
+      - 'gif-banks/**'
+      - 'scripts/check-banks.mjs'
+      - 'src/banks/format.js'
+      - 'src/library/format.js'
+      - '.github/workflows/banks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm run check:banks

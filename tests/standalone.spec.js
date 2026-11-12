@@ -3,8 +3,9 @@ import { mkdtemp, copyFile, rm, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { mockBanks, importSampleBank } from './bank-fixtures.js';
 
-test('copied HTML runs alone from disk with sample data and an embedded audio worklet', async ({
+test('copied HTML runs alone from disk with remote banks and an embedded audio worklet', async ({
   page,
 }) => {
   const folder = await mkdtemp(join(tmpdir(), 'gifbit-standalone-'));
@@ -24,8 +25,9 @@ test('copied HTML runs alone from disk with sample data and an embedded audio wo
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="orange"/></svg>',
       }),
     );
+    await mockBanks(page);
     await page.goto(pathToFileURL(file).href);
-    await page.locator('#sample-load').click();
+    await importSampleBank(page);
     await expect(page.locator('.setrow')).toHaveCount(1);
     await page.locator('#b-curate').click();
     await expect(page.locator('#in-count')).toHaveText('255');

@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-
-const samplePath = fileURLToPath(new URL('../data/sample.json', import.meta.url));
-const sample = JSON.parse(await readFile(samplePath));
+import { sample, samplePath, mockBanks, importSampleBank } from './bank-fixtures.js';
 const image =
   '<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><rect width="480" height="270" fill="#ff6b3d"/></svg>';
 
 test.beforeEach(async ({ page }) => {
+  await mockBanks(page);
   await page.route(/https:\/\/media\d*\.giphy\.com\//, (route) =>
     route.fulfill({ contentType: 'image/svg+xml', body: image }),
   );
@@ -16,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function sampleSet(page) {
-  await page.locator('#sample-load').click();
+  await importSampleBank(page);
   await expect(page.locator('.setrow')).toHaveCount(1);
   await expect(page.locator('#source-set')).toBeChecked();
 }
@@ -75,6 +73,7 @@ test('JSON import, merge, save, update, export and confirmed deletion', async ({
   await expect(page.locator('.setrow')).toHaveCount(2);
   const downloaded = page.waitForEvent('download');
   await page.locator('#sets-exportall').click();
+  await page.locator('#bank-export-download').click();
   const download = await downloaded;
   const exported = JSON.parse(await readFile(await download.path(), 'utf8'));
   expect(exported.gifbit).toBe(1);

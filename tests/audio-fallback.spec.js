@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { mockBanks, importSampleBank } from './bank-fixtures.js';
+
+test.beforeEach(async ({ page }) => {
+  await mockBanks(page);
+});
 
 test('microphone denial leaves manual playback available', async ({ page }) => {
   await page.addInitScript(() => {
@@ -7,7 +12,7 @@ test('microphone denial leaves manual playback available', async ({ page }) => {
     };
   });
   await page.goto('');
-  await page.locator('#sample-load').click();
+  await importSampleBank(page);
   await page.locator('#go').click();
   await expect(page.locator('#err')).toContainText('not allowed');
   await expect(page.locator('#go')).toBeEnabled();
@@ -25,7 +30,7 @@ test('the fallback detector works and page exit releases its audio stream', asyn
     };
   });
   await page.goto('');
-  await page.locator('#sample-load').click();
+  await importSampleBank(page);
   await page.locator('#bpm').fill('120');
   await page.locator('#b-cal').click();
   await expect(page.locator('#cal')).toBeVisible();
