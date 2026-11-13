@@ -12,9 +12,11 @@ Pick your GIFs, play some music, and turn your screen into a beat-driven show.
 ![Runs in your browser](https://img.shields.io/badge/runs-in%20your%20browser-342c41)
 [![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-342c41)](#github-pages)
 
+**[Try GIFbit](https://peterporzuczek.github.io/gifbit/)** ·
 **[Contribute](#contributing-gif-banks)** ·
 **[Quick start](#quick-start)** ·
 **[Features](#features)** ·
+**[Scene layout](#scene-layout)** ·
 **[GIF banks](#gif-banks)** ·
 **[Single HTML](#single-html-file)** ·
 **[GitHub Pages](#github-pages)** ·
@@ -80,6 +82,8 @@ After [starting the app](#quick-start), follow these four steps:
 4. Choose **Start** and allow microphone access to make the show react to music from your speakers. Microphone access requires HTTPS or localhost.
 
 To try another collection, click **Browse GIF banks**, open a bank, and use **Import animations**. Import the whole bank or choose individual GIFs. You can also use **Saved set → Import from file**.
+
+To leave part of the screen clear, open **Settings → Configure scene**, turn on **Use scene layout**, and paint the cells to keep free of GIFs. Follow the [scene layout guide](#scene-layout) for separate wide and narrow masks, previews, and fit checks.
 
 Each visit opens with the saved starter set selected. The app reuses one local copy without duplicating it or removing your other sets and settings. Deleting the starter set restores it from GitHub on the next visit. If GitHub is unavailable on the first visit, use **Retry starter set** or choose another source. If browser storage is unavailable, the downloaded starter still works for that visit.
 
@@ -173,20 +177,35 @@ Reserve parts of the screen with painted masks, separate wide and narrow layouts
 
 ## Scene layout
 
-Open **Configure scene** in Settings or **Scene** during a show to reserve parts of the screen for your background, artwork, or a clear center. Paint blocked cells on a **16 × 9** grid, or use **32 × 18** for finer shapes. Drag with a mouse or touch, or use arrow keys and Space. Undo, invert, clear, and presets for a center opening, triangle, side strips, and frame help build a layout quickly. Changes are kept as a draft until **Apply layout**; Cancel or Escape discards them.
+Reserve parts of the screen for your background, artwork, or a clear center. For example, keep a triangle in the middle free of GIFs while animations appear around it:
 
-Wide and narrow screens have separate masks, with **16:9** and **9:16** reference previews. Copy a mask to the other profile as a starting point. Wide applies when the screen is at least as wide as it is tall; narrow applies otherwise. **Current window** follows the active profile at the real viewport ratio. Masks stretch with the viewport, so reference squares can become rectangles. Changing grid resolution or copying profiles preserves blocked areas conservatively and can enlarge their boundaries.
+1. Open **Settings → Configure scene**, or **Scene** during a show, and enable **Use scene layout**.
+2. Choose **Wide** and the **Center triangle** preset. Use **Block** or **Restore** to adjust the mask by dragging across cells. Keyboard users can move with the arrow keys and paint with Space or Enter.
+3. Check **Narrow**, or use **Copy to narrow layout** as a starting point. Choose **Current window** to preview the profile that will actually play at your current window size.
+4. Use **Shuffle preview** and **Test beat**, check the fit messages, and select **Apply layout**. Cancel or Escape discards the draft.
 
-**Edge overlap** allows the bounding box to cross blocked edges by up to half a cell. Set it to zero for strict avoidance. **Minimum GIF height** limits shrinking, as a percentage of the shorter screen edge. Placement checks include rotation and maximum beat bounce; transparent pixels are treated as part of the image rectangle, and shadows are excluded. The preview uses your selected animations, marks possible centers for its selected example, and includes a **Test beat** button. Example shapes are used before a set is available, with size validation explicitly marked as incomplete.
+The editor includes Undo, Invert, Clear, Block all, and presets for an open center, center triangle, side strips, and frame. Toggle **Show grid** to inspect the preview without the editing overlay. The grid only appears in the editor; blocked areas leave the background visible during playback.
+
+Wide and narrow screens have separate masks. **Current window** follows the active profile at the real viewport ratio, including when the window changes orientation.
+
+| Profile | Reference preview | Standard grid | Fine grid | Used when |
+| --- | --- | --- | --- | --- |
+| Wide | 16:9 | 16 × 9 | 32 × 18 | Width is greater than or equal to height |
+| Narrow | 9:16 | 9 × 16 | 18 × 32 | Height is greater than width |
+
+Masks stretch with the viewport, so reference squares can become rectangles. Changing grid resolution or copying profiles preserves blocked areas conservatively and can enlarge their boundaries.
+
+**Edge overlap** allows the bounding box to cross blocked edges by **0–50% of the shorter cell edge**. It starts at 25%; set it to zero for strict avoidance. **Minimum GIF height** limits shrinking to **6–35% of the shorter screen edge**, starting at 12%. Placement checks include rotation and maximum beat bounce; transparent pixels are treated as part of the image rectangle, and shadows are excluded. The preview uses your selected animations and marks possible centers for its selected example. Example shapes are used before a set is available, with size validation explicitly marked as incomplete.
 
 Both reference layouts and the current viewport are checked before applying an enabled layout. If any selected animation cannot fit, lower the minimum height or restore cells; animations are never silently skipped. An incompatible saved layout prevents starting. If resizing or changing settings makes a running layout impossible, animations pause and a persistent message offers **Edit scene layout**. Restoring a valid configuration resumes placement on subsequent beats. Existing animations are repositioned after layout or viewport changes. In **One at a time**, a single large animation fits into an allowed region. GIFs may still overlap each other.
 
-Layout is off by default and stored with your local settings, independently of GIF banks. Turning it off preserves both masks and restores unrestricted placement. No server or extra build step is needed.
-
+Layout is off by default and stored with your local settings, independently of GIF banks. Bank JSON imports and exports do not include scene masks. Turning the layout off preserves both masks and restores unrestricted placement. No server or extra build step is needed.
 
 ## Quick start
 
-Requires Node.js 20 or newer. From the project directory, run:
+Use the [hosted app](https://peterporzuczek.github.io/gifbit/) directly in your browser, with no installation.
+
+To run it locally, install Node.js 20 or newer. From the project directory, run:
 
 ```sh
 npm ci
@@ -314,8 +333,10 @@ npm run test:browser
 
 Browser tests first build the app, then check it under the `/gifbit/` prefix in three forms: directly from source, as the production `dist/`, and as a single HTML file. A separate test copies only the generated HTML into an empty directory and checks bank import, playback, and the audio processor through `file://`. Bank tests use controlled GitHub API responses to check downloads on demand, metadata, favorites, selective GIF import, dated exports, changed files, delayed responses, and API errors. Other tests cover selection and dragging, saving and deleting sets, image order, rendering, colors, shortcuts, mobile layout, malformed data, GIPHY requests, microphone denial, `AudioWorklet`, the fallback detector, and stream cleanup. Test audio comes from a synthetic device; calibrate a real microphone and display on the target hardware.
 
+Scene tests cover mask painting, undo, profile copying, responsive previews, persistence, and invalid-layout recovery. Geometry tests check placement against blocked cells at maximum bounce across viewport sizes and animation aspect ratios. Browser checks also exercise single-animation mode, reduced motion, and resizing a running scene into an incompatible layout and back.
+
 ## Data and assets
 
-Settings, the API key, saved sets, and excluded animations are stored in this browser's `localStorage` (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Favorite banks use `gifbit.banks.favorites`, and cached names and descriptions use `gifbit.banks.metadata`. Older set formats remain compatible. The GIPHY key is not encrypted. A different app address, browser, or cleared site data means a separate storage area; export your sets to JSON beforehand if you want to keep them.
+Settings, both scene masks, the API key, saved sets, and excluded animations are stored in this browser's `localStorage` (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Favorite banks use `gifbit.banks.favorites`, and cached names and descriptions use `gifbit.banks.metadata`. Older set formats remain compatible. The GIPHY key is not encrypted. A different app address, browser, or cleared site data means a separate storage area; export your sets to JSON beforehand if you want to keep them. Exported sets preserve animation collections, not scene masks or other app settings.
 
 Animations are fetched directly from GIPHY and belong to their creators. Availability depends on the original image links. The interface loads Bricolage Grotesque, Figtree, and JetBrains Mono from Google Fonts, with system fallbacks while loading or offline. Font files are not stored in the repository or build output. Original screenshots are hosted on Imgur; the SVG frames are used only for README presentation.
