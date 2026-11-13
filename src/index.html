@@ -644,8 +644,9 @@
           </div>
           <div class="scene-tools">
             <div class="scene-segments" role="group" aria-label="Paint tool">
-              <button type="button" id="scene-block" aria-pressed="true">Block</button>
-              <button type="button" id="scene-allow" aria-pressed="false">Restore</button>
+              <button type="button" id="scene-toggle" aria-pressed="true">Toggle</button>
+              <button type="button" id="scene-block" aria-pressed="false">Block</button>
+              <button type="button" id="scene-allow" aria-pressed="false">Unblock</button>
             </div>
             <label class="scene-compact"
               >Grid
@@ -675,8 +676,10 @@
             ><span><i class="scene-possible"></i>Possible centers</span>
           </div>
           <p class="hint" id="scene-paint-help">
-            Drag to paint. Use arrow keys and Space on the grid. Reference cells are square; the
-            mask stretches to your window.
+            Click to block or unblock. Drag from a blocked cell to unblock an area, or from a free
+            cell to block it. Use arrow keys and Space or Enter on the grid. Block and Unblock keep
+            one action for every stroke. Reference cells are square; the mask stretches to your
+            window.
           </p>
           <div class="scene-tools scene-preview-tools">
             <label class="scene-compact"
@@ -702,7 +705,7 @@
           </select>
           <div class="scene-tools">
             <button type="button" class="btn sm" id="scene-invert">Invert</button
-            ><button type="button" class="btn sm" id="scene-clear">Clear</button
+            ><button type="button" class="btn sm" id="scene-clear">Unblock all</button
             ><button type="button" class="btn sm" id="scene-block-all">Block all</button>
           </div>
           <button type="button" class="btn sm" id="scene-copy">Copy to narrow layout</button>
@@ -741,7 +744,9 @@
       </div>
       <footer class="scene-footer">
         <p id="scene-apply-hint" class="hint"></p>
-        <button type="button" class="primary" id="scene-apply">Apply layout</button>
+        <button type="button" class="primary" id="scene-apply" aria-describedby="scene-apply-hint">
+          Apply layout
+        </button>
       </footer>
     </dialog>
 

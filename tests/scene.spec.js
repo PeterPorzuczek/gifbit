@@ -170,6 +170,94 @@ test('painting with a pointer or keyboard activates the draft and cancel leaves 
   await expect(page.locator('#scene-grid .blocked')).toHaveCount(1);
 });
 
+test('cells toggle on click and keyboard while each drag consistently blocks or unblocks', async ({
+  page,
+}) => {
+  await page.locator('#scene-open').click();
+  const cells = page.locator('#scene-grid [role="gridcell"]');
+  await cells.nth(0).click();
+  await expect(cells.nth(0)).toHaveAttribute('aria-selected', 'true');
+  await cells.nth(0).click();
+  await expect(cells.nth(0)).toHaveAttribute('aria-selected', 'false');
+  await cells.nth(0).press('Space');
+  await expect(cells.nth(0)).toHaveAttribute('aria-selected', 'true');
+  await cells.nth(0).press('Enter');
+  await expect(cells.nth(0)).toHaveAttribute('aria-selected', 'false');
+  await cells.nth(1).click();
+  const first = await cells.nth(0).boundingBox();
+  const last = await cells.nth(3).boundingBox();
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, { steps: 6 });
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(4);
+  await page.mouse.down();
+  await page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(0);
+  await page.locator('#scene-undo').click();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(4);
+  await page.locator('#scene-allow').click();
+  await cells.nth(0).click();
+  await cells.nth(0).click();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(3);
+  await page.locator('#scene-block').click();
+  await cells.nth(0).click();
+  await cells.nth(0).click();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(4);
+});
+
+test('apply recovers during unblocking and after repeated minimum height adjustments', async ({
+  page,
+}) => {
+  await page.locator('#scene-open').click();
+  await setRange(page, '#scene-overlap', 0);
+  await setRange(page, '#scene-min', 6);
+  await page.locator('#scene-block-all').click();
+  await expect(page.locator('#scene-apply')).toBeDisabled();
+  await page.locator('#scene-allow').click();
+  const cells = page.locator('#scene-grid [role="gridcell"]');
+  const first = await cells.first().boundingBox();
+  const last = await cells.nth(15).boundingBox();
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, { steps: 15 });
+  await expect(page.locator('#scene-apply')).toBeEnabled();
+  await page.mouse.up();
+  for (let i = 0; i < 2; i++) {
+    await page.locator('#scene-min').press('End');
+    await expect(page.locator('#scene-apply')).toBeDisabled();
+    await page.locator('#scene-min').press('Home');
+    await expect(page.locator('#scene-apply')).toBeEnabled();
+  }
+  await page.locator('#scene-apply').click();
+  await expect(page.locator('#scene-layout')).not.toBeVisible();
+  await start(page);
+  await expectRenderedMaskClear(page);
+});
+
+test('validation identifies a blocked inactive profile and recovers after it is repaired', async ({
+  page,
+}) => {
+  await page.locator('#scene-open').click();
+  await page.locator('#scene-narrow').click();
+  await page.locator('#scene-block-all').click();
+  await page.locator('#scene-wide').click();
+  await expect(page.locator('#scene-status')).toContainText('All 330 animations fit');
+  await expect(page.locator('#scene-status-title')).toHaveText('More space needed');
+  await expect(page.locator('#scene-apply-hint')).toContainText('Narrow');
+  await expect(page.locator('#scene-apply-hint')).toContainText('No room');
+  await expect(page.locator('#scene-apply')).toBeDisabled();
+  await page.locator('#scene-narrow').click();
+  await page.locator('#scene-preset').selectOption('triangle');
+  await expect(page.locator('#scene-apply')).toBeEnabled();
+  await page.locator('#scene-apply').click();
+  await page.reload();
+  await page.locator('#scene-open').click();
+  await expect(page.locator('#scene-apply')).toBeEnabled();
+});
+
 test('scene editor paints, undoes, validates both masks, cancels and persists', async ({
   page,
 }) => {

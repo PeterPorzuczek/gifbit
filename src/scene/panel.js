@@ -15,7 +15,7 @@ export function createScenePanel(app) {
   const grid = $('#scene-grid');
   let draft,
     profile = 'wide',
-    brush = '1',
+    brush = 'toggle',
     history = [],
     cells = [],
     gridKey = '',
@@ -23,7 +23,7 @@ export function createScenePanel(app) {
     sample = null,
     disableRequested = false;
   let stroke = null,
-    timer,
+    frame,
     latest = null,
     currentPlanner = null;
   const examples = [
@@ -118,6 +118,7 @@ export function createScenePanel(app) {
     $('#scene-enabled').checked = draft.enabled;
     $('#scene-wide').setAttribute('aria-pressed', String(profile === 'wide'));
     $('#scene-narrow').setAttribute('aria-pressed', String(profile === 'narrow'));
+    $('#scene-toggle').setAttribute('aria-pressed', String(brush === 'toggle'));
     $('#scene-block').setAttribute('aria-pressed', String(brush === '1'));
     $('#scene-allow').setAttribute('aria-pressed', String(brush === '0'));
     $('#scene-resolution').value = draft[profile].resolution;
@@ -169,28 +170,27 @@ export function createScenePanel(app) {
             activeItems,
           )
         : selected;
-    const invalid = [selected, other, actual, ownReference].some(
-      (result) => result.empty || result.invalid,
-    );
-    latest = { invalid, selected, dimensions };
-    $('#scene-status-title').textContent =
-      selected.empty || selected.invalid
-        ? 'More space needed'
-        : selected.total
-          ? 'Ready to play'
-          : 'Mask preview';
-    $('#scene-status').textContent = assessmentMessage(selected);
-    $('#scene-status').parentElement.classList.toggle(
-      'invalid',
-      !!(selected.empty || selected.invalid),
-    );
-    $('#scene-other-status').textContent = `${nameOf(otherProfile())}: ${assessmentMessage(other)}`;
     const active = nameOf(profileFor(stage.clientWidth, stage.clientHeight));
+    const failures = [
+      [`${nameOf(profile)} reference`, ownReference],
+      [`${nameOf(otherProfile())} reference`, other],
+      [`Current window (${active.toLowerCase()})`, actual],
+    ].filter(([, result]) => result.empty || result.invalid);
+    const invalid = failures.length > 0;
+    latest = { invalid, selected, dimensions };
+    $('#scene-status-title').textContent = invalid
+      ? 'More space needed'
+      : selected.total
+        ? 'Ready to play'
+        : 'Mask preview';
+    $('#scene-status').textContent = `${nameOf(profile)}: ${assessmentMessage(selected)}`;
+    $('#scene-status').parentElement.classList.toggle('invalid', invalid);
+    $('#scene-other-status').textContent = `${nameOf(otherProfile())}: ${assessmentMessage(other)}`;
     const enabled = willEnable();
     $('#scene-apply-hint').textContent = !enabled
       ? 'Layout will be off. Saved masks will not restrict the stage.'
       : invalid
-        ? `Fix the layout before applying. Current window (${active.toLowerCase()}): ${assessmentMessage(actual)}`
+        ? `Cannot apply. ${failures.map(([name, result]) => `${name}: ${assessmentMessage(result)}`).join(' ')}`
         : !draft.enabled
           ? `Your saved mask is off. Enable and apply it to restrict the stage. Current window uses ${active.toLowerCase()}.`
           : `Apply to use this layout on the stage. Current window uses ${active.toLowerCase()}. Both reference layouts and the current window have been checked.`;
@@ -256,12 +256,16 @@ export function createScenePanel(app) {
   }
   function render() {
     if (!dialog.open) return;
-    clearTimeout(timer);
+    cancelAnimationFrame(frame);
     updateItems();
     controls();
     buildGrid();
     validate();
     preview();
+  }
+  function scheduleRender() {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(render);
   }
   function changeMask(next) {
     remember();
@@ -289,19 +293,28 @@ export function createScenePanel(app) {
       ),
     };
   }
-  function paint(from, to) {
+  function paintValue(point) {
+    const { cols } = gridSize(draft[profile], profile);
+    return brush === 'toggle'
+      ? draft[profile].cells[point.y * cols + point.x] === '1'
+        ? '0'
+        : '1'
+      : brush;
+  }
+  function paint(from, to, value) {
     const { cols } = gridSize(draft[profile], profile);
     const values = draft[profile].cells.split('');
     const steps = Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y), 1);
     for (let i = 0; i <= steps; i++) {
       const x = Math.round(from.x + ((to.x - from.x) * i) / steps);
       const y = Math.round(from.y + ((to.y - from.y) * i) / steps);
-      values[y * cols + x] = brush;
+      values[y * cols + x] = value;
     }
     draft[profile].cells = values.join('');
     activate();
     cells.forEach((_, i) => paintCell(i));
     controls();
+    scheduleRender();
   }
   function finishStroke(event) {
     if (!stroke || event.pointerId !== stroke.id) return;
@@ -312,6 +325,7 @@ export function createScenePanel(app) {
   function open() {
     draft = normalizeScene(settings.scene);
     disableRequested = false;
+    brush = 'toggle';
     profile = profileFor(stage.clientWidth, stage.clientHeight);
     history = [];
     gridKey = '';
@@ -325,7 +339,7 @@ export function createScenePanel(app) {
       $('#' + id).addEventListener('click', open);
     $('#scene-cancel').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => {
-      clearTimeout(timer);
+      cancelAnimationFrame(frame);
       stroke = null;
       $('#scene-demo').replaceChildren();
     });
@@ -336,6 +350,7 @@ export function createScenePanel(app) {
         render();
       });
     for (const [id, value] of [
+      ['scene-toggle', 'toggle'],
       ['scene-block', '1'],
       ['scene-allow', '0'],
     ])
@@ -391,8 +406,7 @@ export function createScenePanel(app) {
       $('#' + id).addEventListener('input', (event) => {
         draft[key] = +event.target.value;
         controls();
-        clearTimeout(timer);
-        timer = setTimeout(render, 100);
+        scheduleRender();
       });
       $('#' + id).addEventListener('change', render);
     }
@@ -417,16 +431,16 @@ export function createScenePanel(app) {
       event.preventDefault();
       remember();
       const point = cellAt(event);
-      stroke = { id: event.pointerId, point };
+      stroke = { id: event.pointerId, point, value: paintValue(point) };
       grid.setPointerCapture(event.pointerId);
       const { cols } = gridSize(draft[profile], profile);
       focusCell(point.y * cols + point.x);
-      paint(point, point);
+      paint(point, point, stroke.value);
     });
     grid.addEventListener('pointermove', (event) => {
       if (!stroke || stroke.id !== event.pointerId) return;
       const point = cellAt(event);
-      paint(stroke.point, point);
+      paint(stroke.point, point, stroke.value);
       stroke.point = point;
     });
     grid.addEventListener('pointerup', finishStroke);
@@ -454,9 +468,10 @@ export function createScenePanel(app) {
         focusCell(Math.min(cells.length - 1, Math.max(0, index + directions[event.key])));
       } else if (event.key === ' ' || event.key === 'Enter') {
         event.preventDefault();
+        if (event.repeat) return;
         remember();
         const point = { x: index % cols, y: Math.floor(index / cols) };
-        paint(point, point);
+        paint(point, point, paintValue(point));
         render();
       }
     });
