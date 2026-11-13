@@ -50,6 +50,11 @@ export function createSession(app) {
       setBusy(false);
       return showErr('All animations are put aside. Restore a few in “Review animations”.');
     }
+    const layoutProblem = app.scene.problem();
+    if (layoutProblem) {
+      setBusy(false);
+      return showErr('Scene layout: ' + layoutProblem);
+    }
     if (useMic && !app.microphone.micOn) {
       setBusy(true, 'Waiting for the microphone…');
       try {
@@ -60,6 +65,7 @@ export function createSession(app) {
       }
     }
     running = true;
+    app.scene.refresh();
     setBusy(false);
     app.playback.fill();
     closeSetup();

@@ -15,7 +15,7 @@ export function createControls(app) {
     $('#b-settings').addEventListener('click', app.session.openSetup);
     $('#b-full').addEventListener('click', app.browser.toggleFull);
     document.addEventListener('keydown', (e) => {
-      if ($('#banks').open || $('#bank-export').open) return;
+      if ($('#banks').open || $('#bank-export').open || $('#scene-layout').open) return;
       if (app.calibration.calOpen) {
         if (e.key === 'Escape') app.calibration.closeCal();
         else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.target.id !== 'cal-lead') {

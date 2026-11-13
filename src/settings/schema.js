@@ -1,4 +1,6 @@
+import { defaultScene, normalizeScene } from '../scene/geometry.js';
 export const defaults = {
+  scene: defaultScene(),
   key: '',
   words: 'dance, wow, explosion, neon, money',
   type: 'gifs',
@@ -66,12 +68,13 @@ const ranges = {
 };
 
 export function normalizeSettings(value) {
-  const result = { ...defaults, autoCols: [...defaults.autoCols] };
+  const result = { ...defaults, scene: defaultScene(), autoCols: [...defaults.autoCols] };
   if (!value || typeof value !== 'object' || Array.isArray(value)) return result;
   for (const [key, initial] of Object.entries(defaults)) {
     if (!Object.hasOwn(value, key)) continue;
     const next = value[key];
-    if (choices[key]) {
+    if (key === 'scene') result.scene = normalizeScene(next);
+    else if (choices[key]) {
       if (choices[key].includes(next)) result[key] = next;
     } else if (ranges[key]) {
       if (typeof next === 'number' && Number.isFinite(next)) {

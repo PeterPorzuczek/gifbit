@@ -6,6 +6,7 @@ export function createPlayback(app) {
     gen = 0,
     seq = 0;
   const AHEAD = 6;
+  const liveItems = new WeakMap();
   function resetPool() {
     bag = [];
     ready = [];
@@ -51,6 +52,34 @@ export function createPlayback(app) {
   }
   let z = 0;
   function place(node, it) {
+    node.classList.remove('single', 'scene-single');
+    node.style.cssText = '';
+    if (settings.scene.enabled) {
+      const recent = Array.from(layer.children)
+        .filter((el) => el !== node)
+        .map((el) => ({
+          x: parseFloat(el.style.left) + parseFloat(el.style.width) / 2,
+          y: parseFloat(el.style.top) + parseFloat(el.style.height) / 2,
+        }))
+        .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
+      const position = app.scene.place(it, recent);
+      if (!position) return false;
+      Object.assign(node.style, {
+        width: position.w + 'px',
+        height: position.h + 'px',
+        left: position.x + 'px',
+        top: position.y + 'px',
+        rotate: position.angle + 'deg',
+        zIndex: String(++z),
+      });
+      node.classList.toggle('scene-single', settings.mode === 'single');
+      return true;
+    }
+    if (settings.mode === 'single') {
+      node.classList.add('single');
+      node.style.zIndex = String(++z);
+      return true;
+    }
     const W = stage.clientWidth,
       H = stage.clientHeight,
       vmin = Math.min(W, H);
@@ -72,9 +101,11 @@ export function createPlayback(app) {
       rotate: ((Math.random() * 2 - 1) * 9).toFixed(1) + 'deg',
       zIndex: String(++z),
     });
+    return true;
   }
   let fresh = null;
   function showNext() {
+    if (app.scene.problem()) return false;
     while (ready.length && (ready[0].failed || app.library.excluded.has(ready[0].it.id)))
       ready.shift();
     if (settings.order === 'random') {
@@ -91,16 +122,15 @@ export function createPlayback(app) {
     if (!r) return false;
     const node = document.createElement('div');
     node.className = 'g ' + (r.it.sticker ? 'sticker' : 'card');
+    liveItems.set(node, r.it);
+    if (!place(node, r.it)) return false;
     if (fresh) fresh.style.transform = '';
     fresh = node;
     if (settings.mode === 'single') {
-      node.classList.add('single');
-      node.style.zIndex = String(++z);
       node.appendChild(r.img);
       layer.replaceChildren(node);
       return true;
     }
-    place(node, r.it);
     node.appendChild(r.img);
     layer.appendChild(node);
     trim();
@@ -110,6 +140,15 @@ export function createPlayback(app) {
     const live = layer.children;
     const max = settings.mode === 'single' ? 1 : settings.max;
     while (live.length > max) live[0].remove();
+  }
+  function reflow() {
+    layer.style.transform = '';
+    trim();
+    for (const node of Array.from(layer.children)) {
+      const item = liveItems.get(node);
+      if (item && !place(node, item)) node.remove();
+    }
+    fresh = layer.lastElementChild;
   }
   const spring = { x: 0, v: 0, t: 0 };
   const calm = window.matchMedia
@@ -138,12 +177,17 @@ export function createPlayback(app) {
       spring.x = 0;
       spring.v = 0;
     }
-    const x = spring.x;
+    const x = calm.matches
+      ? 0
+      : settings.scene.enabled
+        ? Math.max(0, Math.min(spring.x, (settings.bounce / 10) * 0.09))
+        : spring.x;
     if (settings.mode === 'single') {
       layer.style.transform = '';
       if (fresh) fresh.style.transform = x ? `scale(${(1 + x).toFixed(4)})` : '';
     } else {
-      layer.style.transform = x ? `scale(${(1 + 0.3 * x).toFixed(4)})` : '';
+      layer.style.transform =
+        x && !settings.scene.enabled ? `scale(${(1 + 0.3 * x).toFixed(4)})` : '';
       if (fresh) fresh.style.transform = x ? `scale(${(1 + 1.4 * x).toFixed(4)})` : '';
     }
   }
@@ -172,6 +216,7 @@ export function createPlayback(app) {
     fill,
     showNext,
     trim,
+    reflow,
     kick,
     stepSpring,
   };

@@ -140,6 +140,10 @@ The color panel stays available during a show: presets, hue, saturation, strengt
 
 Cycle automatically through a selected palette every **0.5–30 seconds** or every **1, 2, 4, 8, or 16 beats**. Smoothness at **0%** produces a cut; **100%** produces a continuous transition. When BPM is set, colors follow the tempo and beat grid.
 
+### Reserved screen areas
+
+Reserve parts of the screen with painted masks, separate wide and narrow layouts, and live fit checks. Open **Configure scene** in Settings or **Scene** during playback. See the [scene layout guide](#scene-layout).
+
 </td>
 </tr>
 </table>
@@ -166,6 +170,19 @@ Cycle automatically through a selected palette every **0.5–30 seconds** or eve
 </td>
 </tr>
 </table>
+
+## Scene layout
+
+Open **Configure scene** in Settings or **Scene** during a show to reserve parts of the screen for your background, artwork, or a clear center. Paint blocked cells on a **16 × 9** grid, or use **32 × 18** for finer shapes. Drag with a mouse or touch, or use arrow keys and Space. Undo, invert, clear, and presets for a center opening, triangle, side strips, and frame help build a layout quickly. Changes are kept as a draft until **Apply layout**; Cancel or Escape discards them.
+
+Wide and narrow screens have separate masks, with **16:9** and **9:16** reference previews. Copy a mask to the other profile as a starting point. Wide applies when the screen is at least as wide as it is tall; narrow applies otherwise. **Current window** follows the active profile at the real viewport ratio. Masks stretch with the viewport, so reference squares can become rectangles. Changing grid resolution or copying profiles preserves blocked areas conservatively and can enlarge their boundaries.
+
+**Edge overlap** allows the bounding box to cross blocked edges by up to half a cell. Set it to zero for strict avoidance. **Minimum GIF height** limits shrinking, as a percentage of the shorter screen edge. Placement checks include rotation and maximum beat bounce; transparent pixels are treated as part of the image rectangle, and shadows are excluded. The preview uses your selected animations, marks possible centers for its selected example, and includes a **Test beat** button. Example shapes are used before a set is available, with size validation explicitly marked as incomplete.
+
+Both reference layouts and the current viewport are checked before applying an enabled layout. If any selected animation cannot fit, lower the minimum height or restore cells; animations are never silently skipped. An incompatible saved layout prevents starting. If resizing or changing settings makes a running layout impossible, animations pause and a persistent message offers **Edit scene layout**. Restoring a valid configuration resumes placement on subsequent beats. Existing animations are repositioned after layout or viewport changes. In **One at a time**, a single large animation fits into an allowed region. GIFs may still overlap each other.
+
+Layout is off by default and stored with your local settings, independently of GIF banks. Turning it off preserves both masks and restores unrestricted placement. No server or extra build step is needed.
+
 
 ## Quick start
 
@@ -260,6 +277,7 @@ Application code in **`src/`** is organized by feature. Only `index.html` and `a
 | `src/library/` | Loading animations from GIPHY or sets (`catalog.js`), review and selection (`curator.js`), set management (`sets.js`), import/export validation and format (`format.js`) |
 | `src/banks/` | GitHub API (`api.js`), bank parsing (`format.js`), default starter set and loading recovery (`starter.js`), browsing panel, favorites, and import (`panel.js`) |
 | `src/stage/` | Animation playback and layout (`playback.js`), colors (`colors.js`), shortcuts and buttons (`controls.js`), full screen and wake lock (`browser.js`), starting a show and returning to Settings (`session.js`) |
+| `src/scene/` | Mask validation and placement geometry (`geometry.js`), viewport changes and playback validation (`layout.js`), scene editor and preview (`panel.js`) |
 | `src/settings/` | Settings form (`form.js`), defaults and validation (`schema.js`) |
 | `src/core/` | Shared state and settings persistence (`state.js`), interface element access (`dom.js`), resource loading (`resources.js`) |
 | `src/assets/` | `style.css` and `favicon.svg`; no local font files |

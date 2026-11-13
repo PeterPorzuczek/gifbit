@@ -25,12 +25,17 @@
       <div id="layer"></div>
       <p id="attrib">Powered by GIPHY</p>
     </main>
+    <aside id="scene-warning" role="status" hidden>
+      <span id="scene-warning-text"></span>
+      <button type="button" class="btn sm" id="scene-repair">Edit scene layout</button>
+    </aside>
 
     <div id="ctrl">
       <button type="button" class="chip" id="b-tint" aria-controls="tint" aria-expanded="false">
         Color
       </button>
       <button type="button" class="chip" id="b-settings">Settings</button>
+      <button type="button" class="chip" id="b-scene">Scene</button>
       <button type="button" class="chip" id="b-full">Full screen</button>
     </div>
 
@@ -445,6 +450,13 @@
 
         <div class="group">
           <h2>Screen</h2>
+          <div class="field scene-entry">
+            <div>
+              <span class="lab">Scene layout</span>
+              <p class="hint" id="scene-summary"></p>
+            </div>
+            <button type="button" class="btn" id="scene-open">Configure scene</button>
+          </div>
           <div class="row2">
             <fieldset class="field">
               <legend>Layout</legend>
@@ -600,6 +612,136 @@
         </div>
       </div>
     </section>
+
+    <dialog id="scene-layout" aria-labelledby="scene-title">
+      <header class="scene-header">
+        <div>
+          <p class="scene-eyebrow">MAKE ROOM FOR YOUR SHOW</p>
+          <h2 id="scene-title">Scene layout</h2>
+          <p>Paint where animations should stay out. The background stays visible.</p>
+          <label class="scene-enable"
+            ><input type="checkbox" id="scene-enabled" /> Use scene layout</label
+          >
+        </div>
+        <button type="button" class="btn" id="scene-cancel">Cancel</button>
+      </header>
+      <div class="scene-workspace">
+        <section class="scene-editor" aria-label="Layout editor">
+          <div class="scene-tools">
+            <div class="scene-segments" role="group" aria-label="Layout profile">
+              <button type="button" id="scene-wide" aria-pressed="true">Wide · 16:9</button>
+              <button type="button" id="scene-narrow" aria-pressed="false">Narrow · 9:16</button>
+            </div>
+            <label class="scene-compact"
+              >Preview
+              <select id="scene-view">
+                <option value="reference">Reference</option>
+                <option value="window">Current window</option>
+              </select></label
+            >
+          </div>
+          <div class="scene-tools">
+            <div class="scene-segments" role="group" aria-label="Paint tool">
+              <button type="button" id="scene-block" aria-pressed="true">Block</button>
+              <button type="button" id="scene-allow" aria-pressed="false">Restore</button>
+            </div>
+            <label class="scene-compact"
+              >Grid
+              <select id="scene-resolution">
+                <option value="1">16 × 9</option>
+                <option value="2">32 × 18</option>
+              </select></label
+            >
+            <button type="button" class="btn sm" id="scene-undo" disabled>Undo</button>
+          </div>
+          <div class="scene-preview-wrap">
+            <div id="scene-board">
+              <div id="scene-background"></div>
+              <div id="scene-dim"></div>
+              <div id="scene-demo" aria-hidden="true"></div>
+              <div
+                id="scene-grid"
+                role="grid"
+                aria-label="Scene cells"
+                aria-describedby="scene-paint-help"
+              ></div>
+            </div>
+          </div>
+          <div class="scene-legend">
+            <span><i class="scene-free"></i>Allowed</span
+            ><span><i class="scene-blocked"></i>Blocked</span
+            ><span><i class="scene-possible"></i>Possible centers</span>
+          </div>
+          <p class="hint" id="scene-paint-help">
+            Drag to paint. Use arrow keys and Space on the grid. Reference cells are square; the
+            mask stretches to your window.
+          </p>
+          <div class="scene-tools scene-preview-tools">
+            <label class="scene-compact"
+              >Animation
+              <select id="scene-item" aria-label="Preview animation"></select
+            ></label>
+            <button type="button" class="btn sm" id="scene-preview">Shuffle preview</button>
+            <button type="button" class="btn sm" id="scene-beat">Test beat</button>
+            <label
+              ><input type="checkbox" id="scene-centers" checked /> Show possible centers</label
+            >
+            <label><input type="checkbox" id="scene-show-grid" checked /> Show grid</label>
+          </div>
+        </section>
+        <aside class="scene-options" aria-label="Layout settings">
+          <label class="lab" for="scene-preset">Start with a shape</label>
+          <select id="scene-preset">
+            <option value="">Choose a preset</option>
+            <option value="center">Open center</option>
+            <option value="triangle">Center triangle</option>
+            <option value="sides">Side strips</option>
+            <option value="frame">Frame</option>
+          </select>
+          <div class="scene-tools">
+            <button type="button" class="btn sm" id="scene-invert">Invert</button
+            ><button type="button" class="btn sm" id="scene-clear">Clear</button
+            ><button type="button" class="btn sm" id="scene-block-all">Block all</button>
+          </div>
+          <button type="button" class="btn sm" id="scene-copy">Copy to narrow layout</button>
+          <div class="field">
+            <div class="rangehead">
+              <label class="lab" for="scene-overlap">Edge overlap</label
+              ><output id="scene-overlap-value" for="scene-overlap"></output>
+            </div>
+            <input type="range" id="scene-overlap" min="0" max="0.5" step="0.05" />
+            <p class="hint">
+              How far the bounding box may enter a blocked cell, relative to its shorter edge.
+              Shadows are not counted.
+            </p>
+          </div>
+          <div class="field">
+            <div class="rangehead">
+              <label class="lab" for="scene-min">Minimum GIF height</label
+              ><output id="scene-min-value" for="scene-min"></output>
+            </div>
+            <input type="range" id="scene-min" min="6" max="35" step="1" />
+            <p class="hint">
+              Percentage of the shorter screen edge. Rotation and maximum beat bounce are included
+              in the fit check.
+            </p>
+          </div>
+          <div class="scene-validation" role="status" aria-live="polite">
+            <b id="scene-status-title"></b>
+            <p id="scene-status"></p>
+            <p id="scene-other-status"></p>
+          </div>
+          <p class="hint">
+            Wide is used when width ≥ height. Narrow is used otherwise. Each layout has its own
+            mask. Single mode fits one large GIF into the available area.
+          </p>
+        </aside>
+      </div>
+      <footer class="scene-footer">
+        <p id="scene-apply-hint" class="hint"></p>
+        <button type="button" class="primary" id="scene-apply">Apply layout</button>
+      </footer>
+    </dialog>
 
     <dialog id="banks" aria-labelledby="banks-title">
       <header class="banks-header">

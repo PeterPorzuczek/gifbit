@@ -130,6 +130,7 @@ export function createLibrary(app) {
     app.playback.ready = app.playback.ready.filter((r) => !excluded.has(r.it.id));
     app.playback.fill();
     updateStatus();
+    app.scene?.refresh();
   }
   let extras = [];
   function updateStatus() {

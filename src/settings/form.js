@@ -87,6 +87,7 @@ export function createSettings(app) {
       app.playback.resetPool();
       app.library.refreshActive();
     }
+    app.scene.refresh();
   }
   let lastOrder = settings.order;
   let lastMode = settings.mode;
