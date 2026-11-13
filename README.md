@@ -17,6 +17,7 @@ Pick your GIFs, play some music, and turn your screen into a beat-driven show.
 **[Quick start](#quick-start)** ·
 **[Features](#features)** ·
 **[Scene layout](#scene-layout)** ·
+**[Configuration backup](#configuration-backup)** ·
 **[GIF banks](#gif-banks)** ·
 **[Single HTML](#single-html-file)** ·
 **[GitHub Pages](#github-pages)** ·
@@ -85,7 +86,7 @@ To try another collection, click **Browse GIF banks**, open a bank, and use **Im
 
 To leave part of the screen clear, open **Settings → Configure scene**, paint the cells to keep free of GIFs, and choose **Apply layout**. Painting or choosing a preset automatically enables the layout. Follow the [scene layout guide](#scene-layout) for separate wide and narrow masks, previews, and fit checks.
 
-Each visit opens with the saved starter set selected. The app reuses one local copy without duplicating it or removing your other sets and settings. Deleting the starter set restores it from GitHub on the next visit. If GitHub is unavailable on the first visit, use **Retry starter set** or choose another source. If browser storage is unavailable, the downloaded starter still works for that visit.
+Normal visits open with the saved starter set selected. Immediately after importing a configuration, the imported source is selected instead. The app reuses one local starter copy without duplicating it or removing your other sets and settings. Deleting the starter set restores it from GitHub on the next normal visit. If GitHub is unavailable on the first visit, use **Retry starter set** or choose another source. If browser storage is unavailable, the downloaded starter still works for that visit.
 
 ## Features
 
@@ -203,6 +204,16 @@ Layout is off until configured. Editing or copying a mask enables the draft; **A
 
 Scene layouts are stored with your local settings, independently of GIF banks. Bank JSON imports and exports do not include scene masks. No server or extra build step is needed.
 
+## Configuration backup
+
+Open **Settings → Configuration backup → Export configuration** to download one dated file, such as `2026-11-14-gifbit-configuration.json`. It contains all app settings, including microphone sensitivity, frequency band, tempo and lead, playback mode and order, colors and automatic color changes, both scene masks, the background image, saved sets with their names and descriptions, excluded animation IDs, favorite banks, and the selected source. A saved GIPHY key is included as plain text. Use bank exports when contributing public GIF collections.
+
+Choose **Import configuration** and select the file to replace the current settings and saved sets. Export first if you want to keep the current setup. After validation and a successful save, the app reloads with the imported source selected and waits for you to start playback. Later normal visits continue to select the starter set; the other restored settings, sets and favorites remain saved.
+
+Invalid JSON, unsupported versions, broken set references and invalid animation links are rejected before storage changes. If browser storage is full or unavailable, the import reports an error and rolls back completed writes. Configuration imports preserve valid scene masks even when they cannot fit the current window; the existing scene fit check explains what needs adjusting before playback.
+
+The format uses `gifbit: "configuration"` and `version: 1`, with `settings`, `sets`, `excluded` and `favorites` fields. Saved sets retain their IDs so the selected set can be restored. Background images are embedded; GIF animations remain HTTPS links and load from their original hosts. Bank names and descriptions cached from GitHub are refreshed separately. Configuration transfer works in the hosted app and the single HTML version.
+
 ## Quick start
 
 Use the [hosted app](https://peterporzuczek.github.io/gifbit/) directly in your browser, with no installation.
@@ -299,8 +310,8 @@ Application code in **`src/`** is organized by feature. Only `index.html` and `a
 | `src/banks/` | GitHub API (`api.js`), bank parsing (`format.js`), default starter set and loading recovery (`starter.js`), browsing panel, favorites, and import (`panel.js`) |
 | `src/stage/` | Animation playback and layout (`playback.js`), colors (`colors.js`), shortcuts and buttons (`controls.js`), full screen and wake lock (`browser.js`), starting a show and returning to Settings (`session.js`) |
 | `src/scene/` | Mask validation and placement geometry (`geometry.js`), viewport changes and playback validation (`layout.js`), scene editor and preview (`panel.js`) |
-| `src/settings/` | Settings form (`form.js`), defaults and validation (`schema.js`) |
-| `src/core/` | Shared state and settings persistence (`state.js`), interface element access (`dom.js`), resource loading (`resources.js`) |
+| `src/settings/` | Settings form (`form.js`), defaults and validation (`schema.js`), configuration import/export UI (`backup.js`), backup format and storage recovery (`configuration.js`) |
+| `src/core/` | Shared state and settings persistence (`state.js`), interface element access (`dom.js`), resource loading (`resources.js`), JSON downloads (`files.js`) |
 | `src/assets/` | `style.css` and `favicon.svg`; no local font files |
 | `gif-banks/` | JSON banks contributed through PRs; reserved `sample.json` starts the app with 330 animations, and `2026-11-05-hh3.json` contains the original 255 examples |
 | `scripts/serve.mjs` | Dependency-free source or `dist/` preview |
@@ -337,8 +348,10 @@ Browser tests first build the app, then check it under the `/gifbit/` prefix in 
 
 Scene tests cover toggling and unblocking cells, consistent drag strokes, undo, profile copying, responsive previews, persistence, and invalid-layout recovery while editing. Geometry tests check placement against blocked cells at maximum bounce across viewport sizes and animation aspect ratios. Browser checks also exercise single-animation mode, reduced motion, and resizing a running scene into an incompatible layout and back.
 
+Configuration tests cover a complete export and restore, embedded backgrounds, both scene layouts, saved set identities, exclusions and favorite banks. They also check invalid files, unsupported versions, storage rollback and importing while the starter bank is still loading.
+
 ## Data and assets
 
-Settings, both scene masks, the API key, saved sets, and excluded animations are stored in this browser's `localStorage` (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Favorite banks use `gifbit.banks.favorites`, and cached names and descriptions use `gifbit.banks.metadata`. Older set formats remain compatible. The GIPHY key is not encrypted. A different app address, browser, or cleared site data means a separate storage area; export your sets to JSON beforehand if you want to keep them. Exported sets preserve animation collections, not scene masks or other app settings.
+Settings, both scene masks, the API key, saved sets, and excluded animations are stored in this browser's `localStorage` (`gifbit.v1`, `gifbit.sets`, `gifbit.excluded`). Favorite banks use `gifbit.banks.favorites`, and cached names and descriptions use `gifbit.banks.metadata`. A temporary `gifbit.restore` marker keeps the imported source selected during the reload after a configuration import, then is removed. Older set formats remain compatible. The GIPHY key is not encrypted. A different app address, browser, or cleared site data means a separate storage area; use [Export configuration](#configuration-backup) to move the complete setup, or a bank export to share an animation collection.
 
 Animations are fetched directly from GIPHY and belong to their creators. Availability depends on the original image links. The interface loads Bricolage Grotesque, Figtree, and JetBrains Mono from Google Fonts, with system fallbacks while loading or offline. Font files are not stored in the repository or build output. Original screenshots are hosted on Imgur; the SVG frames are used only for README presentation.

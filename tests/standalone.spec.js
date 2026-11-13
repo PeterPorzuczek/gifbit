@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mkdtemp, copyFile, rm, rmdir } from 'node:fs/promises';
+import { mkdtemp, copyFile, rm, rmdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -33,6 +33,20 @@ test('copied HTML runs alone from disk with remote banks and an embedded audio w
     await page.locator('#b-curate').click();
     await expect(page.locator('#in-count')).toHaveText('330');
     await page.locator('#cur-done').click();
+    const downloading = page.waitForEvent('download');
+    await page.locator('#config-export').click();
+    const download = await downloading;
+    const configuration = JSON.parse(await readFile(await download.path(), 'utf8'));
+    configuration.settings.max = 8;
+    const reloaded = page.waitForEvent('domcontentloaded');
+    await page.locator('#config-file').setInputFiles({
+      name: 'configuration.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(configuration)),
+    });
+    await reloaded;
+    await expect(page.locator('#config-status')).toContainText('Configuration imported');
+    await expect(page.locator('#max')).toHaveValue('8');
     await page.evaluate(() => {
       window.workletNodes = 0;
       const NativeNode = window.AudioWorkletNode;

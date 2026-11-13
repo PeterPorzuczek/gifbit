@@ -1,6 +1,7 @@
 import { packItem, exportObj, exportFilename, filenameName, setsFromJson } from './format.js';
 import { $ } from '../core/dom.js';
 import { settings, saveSettings } from '../core/state.js';
+import { downloadJson } from '../core/files.js';
 export function createSets(app) {
   const SETS = 'gifbit.sets';
   const starterId = 'starter-sample';
@@ -140,19 +141,6 @@ export function createSets(app) {
         : `Saved set “${set.name}”: ${data.length} ${plural(data.length)}. Pick it in Settings under “Saved set”.`,
       5000,
     );
-  }
-
-  function download(filename, obj) {
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' }),
-    );
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
   }
 
   async function importFiles(files) {
@@ -307,7 +295,7 @@ export function createSets(app) {
         }
         renderSets();
       } else value = { gifbit: 1, name, description, updated, sets: sets.map(exportObj) };
-      download(exportFilename(name), value);
+      downloadJson(exportFilename(name), value);
       $('#bank-export').close();
     });
   }

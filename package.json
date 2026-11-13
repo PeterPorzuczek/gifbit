@@ -8,7 +8,7 @@
     "start": "npm run build && node scripts/serve.mjs",
     "dev": "node scripts/serve.mjs --source",
     "preview": "node scripts/serve.mjs",
-    "test": "npm run check:banks && node --test tests/audio.test.js tests/data.test.js tests/build.test.js tests/banks.test.js tests/scene.test.js",
+    "test": "npm run check:banks && node --test tests/audio.test.js tests/data.test.js tests/build.test.js tests/banks.test.js tests/scene.test.js tests/configuration.test.js",
     "check:banks": "node scripts/check-banks.mjs",
     "test:browser": "npm run build:single && playwright test --config tests/playwright.config.js",
     "build": "node scripts/build.mjs",

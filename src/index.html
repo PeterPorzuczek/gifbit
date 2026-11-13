@@ -522,6 +522,24 @@
           </div>
         </div>
 
+        <div class="group">
+          <h2>Configuration backup</h2>
+          <p class="hint">
+            One file with all settings, both scene layouts, your background image, saved sets,
+            excluded animations and favorite banks. Includes your GIPHY key if one is saved.
+          </p>
+          <div class="actions">
+            <button type="button" class="btn" id="config-export">Export configuration</button>
+            <button type="button" class="btn" id="config-import">Import configuration</button>
+            <input type="file" id="config-file" accept=".json,application/json" hidden />
+          </div>
+          <p class="hint">
+            Import replaces your current settings and saved sets, then reloads the app with the
+            imported source selected. Export first to keep your current configuration.
+          </p>
+          <p class="hint" id="config-status" role="status" aria-live="polite"></p>
+        </div>
+
         <p class="err" id="err" role="alert" hidden></p>
         <div class="actions">
           <button type="submit" class="primary" id="go">Start</button>

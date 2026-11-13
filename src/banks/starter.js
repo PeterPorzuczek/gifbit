@@ -4,7 +4,8 @@ import { readStarterBank } from './api.js';
 
 export function createStarter(app) {
   let loading = false,
-    choice = 0;
+    choice = 0,
+    requestId = 0;
   const locked = new Set();
   function refresh() {
     const waiting = loading && settings.source === 'set' && !app.sets.findSet(settings.setId);
@@ -30,6 +31,7 @@ export function createStarter(app) {
   }
   async function load() {
     if (loading) return;
+    const request = ++requestId;
     loading = true;
     $('#starter-retry').hidden = true;
     const original = { source: settings.source, setId: settings.setId, choice };
@@ -37,9 +39,9 @@ export function createStarter(app) {
     refresh();
     status(cached ? 'Preparing your starter set…' : 'Loading your starter set…');
     try {
-      const { set, saved } = cached
-        ? { set: cached, saved: true }
-        : app.sets.addStarter(await readStarterBank());
+      const bank = cached ? null : await readStarterBank();
+      if (request !== requestId) return;
+      const { set, saved } = cached ? { set: cached, saved: true } : app.sets.addStarter(bank);
       if (
         choice === original.choice &&
         settings.source === original.source &&
@@ -54,14 +56,17 @@ export function createStarter(app) {
           : `Starter set “${set.name}” is ready for this visit, but browser storage could not save it.`,
       );
     } catch (error) {
+      if (request !== requestId) return;
       status(
         `Could not load the starter set. ${error.message} Choose another source or retry.`,
         true,
       );
       $('#starter-retry').hidden = false;
     } finally {
-      loading = false;
-      refresh();
+      if (request === requestId) {
+        loading = false;
+        refresh();
+      }
     }
   }
   function init() {
@@ -70,7 +75,21 @@ export function createStarter(app) {
       refresh();
     });
     $('#starter-retry').addEventListener('click', load);
+    if (app.backup.restored) {
+      status('Your imported configuration is selected. The starter set is available in GIF banks.');
+      if (settings.source === 'set' && app.sets.findSet(settings.setId))
+        app.library.loadItems().catch((error) => app.session.showErr(app.library.errText(error)));
+      return;
+    }
     load();
   }
-  return { init, refresh };
+  return {
+    init,
+    refresh,
+    cancel: () => {
+      requestId++;
+      loading = false;
+      refresh();
+    },
+  };
 }

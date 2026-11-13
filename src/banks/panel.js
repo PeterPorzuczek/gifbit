@@ -274,5 +274,10 @@ export function createBanks(app) {
     }
     $('#bank-import').addEventListener('click', importSelected);
   }
-  return { init };
+  return {
+    init,
+    get favorites() {
+      return [...favorites];
+    },
+  };
 }
