@@ -20,7 +20,8 @@ export function createScenePanel(app) {
     cells = [],
     gridKey = '',
     activeItems = [],
-    sample = null;
+    sample = null,
+    disableRequested = false;
   let stroke = null,
     timer,
     latest = null,
@@ -32,12 +33,19 @@ export function createScenePanel(app) {
   ];
   const clone = () => normalizeScene(draft);
   const remember = () => {
-    history.push(clone());
+    history.push({ scene: clone(), disableRequested });
     if (history.length > 40) history.shift();
   };
   const reference = (name) => (name === 'wide' ? [1600, 900] : [900, 1600]);
   const otherProfile = () => (profile === 'wide' ? 'narrow' : 'wide');
   const nameOf = (name) => (name === 'wide' ? 'Wide' : 'Narrow');
+  const willEnable = () =>
+    draft.enabled ||
+    (!disableRequested && (draft.wide.cells.includes('1') || draft.narrow.cells.includes('1')));
+  function activate() {
+    draft.enabled = true;
+    disableRequested = false;
+  }
 
   function getItems() {
     if (settings.source === 'set')
@@ -178,12 +186,20 @@ export function createScenePanel(app) {
     );
     $('#scene-other-status').textContent = `${nameOf(otherProfile())}: ${assessmentMessage(other)}`;
     const active = nameOf(profileFor(stage.clientWidth, stage.clientHeight));
-    $('#scene-apply-hint').textContent = !draft.enabled
-      ? 'Layout is off. Apply to save these masks for later.'
+    const enabled = willEnable();
+    $('#scene-apply-hint').textContent = !enabled
+      ? 'Layout will be off. Saved masks will not restrict the stage.'
       : invalid
         ? `Fix the layout before applying. Current window (${active.toLowerCase()}): ${assessmentMessage(actual)}`
-        : `Current window uses ${active.toLowerCase()}. Both reference layouts and the current window have been checked.`;
-    $('#scene-apply').disabled = draft.enabled && invalid;
+        : !draft.enabled
+          ? `Your saved mask is off. Enable and apply it to restrict the stage. Current window uses ${active.toLowerCase()}.`
+          : `Apply to use this layout on the stage. Current window uses ${active.toLowerCase()}. Both reference layouts and the current window have been checked.`;
+    $('#scene-apply').textContent = enabled
+      ? draft.enabled
+        ? 'Apply layout'
+        : 'Enable and apply layout'
+      : 'Save with layout off';
+    $('#scene-apply').disabled = enabled && invalid;
     const board = $('#scene-board');
     board.style.aspectRatio = `${dimensions[0]} / ${dimensions[1]}`;
     board.style.setProperty('--scene-aspect', dimensions[0] / dimensions[1]);
@@ -250,6 +266,7 @@ export function createScenePanel(app) {
   function changeMask(next) {
     remember();
     draft[profile] = next;
+    activate();
     render();
   }
   function focusCell(index) {
@@ -282,8 +299,9 @@ export function createScenePanel(app) {
       values[y * cols + x] = brush;
     }
     draft[profile].cells = values.join('');
+    activate();
     cells.forEach((_, i) => paintCell(i));
-    $('#scene-undo').disabled = false;
+    controls();
   }
   function finishStroke(event) {
     if (!stroke || event.pointerId !== stroke.id) return;
@@ -293,6 +311,7 @@ export function createScenePanel(app) {
   }
   function open() {
     draft = normalizeScene(settings.scene);
+    disableRequested = false;
     profile = profileFor(stage.clientWidth, stage.clientHeight);
     history = [];
     gridKey = '';
@@ -343,18 +362,22 @@ export function createScenePanel(app) {
       remember();
       const other = otherProfile();
       draft[other] = resampleMask(draft[profile], profile, other, draft[other].resolution);
+      activate();
       profile = other;
       render();
     });
     $('#scene-undo').addEventListener('click', () => {
       if (history.length) {
-        draft = history.pop();
+        const previous = history.pop();
+        draft = previous.scene;
+        disableRequested = previous.disableRequested;
         render();
       }
     });
     $('#scene-enabled').addEventListener('change', (event) => {
       remember();
       draft.enabled = event.target.checked;
+      disableRequested = !draft.enabled;
       render();
     });
     for (const [id, key] of [
@@ -439,8 +462,9 @@ export function createScenePanel(app) {
     });
     $('#scene-apply').addEventListener('click', () => {
       render();
-      if (draft.enabled && latest.invalid) return;
-      settings.scene = normalizeScene(draft);
+      const enabled = willEnable();
+      if (enabled && latest.invalid) return;
+      settings.scene = normalizeScene({ ...draft, enabled });
       const saved = saveSettings();
       app.scene.refresh();
       if (!app.scene.blocked) app.session.hideErr();

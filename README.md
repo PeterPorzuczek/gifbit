@@ -83,7 +83,7 @@ After [starting the app](#quick-start), follow these four steps:
 
 To try another collection, click **Browse GIF banks**, open a bank, and use **Import animations**. Import the whole bank or choose individual GIFs. You can also use **Saved set → Import from file**.
 
-To leave part of the screen clear, open **Settings → Configure scene**, turn on **Use scene layout**, and paint the cells to keep free of GIFs. Follow the [scene layout guide](#scene-layout) for separate wide and narrow masks, previews, and fit checks.
+To leave part of the screen clear, open **Settings → Configure scene**, paint the cells to keep free of GIFs, and choose **Apply layout**. Painting or choosing a preset automatically enables the layout. Follow the [scene layout guide](#scene-layout) for separate wide and narrow masks, previews, and fit checks.
 
 Each visit opens with the saved starter set selected. The app reuses one local copy without duplicating it or removing your other sets and settings. Deleting the starter set restores it from GitHub on the next visit. If GitHub is unavailable on the first visit, use **Retry starter set** or choose another source. If browser storage is unavailable, the downloaded starter still works for that visit.
 
@@ -179,8 +179,8 @@ Reserve parts of the screen with painted masks, separate wide and narrow layouts
 
 Reserve parts of the screen for your background, artwork, or a clear center. For example, keep a triangle in the middle free of GIFs while animations appear around it:
 
-1. Open **Settings → Configure scene**, or **Scene** during a show, and enable **Use scene layout**.
-2. Choose **Wide** and the **Center triangle** preset. Use **Block** or **Restore** to adjust the mask by dragging across cells. Keyboard users can move with the arrow keys and paint with Space or Enter.
+1. Open **Settings → Configure scene**, or **Scene** during a show.
+2. Choose **Wide** and the **Center triangle** preset. Painting or selecting a preset turns on **Use scene layout** automatically. Use **Block** or **Restore** to adjust the mask by dragging across cells. Keyboard users can move with the arrow keys and paint with Space or Enter.
 3. Check **Narrow**, or use **Copy to narrow layout** as a starting point. Choose **Current window** to preview the profile that will actually play at your current window size.
 4. Use **Shuffle preview** and **Test beat**, check the fit messages, and select **Apply layout**. Cancel or Escape discards the draft.
 
@@ -199,7 +199,9 @@ Masks stretch with the viewport, so reference squares can become rectangles. Cha
 
 Both reference layouts and the current viewport are checked before applying an enabled layout. If any selected animation cannot fit, lower the minimum height or restore cells; animations are never silently skipped. An incompatible saved layout prevents starting. If resizing or changing settings makes a running layout impossible, animations pause and a persistent message offers **Edit scene layout**. Restoring a valid configuration resumes placement on subsequent beats. Existing animations are repositioned after layout or viewport changes. In **One at a time**, a single large animation fits into an allowed region. GIFs may still overlap each other.
 
-Layout is off by default and stored with your local settings, independently of GIF banks. Bank JSON imports and exports do not include scene masks. Turning the layout off preserves both masks and restores unrestricted placement. No server or extra build step is needed.
+Layout is off until configured. Editing or copying a mask enables the draft; **Apply layout** activates it on the stage, including repositioning animations already playing. Cancel or Escape keeps playback unchanged. If a mask was saved while disabled, reopen the panel and use **Enable and apply layout** without redrawing it. To deliberately disable a mask, uncheck **Use scene layout** and select **Save with layout off**. Both masks are preserved.
+
+Scene layouts are stored with your local settings, independently of GIF banks. Bank JSON imports and exports do not include scene masks. No server or extra build step is needed.
 
 ## Quick start
 

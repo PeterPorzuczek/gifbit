@@ -84,6 +84,92 @@ async function expectClearMask(page) {
     .toBe(0);
 }
 
+async function expectRenderedMaskClear(page) {
+  await expect(page.locator('#layer .g').first()).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const scene = JSON.parse(localStorage.getItem('gifbit.v1')).scene;
+        if (!scene.enabled) return -1;
+        const stage = document.querySelector('#stage').getBoundingClientRect();
+        const wide = stage.width >= stage.height;
+        const mask = scene[wide ? 'wide' : 'narrow'];
+        const cols = (wide ? 16 : 9) * mask.resolution;
+        const rows = (wide ? 9 : 16) * mask.resolution;
+        let overlaps = 0;
+        for (const node of document.querySelectorAll('#layer .g')) {
+          const bounds = node.getBoundingClientRect();
+          for (let y = 0; y < rows; y++)
+            for (let x = 0; x < cols; x++) {
+              if (mask.cells[y * cols + x] !== '1') continue;
+              const width =
+                Math.min(bounds.right, stage.left + ((x + 1) * stage.width) / cols) -
+                Math.max(bounds.left, stage.left + (x * stage.width) / cols);
+              const height =
+                Math.min(bounds.bottom, stage.top + ((y + 1) * stage.height) / rows) -
+                Math.max(bounds.top, stage.top + (y * stage.height) / rows);
+              if (width > 0.1 && height > 0.1) overlaps++;
+            }
+        }
+        return overlaps;
+      }),
+    )
+    .toBe(0);
+}
+
+test('mask edits activate placement without an extra switch and immediately affect the running scene', async ({
+  page,
+}) => {
+  await start(page);
+  await page.keyboard.press('s');
+  await page.locator('#scene-open').click();
+  await expect(page.locator('#scene-enabled')).not.toBeChecked();
+  await page.locator('#scene-preset').selectOption('triangle');
+  await expect(page.locator('#scene-enabled')).toBeChecked();
+  await setRange(page, '#scene-overlap', 0);
+  await setRange(page, '#scene-min', 6);
+  await page.locator('#scene-apply').click();
+  await page.keyboard.press('Escape');
+  await expectRenderedMaskClear(page);
+  for (let i = 0; i < 12; i++) {
+    await page.keyboard.press('Space');
+    await expectRenderedMaskClear(page);
+  }
+  await page.keyboard.press('s');
+  await page.locator('#scene-open').click();
+  await page.locator('#scene-enabled').uncheck();
+  await expect(page.locator('#scene-apply')).toHaveText('Save with layout off');
+  await page.locator('#scene-apply').click();
+  await expect(page.locator('#scene-summary')).toContainText('Off');
+  await page.locator('#scene-open').click();
+  await expect(page.locator('#scene-apply')).toHaveText('Enable and apply layout');
+  await page.locator('#scene-apply').click();
+  await expect(page.locator('#scene-summary')).toContainText('On');
+  await page.keyboard.press('Escape');
+  await expectRenderedMaskClear(page);
+});
+
+test('painting with a pointer or keyboard activates the draft and cancel leaves playback unchanged', async ({
+  page,
+}) => {
+  await page.locator('#scene-open').click();
+  await page.locator('#scene-grid [role="gridcell"]').nth(60).click();
+  await expect(page.locator('#scene-enabled')).toBeChecked();
+  await page.locator('#scene-cancel').click();
+  await expect(page.locator('#scene-summary')).toContainText('Off');
+  await page.locator('#scene-open').click();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(0);
+  await page.locator('#scene-grid [role="gridcell"]').nth(60).focus();
+  await page.keyboard.press('Space');
+  await expect(page.locator('#scene-enabled')).toBeChecked();
+  await page.locator('#scene-apply').click();
+  await expect(page.locator('#scene-summary')).toContainText('On');
+  await page.reload();
+  await page.locator('#scene-open').click();
+  await expect(page.locator('#scene-enabled')).toBeChecked();
+  await expect(page.locator('#scene-grid .blocked')).toHaveCount(1);
+});
+
 test('scene editor paints, undoes, validates both masks, cancels and persists', async ({
   page,
 }) => {
